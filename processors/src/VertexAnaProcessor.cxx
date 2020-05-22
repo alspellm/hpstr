@@ -33,6 +33,7 @@ void VertexAnaProcessor::configure(const ParameterSet& parameters) {
 
         //region definitions
         regionSelections_ = parameters.getVString("regionDefinitions",regionSelections_);
+        std::cout << "anaName: " << anaName_ << std::endl;
 
 
     }
@@ -54,6 +55,7 @@ void VertexAnaProcessor::initialize(TTree* tree) {
     _vtx_histos->loadHistoConfig(histoCfg_);
     _vtx_histos->DefineHistos();
 
+    std::cout << "initialize anaNme: " << anaName_ << std::endl;
 
     //For each region initialize plots
 
@@ -647,6 +649,7 @@ void VertexAnaProcessor::finalize() {
 
     //TODO clean this up a little.
     outF_->cd();
+    std::cout << "vtx_histos->getName: " << _vtx_histos->getName() << std::endl;
     _vtx_histos->saveHistos(outF_,_vtx_histos->getName());
     outF_->cd(_vtx_histos->getName().c_str());
     vtxSelector->getCutFlowHisto()->Write();

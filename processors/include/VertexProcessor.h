@@ -83,7 +83,7 @@ class VertexProcessor : public Processor {
         std::string trkRelCollLcio_{"TrackDataRelations"};
 
         //Debug Level
-        int debug_{0};
+        int debug_{1};
 
 }; // VertexProcessor
 
