@@ -2,6 +2,8 @@ import HpstrConf
 import os
 import baseConfig as base
 
+
+base.parser.add_argument('--runNumber', '-r', dest="runNumber", help="Provide run number.", default="")
 options = base.parser.parse_args()
 
 # Use the input file to set the output file name
@@ -31,10 +33,10 @@ svtblana = HpstrConf.Processor('svtblana', 'SvtBl2DAnaProcessor')
 #   Processor Configuration   #
 ###############################
 #SvtBl2D
-svtblana.parameters["debug"] = 1
+svtblana.parameters["debug"] = 0
 svtblana.parameters["removeBaseline"] = 0
 svtblana.parameters["baselineFits"] = "filename"
-svtblana.parameters["runNumber"] = 135
+svtblana.parameters["runNumber"] = options.runNumber
 svtblana.parameters["rawSvtHitsColl"] = "SVTRawTrackerHits"
 svtblana.parameters["histCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/svt/Svt2DBl.json'
 

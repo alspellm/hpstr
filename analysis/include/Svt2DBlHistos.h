@@ -21,6 +21,7 @@ class Svt2DBlHistos : public HistoManager{
         Svt2DBlHistos(const std::string& inputName);
         ~Svt2DBlHistos();
 
+        //dont think these are ever used
         virtual void Define3DHistos(){};
         virtual void Define2DHistos(){};
         virtual void Define1DHistos(){};

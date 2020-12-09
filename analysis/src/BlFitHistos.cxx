@@ -25,7 +25,7 @@ void BlFitHistos::Chi2GausFit( HistoManager* inputHistos_, int nPointsDer_,int r
     for (std::vector<std::string>::iterator jj = inputHistos_->histos2dNamesfromTFile.begin();
             jj != inputHistos_->histos2dNamesfromTFile.end(); ++jj)
     {
-        //Get 2D Histograms from input ROOT File using keys, and rebin based on configuration setting
+        //Get 2D Histograms from input ROOT File using keys, and rebin based on configuration setting "rebin"
         TH2F* histo_hh = inputHistos_->get2dHisto(*jj);
         histo_hh->RebinY(rebin_);
         histo_hh->Write();

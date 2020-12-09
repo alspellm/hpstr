@@ -3,7 +3,7 @@
 #include "TCanvas.h"
 
 Svt2DBlHistos::Svt2DBlHistos(const std::string& inputName) {
-    m_name = inputName;
+    m_name = inputName;//dont think this does anything...
     mmapper_ = new ModuleMapper();
 }
 
@@ -24,16 +24,14 @@ void Svt2DBlHistos::get2DHistoOccupancy(std::vector<std::string> histos2dNames) 
 
 void Svt2DBlHistos::FillHistograms(std::vector<RawSvtHit*> *rawSvtHits_,float weight) {
 
-    //std::cout << "[Svt2DBlHistos] FillHistograms" << std::endl;
     int nhits = rawSvtHits_->size();
     std::vector<std::string> hybridStrings={};
     std::string histokey;
     if(Event_number%1000 == 0) std::cout << "Event: " << Event_number 
         << " Number of RawSvtHits: " << nhits << std::endl;
-    //std::cout << "Event: " << Event_number 
 
-    //Following Block counts the total number of hits each hybrid records per event
-    int svtHybMulti[4][15] = {0};
+    //Count the total number of hits each hybrid records per event
+    int svtHybMulti[4][15] = {0};//build matrix that holds the different layer and moduel combinations
     for (int i = 0; i < nhits; i++)
     {
         RawSvtHit* rawSvtHit = rawSvtHits_->at(i);
