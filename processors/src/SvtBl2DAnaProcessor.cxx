@@ -27,13 +27,8 @@ void SvtBl2DAnaProcessor::configure(const ParameterSet& parameters) {
 
 void SvtBl2DAnaProcessor::initialize(TTree* tree) {
     std::cout << "[SvtBl2DAnaProcessor] Initializing" << std::endl;
-    svtCondHistos = new Svt2DBlHistos("raw_hits");
-    std::cout << "[SvtBl2DAnaProcessor] Load JSON" << std::endl;
-    svtCondHistos->loadHistoConfig(histCfgFilename_);
-    if (debug_ > 0) std::cout << "[SvtBl2DAnaProcessor] Define 2DHistos" << std::endl;
-    svtCondHistos->DefineHistos();
-    if (debug_ > 0) std::cout << "[SvtBl2DAnaProcessor] Defined 2DHistos" << std::endl;
-
+    svtCondHistos_ = new Svt2DBlHistos("raw_hits",histCfgFilename_);
+    svtCondHistos_->buildHistos();
     tree_ = tree;
     tree_->SetBranchAddress(rawSvtHitsColl_.c_str(), &rawSvtHits_, &brawSvtHits_);
     if (debug_ > 0) std::cout << "[SvtBl2DAnaProcessor] TTree Initialized" << std::endl;
@@ -42,7 +37,7 @@ void SvtBl2DAnaProcessor::initialize(TTree* tree) {
 
 bool SvtBl2DAnaProcessor::process(IEvent* ievent) {
     
-    svtCondHistos->FillHistograms(rawSvtHits_,1.);
+    //svtCondHistos_->FillHistograms(rawSvtHits_,1.);
 
     return true;
 }
@@ -50,14 +45,14 @@ bool SvtBl2DAnaProcessor::process(IEvent* ievent) {
 void SvtBl2DAnaProcessor::finalize() {
     std::cout << "[SvtBl2DAnaProcessor] Finalizing" << std::endl;
 
-   /* for(std::vector<std::string>::iterator it = svtCondHistos->histos2dNamesfromJson.begin(); it != svtCondHistos->histos2dNamesfromJson.end(); ++it) {
+   /* for(std::vector<std::string>::iterator it = svtCondHistos_->histos2dNamesfromJson.begin(); it != svtCondHistos_->histos2dNamesfromJson.end(); ++it) {
         std::cout << *it << std::endl;
     }
-    svtCondHistos->get2DHistoOccupancy(svtCondHistos->histos2dNamesfromJson);
-    std::cout << "svtCondHistos get2dHistoOccupancy" << std::endl;*/
-    svtCondHistos->saveHistos(outF_,"");
-    delete svtCondHistos;
-    svtCondHistos = nullptr;
+    svtCondHistos_->get2DHistoOccupancy(svtCondHistos_->histos2dNamesfromJson);
+    std::cout << "svtCondHistos_ get2dHistoOccupancy" << std::endl;*/
+    //svtCondHistos_->saveHistos(outF_,"");
+    //delete svtCondHistos_;
+    //svtCondHistos_ = nullptr;
 }
 
 DECLARE_PROCESSOR(SvtBl2DAnaProcessor);

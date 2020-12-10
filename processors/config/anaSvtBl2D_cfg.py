@@ -3,7 +3,7 @@ import os
 import baseConfig as base
 
 
-base.parser.add_argument('--runNumber', '-r', dest="runNumber", help="Provide run number.", default="")
+base.parser.add_argument('--runNumber', '-r',type=int, dest="runNumber", help="Provide run number.", default="0")
 options = base.parser.parse_args()
 
 # Use the input file to set the output file name

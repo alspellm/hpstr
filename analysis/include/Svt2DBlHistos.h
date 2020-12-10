@@ -18,15 +18,16 @@
 class Svt2DBlHistos : public HistoManager{
 
     public:
-        Svt2DBlHistos(const std::string& inputName);
+        Svt2DBlHistos(const std::string& inputName, const std::string histoConfigFile);
         ~Svt2DBlHistos();
-
+        void defineHybridHistos(std::vector<std::string> hybridNames, int histoDimension);
         //dont think these are ever used
         virtual void Define3DHistos(){};
         virtual void Define2DHistos(){};
         virtual void Define1DHistos(){};
 
 
+        void buildHistos();
         void FillHistograms(std::vector<RawSvtHit*> *rawSvtHits_,float weight = 1.);
         void get2DHistoOccupancy(std::vector<std::string> histos2dNames);
         void setBaselineFitsDir(const std::string& baselineFits) {baselineFits_ = baselineFits;};
@@ -44,6 +45,13 @@ class Svt2DBlHistos : public HistoManager{
         std::string baselineRun_{""};
 
         std::map<std::string, TGraphErrors*> baselineGraphs;
+
+        //Analysis tag for histos. Example: "RawHits"
+        std::string m_name_;
+        //Initialize ModuleMapper to access hybrid names
+        ModuleMapper* mmapper_{nullptr};
+        //Json Histo Config File
+        std::string h_configs_;
 
 };
 

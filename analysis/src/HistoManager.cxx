@@ -7,13 +7,11 @@
 #include <vector>
 
 HistoManager::HistoManager() {
-    mmapper_ = new ModuleMapper();
     m_name = "default";
 }
 
 HistoManager::HistoManager(const std::string& inputName) {
     m_name = inputName;
-    mmapper_ = new ModuleMapper();
 }
 
 void HistoManager::Clear() {
@@ -47,20 +45,19 @@ void HistoManager::Clear() {
 
 }
 
-HistoManager::~HistoManager() { delete mmapper_;}
+HistoManager::~HistoManager() {}
 
 void HistoManager::DefineHistos(){
     if (debug_ > 0) std::cout << "[HistoManager] DefineHistos" << std::endl;
     std::string h_name = "";
     std::vector<std::string> hybNames;
-    mmapper_->getStrings(hybNames);
-    std::cout << "mmapper defined" << std::endl;
     if (debug_ > 0) std::cout << "[HistoManager] hybrids names retrieved" << std::endl;
     for (auto hist : _h_configs.items()) {
 
 
         //Get the extension of the name to decide the histogram to create
         //i.e. _h = TH1D, _hh = TH2D, _ge = TGraphErrors, _p = TProfile ...
+        /*
         if (std::string(hist.key()).find("SvtHybrids") != std::string::npos) {
             if (debug_ > 0) std::cout << "[HistoManager] Hyb size" <<  hybNames.size() << std::endl;
             for(std::vector<std::string>::iterator it = hybNames.begin(); it != hybNames.end(); ++it) {
@@ -94,43 +91,44 @@ void HistoManager::DefineHistos(){
                 }  
             }
         }
-        else 
-        {
-            h_name = m_name+"_"+hist.key();
-            std::size_t found = (hist.key()).find_last_of("_");
-            std::string extension = hist.key().substr(found+1);
+        */
+        h_name = m_name+"_"+hist.key();
+        std::cout << "h_name: " << h_name << std::endl;
+        std::cout << "histkey: " << hist.key() << std::endl;
+        std::size_t found = (hist.key()).find_last_of("_");
+        std::string extension = hist.key().substr(found+1);
 
-            if (extension == "h") {
-                histos1d[h_name] = plot1D(h_name,hist.value().at("xtitle"),
-                        hist.value().at("bins"),
-                        hist.value().at("minX"),
-                        hist.value().at("maxX"));
+        if (extension == "h") {
+            histos1d[h_name] = plot1D(h_name,hist.value().at("xtitle"),
+                    hist.value().at("bins"),
+                    hist.value().at("minX"),
+                    hist.value().at("maxX"));
 
-                std::string ytitle = hist.value().at("ytitle");
+            std::string ytitle = hist.value().at("ytitle");
 
-                histos1d[h_name]->GetYaxis()->SetTitle(ytitle.c_str());
+            histos1d[h_name]->GetYaxis()->SetTitle(ytitle.c_str());
 
-                if (hist.value().contains("labels")) {
-                    std::vector<std::string> labels = hist.value().at("labels").get<std::vector<std::string> >();
+            if (hist.value().contains("labels")) {
+                std::vector<std::string> labels = hist.value().at("labels").get<std::vector<std::string> >();
 
-                    if (labels.size() < hist.value().at("bins")) {
-                        std::cout<<"Cannot apply labels to histogram:"<<h_name<<std::endl;
-                    }
-                    else {
-                        for (int i = 1; i<=hist.value().at("bins");++i)
-                            histos1d[h_name]->GetXaxis()->SetBinLabel(i,labels[i-1].c_str());
-                    }//bins
-                }//labels
-            }//1D histo
+                if (labels.size() < hist.value().at("bins")) {
+                    std::cout<<"Cannot apply labels to histogram:"<<h_name<<std::endl;
+                }
+                else {
+                    for (int i = 1; i<=hist.value().at("bins");++i)
+                        histos1d[h_name]->GetXaxis()->SetBinLabel(i,labels[i-1].c_str());
+                }//bins
+            }//labels
+        }//1D histo
 
-            else if (extension == "hh") {
-                histos2d[h_name] = plot2D(h_name,
-                        hist.value().at("xtitle"),hist.value().at("binsX"),hist.value().at("minX"),hist.value().at("maxX"),
-                        hist.value().at("ytitle"),hist.value().at("binsY"),hist.value().at("minY"),hist.value().at("maxY"));
-            }
+        else if (extension == "hh") {
+            histos2d[h_name] = plot2D(h_name,
+                    hist.value().at("xtitle"),hist.value().at("binsX"),hist.value().at("minX"),hist.value().at("maxX"),
+                    hist.value().at("ytitle"),hist.value().at("binsY"),hist.value().at("minY"),hist.value().at("maxY"));
+        }
 
 
-        }//loop on config
+        //loop on config
     }
 }
 
@@ -337,7 +335,6 @@ void HistoManager::Fill1DHisto(const std::string& histoName,float value, float w
 
 
 void HistoManager::loadHistoConfig(const std::string histoConfigFile) {
-
     std::ifstream i_file(histoConfigFile);
     i_file >> _h_configs;
     if (debug_) {
