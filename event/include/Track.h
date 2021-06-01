@@ -108,6 +108,27 @@ class Track : public TObject {
         double getNdf() const {return ndf_;}
 
         /**
+         *  Set the TrackTruthInfo values if Track is truth matched to MCP
+         *  @param goodhits Vector entry represents tracking layer. 
+         *      1 means matched MCP left hit on layer. 
+         *      -1 means other MCP left hit on layer.
+         *      0 means no hit on layer.
+         *  @param nmcps Vector Each vector entry represents the number of mcps
+         *      making up a hit on track
+         *  @param purity is Nhits_matchedMCP / NHits_onTrack
+         *      purity = 1 means that track matched MCP makes up all hits on
+         *      Track
+         */
+
+        void setTrackTruthParameters(int goodhits[14],
+                int nmcps[14], 
+                double purity);
+
+        int* getTrackTruthGoodHits() {return goodhits_;}
+        int* getTrackTruthNMCPsOnHits() {return nmcps_;}
+        double getTrackTruthPurity() {return purity_;}
+
+        /**
          * Set the chi^2 of the fit to the track.
          *
          * @param chi2 The chi^2 of the fit to the track.
@@ -441,6 +462,15 @@ class Track : public TObject {
         TRef mcp_link_;
         
         ClassDef(Track, 1);
+
+        /** Reference to goodhits on Track via truth info */
+        int goodhits_[14]; 
+
+        /** Reference to nmcps on Track hits via truth info */
+        int nmcps_[14];
+
+        /** Reference to Track purity via truth info */
+        double purity_{0};
 }; // Track
 
 #endif // __TRACK_H__

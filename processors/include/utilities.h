@@ -44,9 +44,11 @@ namespace utils {
                             EVENT::LCCollection* gbl_kink_data,
                             EVENT::LCCollection* track_data);
 
-    Track* buildTrack(EVENT::Track* lc_track, 
-            EVENT::LCCollection* gbl_kink_data, 
-            EVENT::LCCollection* track_data);
+    Track* buildTrack(EVENT::Track* lc_track,
+           EVENT::LCCollection* gbl_kink_data,
+           EVENT::LCCollection* track_data, 
+           EVENT::LCCollection* track_truth_info); 
+
 
 
     bool IsSameTrack(Track* trk1, Track* trk2);

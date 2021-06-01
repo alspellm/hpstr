@@ -43,6 +43,12 @@ namespace Collections {
     /** Name of the collection containing Track to TrackData LCRelations */
     constexpr const char* TRACK_DATA_REL{"TrackDataRelations"};
 
+    /** Name of the collection of TrackTruthInfo GenericObjects */ 
+    constexpr const char* TRACK_TRUTH_INFO{"TrackTruthInfo"}; 
+
+    /** Name of the collection containing Track to TrackTruthInfo LCRelations */
+    constexpr const char* TRACK_TRUTH_INFO_REL{"ToTruthInfoRelations"};
+
     /** Name of the collection containing Final State Particles. */
     constexpr const char* FINAL_STATE_PARTICLES{"FinalStateParticles"}; 
 

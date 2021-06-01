@@ -97,6 +97,7 @@ class TrackingProcessor : public Processor {
         std::string kinkRelCollLcio_{"GBLKinkDataRelations"};
         std::string trkRelCollLcio_{"TrackDataRelations"};
         std::string trkCollRoot_{"GBLTracks"};
+        std::string trackTruthInfoCollLcio_{"ToTruthInfoRelations"};
 
         /** Container to hold all raw hits objecs, and collection names. */
         std::vector<RawSvtHit*> rawhits_{};

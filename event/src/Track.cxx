@@ -10,6 +10,10 @@ ClassImp(Track)
 
 Track::Track()
     : TObject() { 
+        for(int i = 0; i < 14; i++){
+            goodhits_[i] = -9;
+            nmcps_[i] = -9;
+        }
     }
 
 //TODO Fix particle->track->tracker hits relation. If Track is object of Particle then tracker_hits in on the stack and delete make it crash?
@@ -86,3 +90,12 @@ void Track::Print (Option_t *option) const {
     printf("% 6.4f  % 6.4f  % 6.4f  % 6.4f  % 6.4f  % 6.4f  % 6.4f\n",d0_,phi0_,omega_,tan_lambda_,z0_,track_time_,chi2_);
     printf("type: %d\n", type_);
 }
+
+void Track::setTrackTruthParameters(int goodhits[14], int nmcps[14], double purity) {
+    for(int i =0; i < sizeof(goodhits); i++){
+        goodhits_[i] = goodhits[i];
+        nmcps_[i] = nmcps[i];
+    }
+    purity_ = purity;
+}
+

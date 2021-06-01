@@ -86,7 +86,7 @@ Particle* utils::buildParticle(EVENT::ReconstructedParticle* lc_particle,
 
     // Set the Track for the HpsParticle
     if (lc_particle->getTracks().size()>0)
-      part->setTrack(utils::buildTrack(lc_particle->getTracks()[0], gbl_kink_data, track_data));
+        part->setTrack(utils::buildTrack(lc_particle->getTracks()[0], gbl_kink_data, track_data, nullptr));
 
     // Set the Track for the HpsParticle
     if (lc_particle->getClusters().size() > 0)
@@ -145,10 +145,11 @@ bool utils::IsSameTrack(Track* trk1, Track* trk2) {
     return true;
 }
 
+//buildTrack with TrackTruthInfo included
 
 Track* utils::buildTrack(EVENT::Track* lc_track,
         EVENT::LCCollection* gbl_kink_data,
-        EVENT::LCCollection* track_data) {
+        EVENT::LCCollection* track_data, EVENT::LCCollection* track_truth_info) {
 
     if (!lc_track)
         return nullptr;
@@ -172,10 +173,10 @@ Track* utils::buildTrack(EVENT::Track* lc_track,
 
     // Set the track ndf 
     track->setNdf(lc_track->getNdf());
-    
+
     // Set the track covariance matrix
     track->setCov(static_cast<std::vector<float> > (lc_track->getCovMatrix()));
-    
+
     // Set the position of the extrapolated track at the ECal face.  The
     // extrapolation uses the full 3D field map.
     const EVENT::TrackState* track_state 
@@ -242,29 +243,80 @@ Track* utils::buildTrack(EVENT::Track* lc_track,
             // Check that the TrackData data structure is correct.  If it's
             // not, throw a runtime exception.   
             if (track_datum->getNDouble() > 14 || track_datum->getNFloat() > 4 
-                || track_datum->getNInt() != 1) {
+                    || track_datum->getNInt() != 1) {
                 throw std::runtime_error("[ TrackingProcessor ]: The collection " 
-                                         + std::string(Collections::TRACK_DATA)
-                                         + " has the wrong structure.");
+                        + std::string(Collections::TRACK_DATA)
+                        + " has the wrong structure.");
             }
 
             // Set the SvtTrack isolation values
             for (int iso_index = 0; iso_index < track_datum->getNDouble(); ++iso_index) { 
                 track->setIsolation(iso_index, track_datum->getDoubleVal(iso_index));
             }
-	    
+
             // Set the SvtTrack time
             track->setTrackTime(track_datum->getFloatVal(0));
 
-	    // Set the Track momentum
-	    if (track_datum->getNFloat()==4)
-	      track->setMomentum(track_datum->getFloatVal(1),track_datum->getFloatVal(2),track_datum->getFloatVal(3));
-	    
+            // Set the Track momentum
+            if (track_datum->getNFloat()==4)
+                track->setMomentum(track_datum->getFloatVal(1),track_datum->getFloatVal(2),track_datum->getFloatVal(3));
+
             // Set the volume (top/bottom) in which the SvtTrack resides
             track->setTrackVolume(track_datum->getIntVal(0));
         }
 
     } //add track data  
+
+    //If TrackTruthInfo collection exists, get truth info
+    if (track_truth_info) {
+
+        double track_purity = -99.9;
+        int track_goodhits[14];
+        int track_nMCPs_onHits[14];
+
+        std::shared_ptr<UTIL::LCRelationNavigator> truth_track_info_nav = std::make_shared<UTIL::LCRelationNavigator>(track_truth_info);
+        //Get list of TrackTruthInfo associated with the LCIO Track
+        EVENT::LCObjectVec track_truth_info_list = truth_track_info_nav->getRelatedToObjects(lc_track);
+
+        // The container of TrackTruthInfo objects should only contain a single
+        //  object.  If not, throw an exception.
+        if (track_truth_info_list.size() == 1) {
+
+            // Get the TrackTruthInfo GenericObject associated with the LCIO Track
+            IMPL::LCGenericObjectImpl* track_datum = static_cast<IMPL::LCGenericObjectImpl*>(track_truth_info_list.at(0));
+
+            // Check that the TrackTruthInfo data structure is correct.  If it's
+            // not, throw a runtime exception.   
+            if (track_datum->getNInt() > 28 || track_datum->getNFloat() > 1
+                    || track_datum->getNDouble() > 1) {
+                throw std::runtime_error("[ TrackingProcessor ]: The collection "
+                        + std::string(Collections::TRACK_TRUTH_INFO)
+                        + " has the wrong structure.");
+            }
+
+            //Set the Lcio Track purity value
+            track_purity = track_datum->getDoubleVal(0);
+
+            //Set the Lcio Track good hits per layer
+            for (int hit_index = 0; hit_index < (track_datum->getNInt())/2; ++hit_index) {
+                track_goodhits[hit_index] = track_datum->getIntVal(hit_index);
+            }
+
+            //Set the Lcio Track number mcps per layer hit
+            for (int hit_index = (track_datum->getNInt())/2; hit_index < track_datum->getNInt(); ++hit_index) {
+                track_nMCPs_onHits[hit_index - (track_datum->getNInt())/2] = track_datum->getIntVal(hit_index);
+            }
+
+            track->setTrackTruthParameters(track_goodhits, track_nMCPs_onHits, track_purity);
+        }
+        /*
+        else {
+            if(track_truth_info_list.size() > 1) std::cout << "Warning: TrackTruthInfo has more than one entry for a Track" << std::endl;
+            track->setTrackTruthParameters(track_goodhits, track_nMCPs_onHits, track_purity);
+        }
+        */
+    }
+
 
     return track;
 }
@@ -360,8 +412,8 @@ TrackerHit* utils::buildTrackerHit(IMPL::TrackerHitImpl* lc_tracker_hit, bool ro
 
 //type 0 rotatedHelicalHit  type 1 SiClusterHit
 bool utils::addRawInfoTo3dHit(TrackerHit* tracker_hit, 
-                              IMPL::TrackerHitImpl* lc_tracker_hit,
-                              EVENT::LCCollection* raw_svt_fits, std::vector<RawSvtHit*>* rawHits,int type) {
+        IMPL::TrackerHitImpl* lc_tracker_hit,
+        EVENT::LCCollection* raw_svt_fits, std::vector<RawSvtHit*>* rawHits,int type) {
 
     if (!tracker_hit || !lc_tracker_hit)
         return false;
