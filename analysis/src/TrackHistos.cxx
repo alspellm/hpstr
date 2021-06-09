@@ -271,27 +271,52 @@ void TrackHistos::Fill1DTrackTruth(Track *track, Track* truth_track, float weigh
     double invPt_truth = -1*(double) track->getCharge()/truth_track->getPt();
         
     double diff_percent_invpT = ((invPt - invPt_truth) / invPt_truth) * 100.;
+
+    double charge = (double) track->getCharge();
     
     // truth residuals
-    Fill1DHisto(trkname+"d0_truth_res_h",       d0 - d0_truth                  , weight);
-    Fill1DHisto(trkname+"Phi_truth_res_h",      phi - phi_truth                , weight);
-    Fill1DHisto(trkname+"Omega_truth_res_h",    omega - omega_truth            , weight);
-    Fill1DHisto(trkname+"TanLambda_truth_res_h",tanLambda - tanLambda_truth    , weight);
-    Fill1DHisto(trkname+"Z0_truth_res_h",       z0 - z0_truth                  , weight);
-    Fill1DHisto(trkname+"p_truth_res_h",        p  - p_truth                   , weight);
-    Fill1DHisto(trkname+"invpT_truth_res_h",    invPt - invPt_truth            , weight);
-    Fill1DHisto(trkname+"invpT_truth_res_percent_h", diff_percent_invpT        , weight);
-    Fill1DHisto(trkname+"px_truth_res_h",       trk_mom[0]  - trk_truth_mom[0] , weight);
-    Fill1DHisto(trkname+"py_truth_res_h",       trk_mom[1]  - trk_truth_mom[1] , weight);
-    Fill1DHisto(trkname+"pz_truth_res_h",       trk_mom[2]  - trk_truth_mom[2] , weight);
-    
-    // truth pulls
-    Fill1DHisto(trkname+"d0_truth_pull_h",       (d0 - d0_truth)               / d0err, weight);
-    Fill1DHisto(trkname+"Phi_truth_pull_h",      (phi - phi_truth)             / phierr  , weight);
-    Fill1DHisto(trkname+"Omega_truth_pull_h",    (omega - omega_truth)         / omegaerr, weight);
-    Fill1DHisto(trkname+"TanLambda_truth_pull_h",(tanLambda - tanLambda_truth) / tanLambdaerr, weight);
-    Fill1DHisto(trkname+"Z0_truth_pull_h",       (z0 - z0_truth)               / z0err, weight);
-    
+    if (charge < 0){
+        Fill1DHisto(trkname+"ele_d0_truth_res_h",       d0 - d0_truth                  , weight);
+        Fill1DHisto(trkname+"ele_Phi_truth_res_h",      phi - phi_truth                , weight);
+        Fill1DHisto(trkname+"ele_Omega_truth_res_h",    omega - omega_truth            , weight);
+        Fill1DHisto(trkname+"ele_TanLambda_truth_res_h",tanLambda - tanLambda_truth    , weight);
+        Fill1DHisto(trkname+"ele_Z0_truth_res_h",       z0 - z0_truth                  , weight);
+        Fill1DHisto(trkname+"ele_p_truth_res_h",        p  - p_truth                   , weight);
+        Fill1DHisto(trkname+"ele_invpT_truth_res_h",    invPt - invPt_truth            , weight);
+        Fill1DHisto(trkname+"ele_invpT_truth_res_percent_h", diff_percent_invpT        , weight);
+        Fill1DHisto(trkname+"ele_px_truth_res_h",       trk_mom[0]  - trk_truth_mom[0] , weight);
+        Fill1DHisto(trkname+"ele_py_truth_res_h",       trk_mom[1]  - trk_truth_mom[1] , weight);
+        Fill1DHisto(trkname+"ele_pz_truth_res_h",       trk_mom[2]  - trk_truth_mom[2] , weight);
+        
+        // truth pulls
+        Fill1DHisto(trkname+"ele_d0_truth_pull_h",       (d0 - d0_truth)               / d0err, weight);
+        Fill1DHisto(trkname+"ele_Phi_truth_pull_h",      (phi - phi_truth)             / phierr  , weight);
+        Fill1DHisto(trkname+"ele_Omega_truth_pull_h",    (omega - omega_truth)         / omegaerr, weight);
+        Fill1DHisto(trkname+"ele_TanLambda_truth_pull_h",(tanLambda - tanLambda_truth) / tanLambdaerr, weight);
+        Fill1DHisto(trkname+"ele_Z0_truth_pull_h",       (z0 - z0_truth)               / z0err, weight);
+    }
+
+    // truth residuals
+    if (charge > 0){
+        Fill1DHisto(trkname+"pos_d0_truth_res_h",       d0 - d0_truth                  , weight);
+        Fill1DHisto(trkname+"pos_Phi_truth_res_h",      phi - phi_truth                , weight);
+        Fill1DHisto(trkname+"pos_Omega_truth_res_h",    omega - omega_truth            , weight);
+        Fill1DHisto(trkname+"pos_TanLambda_truth_res_h",tanLambda - tanLambda_truth    , weight);
+        Fill1DHisto(trkname+"pos_Z0_truth_res_h",       z0 - z0_truth                  , weight);
+        Fill1DHisto(trkname+"pos_p_truth_res_h",        p  - p_truth                   , weight);
+        Fill1DHisto(trkname+"pos_invpT_truth_res_h",    invPt - invPt_truth            , weight);
+        Fill1DHisto(trkname+"pos_invpT_truth_res_percent_h", diff_percent_invpT        , weight);
+        Fill1DHisto(trkname+"pos_px_truth_res_h",       trk_mom[0]  - trk_truth_mom[0] , weight);
+        Fill1DHisto(trkname+"pos_py_truth_res_h",       trk_mom[1]  - trk_truth_mom[1] , weight);
+        Fill1DHisto(trkname+"pos_pz_truth_res_h",       trk_mom[2]  - trk_truth_mom[2] , weight);
+        
+        // truth pulls
+        Fill1DHisto(trkname+"pos_d0_truth_pull_h",       (d0 - d0_truth)               / d0err, weight);
+        Fill1DHisto(trkname+"pos_Phi_truth_pull_h",      (phi - phi_truth)             / phierr  , weight);
+        Fill1DHisto(trkname+"pos_Omega_truth_pull_h",    (omega - omega_truth)         / omegaerr, weight);
+        Fill1DHisto(trkname+"pos_TanLambda_truth_pull_h",(tanLambda - tanLambda_truth) / tanLambdaerr, weight);
+        Fill1DHisto(trkname+"pos_Z0_truth_pull_h",       (z0 - z0_truth)               / z0err, weight);
+    }
 }
 
 

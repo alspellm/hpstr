@@ -20,6 +20,7 @@ void TrackingAnaProcessor::configure(const ParameterSet& parameters) {
         doTruth_              = (bool) parameters.getInteger("doTruth",doTruth_);
         truthHistCfgFilename_ = parameters.getString("truthHistCfg",truthHistCfgFilename_);
         selectionCfg_         = parameters.getString("selectionjson",selectionCfg_); 
+        purity_cut_           = parameters.getDouble("puritycut", purity_cut_);
     }
     catch (std::runtime_error& error)
     {
@@ -68,6 +69,9 @@ bool TrackingAnaProcessor::process(IEvent* ievent) {
         
         // Get a track
         Track* track = tracks_->at(itrack);
+        double purity = track->getTrackTruthPurity();
+        if (purity < purity_cut_)
+            continue;
         int n2dhits_onTrack = !track->isKalmanTrack() ? track->getTrackerHitCount() * 2 : track->getTrackerHitCount();
         
         //Track Selection

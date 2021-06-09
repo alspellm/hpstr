@@ -1,0 +1,185 @@
+{
+    "ele_d0_truth_res_h" : {
+        "bins" : 200,
+        "minX" : -5,
+        "maxX" :  5,
+        "xtitle"  : "d0_{reco} - d0_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "ele_Phi_truth_res_h" : {
+        "bins" : 200,
+        "minX" : -0.5,
+        "maxX" :  0.5,
+        "xtitle"  : "#phi_{reco} - #phi_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "ele_Omega_truth_res_h" : {
+        "bins" : 200,
+        "minX" : -0.002,
+        "maxX" :  0.002,
+        "xtitle"  : "#Omega_{reco} - #Omega_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "ele_TanLambda_truth_res_h" : {
+        "bins" : 200,
+        "minX" : -0.1,
+        "maxX" :  0.1,
+        "xtitle"  : "tan(#lambda)_{reco} - tan(#lambda)_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "ele_Z0_truth_res_h" : {
+        "bins" : 200,
+        "minX" : -5,
+        "maxX" :  5,
+        "xtitle"  : "z0_{reco} - z0_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "ele_p_truth_res_h" : {
+        "bins" :  200,
+        "minX" :  -2.5,
+        "maxX" :  2.5,
+        "xtitle"  : "p_{reco} - p_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "ele_invpT_truth_res_h" : {
+        "bins" :  100,
+        "minX" :  -2.5,
+        "maxX" :  2.5,
+        "xtitle"  : "pT_{reco} - pT_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "ele_invpT_truth_res_percent_h" : {
+        "bins" :  100,
+        "minX" :  -50,
+        "maxX" :  50,
+        "xtitle"  : "100 * (pT_{reco} - pT_{truth}) / pT_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "ele_d0_truth_pull_h" : {
+        "bins" : 200,
+        "minX" : -5,
+        "maxX" :  5,
+        "xtitle"  : "d0_{reco} - d0_{truth} / #sigma_{d0}",
+        "ytitle"  : "Tracks"      
+    },
+    "ele_Phi_truth_pull_h" : {
+        "bins" : 200,
+        "minX" : -5,
+        "maxX" :  5,
+        "xtitle"  : "#phi_{reco} - #phi_{truth} / #sigma_{#phi}",
+        "ytitle"  : "Tracks"      
+    },
+    "ele_Omega_truth_pull_h" : {
+        "bins" : 200,
+        "minX" : -5,
+        "maxX" :  5,
+        "xtitle"  : "#Omega_{reco} - #Omega_{truth} / #sigma_{#Omega}",
+        "ytitle"  : "Tracks"      
+    },
+    "ele_TanLambda_truth_pull_h" : {
+        "bins" : 200,
+        "minX" : -5,
+        "maxX" :  5,
+        "xtitle"  : "tan(#lambda)_{reco} - tan(#lambda)_{truth} / #sigma_{tan(#lambda)}",
+        "ytitle"  : "Tracks"      
+    },
+    "ele_Z0_truth_pull_h" : {
+        "bins" : 200,
+        "minX" : -5,
+        "maxX" :  5,
+        "xtitle"  : "z0_{reco} - z0_{truth} / #sigma_{z0}",
+        "ytitle"  : "Tracks"      
+    },
+
+    "pos_d0_truth_res_h" : {
+        "bins" : 200,
+        "minX" : -5,
+        "maxX" :  5,
+        "xtitle"  : "d0_{reco} - d0_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "pos_Phi_truth_res_h" : {
+        "bins" : 200,
+        "minX" : -0.5,
+        "maxX" :  0.5,
+        "xtitle"  : "#phi_{reco} - #phi_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "pos_Omega_truth_res_h" : {
+        "bins" : 200,
+        "minX" : -0.002,
+        "maxX" :  0.002,
+        "xtitle"  : "#Omega_{reco} - #Omega_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "pos_TanLambda_truth_res_h" : {
+        "bins" : 200,
+        "minX" : -0.1,
+        "maxX" :  0.1,
+        "xtitle"  : "tan(#lambda)_{reco} - tan(#lambda)_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "pos_Z0_truth_res_h" : {
+        "bins" : 200,
+        "minX" : -5,
+        "maxX" :  5,
+        "xtitle"  : "z0_{reco} - z0_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "pos_p_truth_res_h" : {
+        "bins" :  200,
+        "minX" :  -2.5,
+        "maxX" :  2.5,
+        "xtitle"  : "p_{reco} - p_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "pos_invpT_truth_res_h" : {
+        "bins" :  100,
+        "minX" :  -2.5,
+        "maxX" :  2.5,
+        "xtitle"  : "pT_{reco} - pT_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "pos_invpT_truth_res_percent_h" : {
+        "bins" :  100,
+        "minX" :  -50,
+        "maxX" :  50,
+        "xtitle"  : "100 * (pT_{reco} - pT_{truth}) / pT_{truth}",
+        "ytitle"  : "Tracks"      
+    },
+    "pos_d0_truth_pull_h" : {
+        "bins" : 200,
+        "minX" : -5,
+        "maxX" :  5,
+        "xtitle"  : "d0_{reco} - d0_{truth} / #sigma_{d0}",
+        "ytitle"  : "Tracks"      
+    },
+    "pos_Phi_truth_pull_h" : {
+        "bins" : 200,
+        "minX" : -5,
+        "maxX" :  5,
+        "xtitle"  : "#phi_{reco} - #phi_{truth} / #sigma_{#phi}",
+        "ytitle"  : "Tracks"      
+    },
+    "pos_Omega_truth_pull_h" : {
+        "bins" : 200,
+        "minX" : -5,
+        "maxX" :  5,
+        "xtitle"  : "#Omega_{reco} - #Omega_{truth} / #sigma_{#Omega}",
+        "ytitle"  : "Tracks"      
+    },
+    "pos_TanLambda_truth_pull_h" : {
+        "bins" : 200,
+        "minX" : -5,
+        "maxX" :  5,
+        "xtitle"  : "tan(#lambda)_{reco} - tan(#lambda)_{truth} / #sigma_{tan(#lambda)}",
+        "ytitle"  : "Tracks"      
+    },
+    "pos_Z0_truth_pull_h" : {
+        "bins" : 200,
+        "minX" : -5,
+        "maxX" :  5,
+        "xtitle"  : "z0_{reco} - z0_{truth} / #sigma_{z0}",
+        "ytitle"  : "Tracks"      
+    }
+}

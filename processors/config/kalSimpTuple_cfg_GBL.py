@@ -101,6 +101,7 @@ trackgbl.parameters["rawhitCollRoot"] = ''#'SVTRawHitsOnTrack'
 if (not options.isData):
     trackgbl.parameters["truthTrackCollLcio"] = 'GBLTracksToTruthTrackRelations'
     trackgbl.parameters["truthTrackCollRoot"] = 'GBLTracksTruth'
+    trackgbl.parameters["trackTruthInfoCollLcio"] = 'GBLTracksToTruthInfoRelations'
 
 #LT check if we need the b field or not -- version of HPS java
 trackgbl.parameters["bfield"] = bfield[str(options.year)]

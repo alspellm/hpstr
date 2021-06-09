@@ -88,6 +88,7 @@ class TrackingAnaProcessor : public Processor {
         TrackHistos* truthHistos_{nullptr};
         bool doTruth_{false};
         int debug_{0};
+        double purity_cut_{0.0};
         
 
 
