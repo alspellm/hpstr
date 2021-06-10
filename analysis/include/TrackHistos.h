@@ -24,6 +24,7 @@ class TrackHistos : public HistoManager {
         virtual void Define2DHistos();
         
         void BuildAxes();
+        void DefineTrkHitHistos();
 
         void Fill1DTrack(Track* track, float weight = 1., const std::string& trkname = "");
         void Fill2DTrack(Track* track, float weight = 1., const std::string& trkname = "");
@@ -41,7 +42,6 @@ class TrackHistos : public HistoManager {
 
         //Truth comparison
         void Fill1DTrackTruth(Track* track, Track* truth_track, float weight=1.,const std::string& ="");
-        void Fill1DTrackTruthMissingLayer(Track* track, Track* truth_track, int layer1, int layer2, float weight=1.,const std::string& ="");
 
         //track_x goes for x axis, and y for y axis
         void FillTrackComparisonHistograms(Track* track_x, Track* track_y, float weight = 1.);
