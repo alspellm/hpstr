@@ -319,6 +319,116 @@ void TrackHistos::Fill1DTrackTruth(Track *track, Track* truth_track, float weigh
     }
 }
 
+void TrackHistos::Fill1DTrackTruthMissingLayer(Track *track, Track* truth_track, float weight, const std::string& trkname) {
+    
+    if (!track || !truth_track)
+        return;
+
+    /*
+    //Check if L1 or L2 are missing 'goodhit'... aka does truth MCP leave hit on Track in layers
+    std::string misLayer = "";
+    int *goodhits = track->getTrackTruthGoodHits();
+
+
+    if (goodhits[layer1] != 0){
+        if (goodhits[layer2] != 0)
+            return;
+        else
+            misLayer = "L" + std::to_string(layer2);
+    }
+    else {
+        if (goodhits[layer2] != 0)
+            misLayer = "L" + std::to_string(layer1);
+        else
+            misLayer = "L" + std::to_string(layer1) + "L" + std::to_string(layer2);
+    }
+
+    //Check if L1 or L2 are missing 'goodhit'... aka does truth MCP leave hit on Track in layers
+    int goodhits[14] = track->getTrackTruthGoodHits();
+    std::string misLayer = "";
+    if ((goodhits[2] != 0 || goodhits[3] != 0) && (goodhits[0] == 0 && goodhits[1] == 0))
+        misLayer = "L1";
+    if ((goodhits[0] != 0 || goodhits[1] != 0) && (goodhits[0] == 0 && goodhits[1] == 0))
+        misLayer = "L2";
+    if (goodhits[0] == 0 && goodhits[1] == 0 && goodhits[2] == 0 && goodhits[3] == 0)
+        misLayer = "L1L2";
+    else
+        continue;
+        */
+
+    //Momentum 
+    std::vector<double> trk_mom = track->getMomentum();
+    std::vector<double> trk_truth_mom = truth_track->getMomentum();
+    
+    double d0 = track->getD0();
+    double d0err = track->getD0Err();
+    double d0_truth = truth_track->getD0();
+    double phi = track->getPhi();
+    double phi_truth = truth_track->getPhi();
+    double phierr = track->getPhiErr();
+    double omega = track->getOmega();
+    double omega_truth = truth_track->getOmega();
+    double omegaerr = track->getOmegaErr();
+    double tanLambda = track->getTanLambda();
+    double tanLambda_truth = truth_track->getTanLambda();
+    double tanLambdaerr = track->getTanLambdaErr();
+    double z0 = track->getZ0();
+    double z0_truth = truth_track->getZ0();
+    double z0err = track->getZ0Err();
+    double p = track->getP();
+    //Charge different wrt Robert's plots.
+    double invPt = -1.*(double) track->getCharge()/track->getPt();  
+    double p_truth = truth_track->getP();
+    double invPt_truth = -1*(double) track->getCharge()/truth_track->getPt();
+        
+    double diff_percent_invpT = ((invPt - invPt_truth) / invPt_truth) * 100.;
+
+    double charge = (double) track->getCharge();
+
+    // truth residuals
+    if (charge < 0){
+        Fill1DHisto(trkname+misLayer+"_ele_d0_truth_res_h",       d0 - d0_truth                  , weight);
+        Fill1DHisto(trkname+misLayer+"_ele_Phi_truth_res_h",      phi - phi_truth                , weight);
+        Fill1DHisto(trkname+misLayer+"_ele_Omega_truth_res_h",    omega - omega_truth            , weight);
+        Fill1DHisto(trkname+misLayer+"_ele_TanLambda_truth_res_h",tanLambda - tanLambda_truth    , weight);
+        Fill1DHisto(trkname+misLayer+"_ele_Z0_truth_res_h",       z0 - z0_truth                  , weight);
+        Fill1DHisto(trkname+misLayer+"_ele_p_truth_res_h",        p  - p_truth                   , weight);
+        Fill1DHisto(trkname+misLayer+"_ele_invpT_truth_res_h",    invPt - invPt_truth            , weight);
+        Fill1DHisto(trkname+misLayer+"_ele_invpT_truth_res_percent_h", diff_percent_invpT        , weight);
+        Fill1DHisto(trkname+misLayer+"_ele_px_truth_res_h",       trk_mom[0]  - trk_truth_mom[0] , weight);
+        Fill1DHisto(trkname+misLayer+"_ele_py_truth_res_h",       trk_mom[1]  - trk_truth_mom[1] , weight);
+        Fill1DHisto(trkname+misLayer+"_ele_pz_truth_res_h",       trk_mom[2]  - trk_truth_mom[2] , weight);
+        
+        // truth pulls
+        Fill1DHisto(trkname+misLayer+"_ele_d0_truth_pull_h",       (d0 - d0_truth)               / d0err, weight);
+        Fill1DHisto(trkname+misLayer+"_ele_Phi_truth_pull_h",      (phi - phi_truth)             / phierr  , weight);
+        Fill1DHisto(trkname+misLayer+"_ele_Omega_truth_pull_h",    (omega - omega_truth)         / omegaerr, weight);
+        Fill1DHisto(trkname+misLayer+"_ele_TanLambda_truth_pull_h",(tanLambda - tanLambda_truth) / tanLambdaerr, weight);
+        Fill1DHisto(trkname+misLayer+"_ele_Z0_truth_pull_h",       (z0 - z0_truth)               / z0err, weight);
+    }
+
+    // truth residuals
+    if (charge > 0){
+        Fill1DHisto(trkname+misLayer+"_pos_d0_truth_res_h",       d0 - d0_truth                  , weight);
+        Fill1DHisto(trkname+misLayer+"_pos_Phi_truth_res_h",      phi - phi_truth                , weight);
+        Fill1DHisto(trkname+misLayer+"_pos_Omega_truth_res_h",    omega - omega_truth            , weight);
+        Fill1DHisto(trkname+misLayer+"_pos_TanLambda_truth_res_h",tanLambda - tanLambda_truth    , weight);
+        Fill1DHisto(trkname+misLayer+"_pos_Z0_truth_res_h",       z0 - z0_truth                  , weight);
+        Fill1DHisto(trkname+misLayer+"_pos_p_truth_res_h",        p  - p_truth                   , weight);
+        Fill1DHisto(trkname+misLayer+"_pos_invpT_truth_res_h",    invPt - invPt_truth            , weight);
+        Fill1DHisto(trkname+misLayer+"_pos_invpT_truth_res_percent_h", diff_percent_invpT        , weight);
+        Fill1DHisto(trkname+misLayer+"_pos_px_truth_res_h",       trk_mom[0]  - trk_truth_mom[0] , weight);
+        Fill1DHisto(trkname+misLayer+"_pos_py_truth_res_h",       trk_mom[1]  - trk_truth_mom[1] , weight);
+        Fill1DHisto(trkname+misLayer+"_pos_pz_truth_res_h",       trk_mom[2]  - trk_truth_mom[2] , weight);
+        
+        // truth pulls
+        Fill1DHisto(trkname+misLayer+"_pos_d0_truth_pull_h",       (d0 - d0_truth)               / d0err, weight);
+        Fill1DHisto(trkname+misLayer+"_pos_Phi_truth_pull_h",      (phi - phi_truth)             / phierr  , weight);
+        Fill1DHisto(trkname+misLayer+"_pos_Omega_truth_pull_h",    (omega - omega_truth)         / omegaerr, weight);
+        Fill1DHisto(trkname+misLayer+"_pos_TanLambda_truth_pull_h",(tanLambda - tanLambda_truth) / tanLambdaerr, weight);
+        Fill1DHisto(trkname+misLayer+"_pos_Z0_truth_pull_h",       (z0 - z0_truth)               / z0err, weight);
+    }
+}
 
 
 void TrackHistos::Fill2DHistograms(Vertex* vtx, float weight) {    

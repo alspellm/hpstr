@@ -32,7 +32,11 @@ trkana.parameters["trkCollName"] = "KalmanFullTracks"
 trkana.parameters["histCfg"] = os.environ['HPSTR_BASE'] + '/analysis/plotconfigs/tracking/basicTracking.json'
 trkana.parameters["doTruth"] = 1
 trkana.parameters["truthHistCfg"] = os.environ['HPSTR_BASE'] + '/analysis/plotconfigs/tracking/truthTrackComparison.json'
-trkana.parameters["puritycut"] = 0.8
+trkana.parameters["truthMisLayers"] = os.environ['HPSTR_BASE'] + '/analysis/plotconfigs/tracking/truthTrackComparisonMissingL1L2.json'
+trkana.parameters["puritycut"] = 0.0
+trkana.parameters["misLayer1"] = 0
+trkana.parameters["misLayer2"] = 1
+
 
 
 trkgblana.parameters["debug"]        = 0;

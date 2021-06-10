@@ -1,17 +1,17 @@
-#include "TrackingAnaProcessor.h"
+#include "TruthTrackingAnaProcessor.h"
 #include <iomanip>
 #include "utilities.h"
 
-TrackingAnaProcessor::TrackingAnaProcessor(const std::string& name, Process& process)
+TruthTrackingAnaProcessor::TruthTrackingAnaProcessor(const std::string& name, Process& process)
     : Processor(name, process) { 
     }
 
-TrackingAnaProcessor::~TrackingAnaProcessor() { 
+TruthTrackingAnaProcessor::~TruthTrackingAnaProcessor() { 
 }
 
-void TrackingAnaProcessor::configure(const ParameterSet& parameters) {
+void TruthTrackingAnaProcessor::configure(const ParameterSet& parameters) {
 
-    std::cout << "Configuring TrackingAnaProcessor" << std::endl;
+    std::cout << "Configuring TruthTrackingAnaProcessor" << std::endl;
     try
     {
         debug_                = parameters.getInteger("debug",debug_);
@@ -21,6 +21,7 @@ void TrackingAnaProcessor::configure(const ParameterSet& parameters) {
         truthHistCfgFilename_ = parameters.getString("truthHistCfg",truthHistCfgFilename_);
         selectionCfg_         = parameters.getString("selectionjson",selectionCfg_); 
         purityCut_           = parameters.getDouble("puritycut", purityCut_);
+        regionSelections_     = parameters.getVString("regionDefinitions",regionSelections_);
         truthMisLayersCfgFilename_ = parameters.getString("truthMisLayers", truthMisLayersCfgFilename_);
         misL1_                 = parameters.getInteger("misLayer1", misL1_);
         misL2_                 = parameters.getInteger("misLayer2", misL2_);
@@ -32,7 +33,7 @@ void TrackingAnaProcessor::configure(const ParameterSet& parameters) {
 
 }
 
-void TrackingAnaProcessor::initialize(TTree* tree) {
+void TruthTrackingAnaProcessor::initialize(TTree* tree) {
 
     //Init histos
     trkHistos_ = new TrackHistos(trkCollName_);
@@ -59,9 +60,23 @@ void TrackingAnaProcessor::initialize(TTree* tree) {
         //tree->SetBranchAddress(truthCollName_.c_str(),&truth_tracks_,&btruth_tracks_);
     }
 
-    std::cout << "Checking layers " << misL1_ << " and " << misL2_ << std::endl;
-    std::cout << "truth json " << truthMisLayersCfgFilename_ << std::endl;
+    //Setup regions
+    for (unsigned int i_reg = 0; i_reg < regionSelections.size(); i_reg++){
+        std::string regname = AnaHelpers::getFileName(regionSelections_[i_reg], false);
+        std::cout << "Setting up region :: " << regname << std::endl;
+        reg_selectors_[regname] = std::make_shared<BaseSelector>(regname, regionSelections_[i_reg]);
+        reg_selectors_[regname]->setDebug(debug_);
+        reg_selectors_[regname]->LoadSelection();
+        
+        reg_histos_[regname] = std::make_shared<TrackHistos>(regname);
+        reg_histos_[regname]->loadHistoConfig(histCfgFilename_);
+        reg_histos_[regname]->doTrackComparisonPlots(false);
+        reg_histos_[regname]->DefineHistos();
 
+        regions_.push_back(regname);
+    }
+
+    /*
     if (truthMisLayersCfgFilename_ != ""){
         std::cout << "Do missing layer analysis" << std::endl;
         truthMisLHistos_ = new TrackHistos(trkCollName_+"_truth_missing_layer");
@@ -69,9 +84,10 @@ void TrackingAnaProcessor::initialize(TTree* tree) {
         truthMisLHistos_->DefineHistos();
         truthMisLHistos_->doTrackComparisonPlots(false);
     }
+    */
 }
 
-bool TrackingAnaProcessor::process(IEvent* ievent) {
+bool TruthTrackingAnaProcessor::process(IEvent* ievent) {
 
     double weight = 1.;
     // Loop over all the LCIO Tracks and add them to the HPS event.
@@ -81,13 +97,10 @@ bool TrackingAnaProcessor::process(IEvent* ievent) {
         if (trkSelector_) trkSelector_->getCutFlowHisto()->Fill(0.,weight);
         
         // Get a track
-        std::cout << "processing layers " << misL1_ << " and " << misL2_ << std::endl;
         Track* track = tracks_->at(itrack);
         double purity = track->getTrackTruthPurity();
-        std::cout << "Purity = " << purity << std::endl;
         if (purity < purityCut_)
             continue;
-        std::cout << "passed purity cut" << std::endl;
         int n2dhits_onTrack = !track->isKalmanTrack() ? track->getTrackerHitCount() * 2 : track->getTrackerHitCount();
         
         //Track Selection
@@ -103,7 +116,7 @@ bool TrackingAnaProcessor::process(IEvent* ievent) {
         if (doTruth_) { 
             truth_track = (Track*) track->getTruthLink().GetObject();
             if (!truth_track)
-                std::cout<<"Warnings::TrackingAnaProcessor::Requested Truth track but couldn't find it in the ntuple"<<std::endl;
+                std::cout<<"Warnings::TruthTrackingAnaProcessor::Requested Truth track but couldn't find it in the ntuple"<<std::endl;
         }
         
         if(debug_ > 0)
@@ -123,13 +136,43 @@ bool TrackingAnaProcessor::process(IEvent* ievent) {
             truthHistos_->Fill1DTrackTruth(track, truth_track);
         }
 
+        //generate track hit code
+        int hitCode = 0;
+        int* goodhits = track->getTrackTruthGoodHits();
+        for (int ihit = 0; ihit < 4; ++ihit) {
+            if (goodhits[i] != 0){
+                std::cout << "hitCode: " << hitCode << std::endl;
+                hitCode = hitCode | (0x1 << i);
+            }
+        }
+
+        std::string trkname = "";
+        double charge = (double) track->getCharge();
+        if (charge < 0)
+            trkname = "ele";
+        else
+            trkname = "pos";
+
+        for (auto region : regions_){
+            if(debug_) std::cout << "Check for region " << region 
+                << " hc " << hitCode
+                << " lt:" << !reg_selectors_[region]->passCutLt("hitCode_lt", ((double)hitCode)-0.5, weight)
+                << std::endl;
+            //Hit code req
+            if (!reg_selectors_[region]->passCutLt("hitCode_lt", ((double)hitCode-0.5, weight) ) continue;
+            if (!reg_selectors_[region]->passCutGt("hitCode_gt", ((double)hitCode+0.5, weight) ) continue;
+            reg_histos_[region]->Fill1DTrack(track, weight, trkname)
+
+        }
+
+        /*
         if (truthMisLHistos_){
             truthMisLHistos_->Fill1DHistograms(truth_track);
             truthMisLHistos_->Fill2DTrack(track);
             truthMisLHistos_->Fill1DTrackTruth(track, truth_track);
             truthMisLHistos_->Fill1DTrackTruthMissingLayer(track, truth_track, misL1_, misL2_, 1.0, "");
-            
         }
+        */
         
         n_sel_tracks++;
     }//Loop on tracks
@@ -140,7 +183,7 @@ bool TrackingAnaProcessor::process(IEvent* ievent) {
     return true;
 }
 
-void TrackingAnaProcessor::finalize() { 
+void TruthTrackingAnaProcessor::finalize() { 
 
     trkHistos_->saveHistos(outF_,trkCollName_);
     delete trkHistos_;
@@ -162,4 +205,4 @@ void TrackingAnaProcessor::finalize() {
     //trkHistos_->Clear();
 }
 
-DECLARE_PROCESSOR(TrackingAnaProcessor); 
+DECLARE_PROCESSOR(TruthTrackingAnaProcessor); 

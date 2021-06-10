@@ -28,7 +28,7 @@
 // Forward declarations
 class TTree; 
 
-class TrackingAnaProcessor : public Processor { 
+class TruthTrackingAnaProcessor : public Processor { 
 
     public: 
 
@@ -39,10 +39,10 @@ class TrackingAnaProcessor : public Processor {
          * @param process The Process class associated with Processor, provided
          *                by the processing framework.
          */
-        TrackingAnaProcessor(const std::string& name, Process& process); 
+        TruthTrackingAnaProcessor(const std::string& name, Process& process); 
 
         /** Destructor */
-        ~TrackingAnaProcessor(); 
+        ~TruthTrackingAnaProcessor(); 
 
         /**
          * Configure the Ana Processor
@@ -94,10 +94,15 @@ class TrackingAnaProcessor : public Processor {
 
         int misL1_{-9};
         int misL2_{-9};
+
+        // Region selection
+        std::vector<std::string> regionSelections_;
+        std::map<std::string, std::shared_ptr<BaseSelector> > reg_selectors_;
+        std::map<std::string, std::shared_ptr<TrackHistos> > reg_histos_;
         
 
 
 
-}; // TrackingAnaProcessor
+}; // TruthTrackingAnaProcessor
 
 #endif // __TRACKING_ANAPROCESSOR_
