@@ -20,10 +20,6 @@ void TrackingAnaProcessor::configure(const ParameterSet& parameters) {
         doTruth_              = (bool) parameters.getInteger("doTruth",doTruth_);
         truthHistCfgFilename_ = parameters.getString("truthHistCfg",truthHistCfgFilename_);
         selectionCfg_         = parameters.getString("selectionjson",selectionCfg_); 
-        purityCut_           = parameters.getDouble("puritycut", purityCut_);
-        truthMisLayersCfgFilename_ = parameters.getString("truthMisLayers", truthMisLayersCfgFilename_);
-        misL1_                 = parameters.getInteger("misLayer1", misL1_);
-        misL2_                 = parameters.getInteger("misLayer2", misL2_);
     }
     catch (std::runtime_error& error)
     {
@@ -59,16 +55,6 @@ void TrackingAnaProcessor::initialize(TTree* tree) {
         //tree->SetBranchAddress(truthCollName_.c_str(),&truth_tracks_,&btruth_tracks_);
     }
 
-    std::cout << "Checking layers " << misL1_ << " and " << misL2_ << std::endl;
-    std::cout << "truth json " << truthMisLayersCfgFilename_ << std::endl;
-
-    if (truthMisLayersCfgFilename_ != ""){
-        std::cout << "Do missing layer analysis" << std::endl;
-        truthMisLHistos_ = new TrackHistos(trkCollName_+"_truth_missing_layer");
-        truthMisLHistos_->loadHistoConfig(truthMisLayersCfgFilename_);
-        truthMisLHistos_->DefineHistos();
-        truthMisLHistos_->doTrackComparisonPlots(false);
-    }
 }
 
 bool TrackingAnaProcessor::process(IEvent* ievent) {
@@ -81,13 +67,7 @@ bool TrackingAnaProcessor::process(IEvent* ievent) {
         if (trkSelector_) trkSelector_->getCutFlowHisto()->Fill(0.,weight);
         
         // Get a track
-        std::cout << "processing layers " << misL1_ << " and " << misL2_ << std::endl;
         Track* track = tracks_->at(itrack);
-        double purity = track->getTrackTruthPurity();
-        std::cout << "Purity = " << purity << std::endl;
-        if (purity < purityCut_)
-            continue;
-        std::cout << "passed purity cut" << std::endl;
         int n2dhits_onTrack = !track->isKalmanTrack() ? track->getTrackerHitCount() * 2 : track->getTrackerHitCount();
         
         //Track Selection
@@ -122,14 +102,6 @@ bool TrackingAnaProcessor::process(IEvent* ievent) {
             truthHistos_->Fill2DTrack(track);
             truthHistos_->Fill1DTrackTruth(track, truth_track);
         }
-
-        if (truthMisLHistos_){
-            truthMisLHistos_->Fill1DHistograms(truth_track);
-            truthMisLHistos_->Fill2DTrack(track);
-            truthMisLHistos_->Fill1DTrackTruth(track, truth_track);
-            truthMisLHistos_->Fill1DTrackTruthMissingLayer(track, truth_track, misL1_, misL2_, 1.0, "");
-            
-        }
         
         n_sel_tracks++;
     }//Loop on tracks
@@ -152,12 +124,6 @@ void TrackingAnaProcessor::finalize() {
         truthHistos_->saveHistos(outF_,trkCollName_+"_truth");
         delete truthHistos_;
         truthHistos_ = nullptr;
-    }
-
-    if (truthMisLHistos_) {
-        truthMisLHistos_->saveHistos(outF_,trkCollName_+"_truth_missing_layers");
-        delete truthMisLHistos_;
-        truthMisLHistos_ = nullptr;
     }
     //trkHistos_->Clear();
 }

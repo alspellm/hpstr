@@ -84,16 +84,10 @@ class TrackingAnaProcessor : public Processor {
         // Containers to hold histogrammer info
         std::string histCfgFilename_;
         std::string truthHistCfgFilename_;
-        std::string truthMisLayersCfgFilename_{""};
         TrackHistos* trkHistos_{nullptr};
         TrackHistos* truthHistos_{nullptr};
-        TrackHistos* truthMisLHistos_{nullptr};
         bool doTruth_{false};
         int debug_{0};
-        double purityCut_{0.0};
-
-        int misL1_{-9};
-        int misL2_{-9};
         
 
 

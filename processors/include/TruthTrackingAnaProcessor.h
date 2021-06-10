@@ -24,6 +24,7 @@
 #include "Track.h"
 #include "Event.h"
 #include "TrackHistos.h"
+#include "AnaHelpers.h"
 
 // Forward declarations
 class TTree; 
@@ -84,21 +85,24 @@ class TruthTrackingAnaProcessor : public Processor {
         // Containers to hold histogrammer info
         std::string histCfgFilename_;
         std::string truthHistCfgFilename_;
-        std::string truthMisLayersCfgFilename_{""};
         TrackHistos* trkHistos_{nullptr};
         TrackHistos* truthHistos_{nullptr};
-        TrackHistos* truthMisLHistos_{nullptr};
+
+        std::map<std::string, std::shared_ptr<TrackHistos> > reg_trackHistos_;
+        typedef std::map<std::string,std::shared_ptr<TrackHistos> >::iterator reg_it;
+        std::map<std::string, std::shared_ptr<TrackHistos> > reg_truthHistos_;
+        
+
         bool doTruth_{false};
         int debug_{0};
         double purityCut_{0.0};
 
-        int misL1_{-9};
-        int misL2_{-9};
-
         // Region selection
         std::vector<std::string> regionSelections_;
         std::map<std::string, std::shared_ptr<BaseSelector> > reg_selectors_;
-        std::map<std::string, std::shared_ptr<TrackHistos> > reg_histos_;
+        std::vector<std::string> regions_;
+
+        
         
 
 
