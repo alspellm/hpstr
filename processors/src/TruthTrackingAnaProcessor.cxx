@@ -71,7 +71,7 @@ void TruthTrackingAnaProcessor::initialize(TTree* tree) {
         reg_trackHistos_[regname]->DefineHistos();
 
         reg_truthHistos_[regname] = std::make_shared<TrackHistos>(regname +"_truthComparison");
-        reg_truthHistos_[regname]->loadHistoConfig(histCfgFilename_);
+        reg_truthHistos_[regname]->loadHistoConfig(truthHistCfgFilename_);
         reg_truthHistos_[regname]->doTrackComparisonPlots(false);
         reg_truthHistos_[regname]->DefineHistos();
 
@@ -91,6 +91,13 @@ bool TruthTrackingAnaProcessor::process(IEvent* ievent) {
         
         // Get a track
         Track* track = tracks_->at(itrack);
+        std::string trkname = "";
+        double charge = (double) track->getCharge();
+        if (charge < 0)
+            trkname = "ele_";
+        else
+            trkname = "pos_";
+
         double purity = track->getTrackTruthPurity();
         if (purity < purityCut_)
             continue;
@@ -120,13 +127,15 @@ bool TruthTrackingAnaProcessor::process(IEvent* ievent) {
             track->Print();
         }
         
-        trkHistos_->Fill1DHistograms(track);
+        //trkHistos_->Fill1DHistograms(track);
+        trkHistos_->Fill1DTrack(track, weight, trkname);
         trkHistos_->Fill2DTrack(track);
         
         if (truthHistos_) {
-            truthHistos_->Fill1DHistograms(truth_track);
-            truthHistos_->Fill2DTrack(track);
-            truthHistos_->Fill1DTrackTruth(track, truth_track);
+            //truthHistos_->Fill1DHistograms(truth_track, weight, trkname);
+            truthHistos_->Fill1DTrack(track, weight, trkname);
+            truthHistos_->Fill2DTrack(track,weight, trkname);
+            truthHistos_->Fill1DTrackTruth(track, truth_track, weight, trkname);
         }
 
         //generate track hit code
@@ -134,23 +143,11 @@ bool TruthTrackingAnaProcessor::process(IEvent* ievent) {
         int* goodhits = track->getTrackTruthGoodHits();
         for (int layer = 0; layer < 4; layer++) {
             if (goodhits[layer] != 0){
-                std::cout << "hitCode: " << hitCode << std::endl;
                 hitCode = hitCode | (0x1 << layer);
             }
         }
 
-        std::string trkname = "";
-        double charge = (double) track->getCharge();
-        if (charge < 0)
-            trkname = "ele_";
-        else
-            trkname = "pos_";
-
         for (auto region : regions_){
-            if(debug_) std::cout << "Check for region " << region 
-                << " hc " << hitCode
-                << " lt:" << !reg_selectors_[region]->passCutLt("hitCode_lt", ((double)hitCode)-0.5, weight)
-                << std::endl;
             //Hit code req
             if (!reg_selectors_[region]->passCutLt("hitCode_lt", ((double)hitCode)-0.5, weight) ) continue;
             if (!reg_selectors_[region]->passCutGt("hitCode_gt", ((double)hitCode)+0.5, weight) ) continue;
@@ -162,7 +159,7 @@ bool TruthTrackingAnaProcessor::process(IEvent* ievent) {
         n_sel_tracks++;
     }//Loop on tracks
 
-    trkHistos_->Fill1DHisto("n_tracks_h",n_sel_tracks);
+    //trkHistos_->Fill1DHisto("n_tracks_h",n_sel_tracks);
     
 
     return true;
@@ -183,12 +180,12 @@ void TruthTrackingAnaProcessor::finalize() {
     }
 
     for (reg_it it = reg_trackHistos_.begin(); it!=reg_trackHistos_.end(); ++it){
-        std::string dirName = it->first;
+        std::string dirName = it->first + "_trackHistos";
         (it->second)->saveHistos(outF_, dirName);
     }
 
     for (reg_it it = reg_truthHistos_.begin(); it!=reg_truthHistos_.end(); ++it){
-        std::string dirName = it->first;
+        std::string dirName = it->first + "_truthHistos";
         (it->second)->saveHistos(outF_, dirName);
     }
 

@@ -80,6 +80,25 @@ if (not options.isData):
     track.parameters["truthTrackCollLcio"] = 'KalmanFullTracksToTruthTrackRelations'
     track.parameters["truthTrackCollRoot"] = 'KalmanFullTracksTruth'
     track.parameters["trackTruthInfoCollLcio"] = 'KalmanFullTracksToTruthInfoRelations'
+RegionPath = os.environ['HPSTR_BASE']+"/analysis/selections/trackHit/"
+anaTrks.parameters["regionDefinitions"] = [RegionPath+'hc15_1111.json',
+                                           RegionPath+'hc14_1110.json',
+                                           RegionPath+'hc13_1101.json',
+                                           RegionPath+'hc12_1100.json',
+                                           RegionPath+'hc11_1011.json',
+                                           RegionPath+'hc10_1010.json',
+                                           RegionPath+'hc9_1001.json',
+                                           RegionPath+'hc8_1000.json',
+                                           RegionPath+'hc7_0111.json',
+                                           RegionPath+'hc6_0110.json',
+                                           RegionPath+'hc5_0101.json',
+                                           RegionPath+'hc4_0100.json',
+                                           RegionPath+'hc3_0011.json',
+                                           RegionPath+'hc2_0010.json',
+                                           RegionPath+'hc1_0001.json',
+                                           RegionPath+'hc0_0000.json',
+                                           RegionPath+'noHCreq.json'
+                                          ] 
 
 #LT check if we need the b field or not -- version of HPS java
 # for Jess's files need to give it b-field

@@ -1,19 +1,19 @@
 {
-    "n_tracks_h" : {
+    "ele_n_tracks_h" : {
         "bins"   : 10,
         "minX"   : 0,
         "maxX"   : 10,
         "xtitle" : "N_{tracks}",
         "ytitle" : "Events"
     },
-    "nHits_2d_h" : {
+    "ele_nHits_2d_h" : {
         "bins"  : 15,
         "minX"  : 0,
         "maxX"  : 15,
         "xtitle" : "N_{2Dhits}",
         "ytitle" : "Tracks"
     },
-    "strategy_h" : {
+    "ele_strategy_h" : {
         "bins" : 6,
         "minX" : -0.5,
         "maxX" : 5.5,
@@ -21,21 +21,21 @@
         "ytitle" : "Tracks",
         "labels" : ["s345","s456","s123c4","s123c5","Match","GBL"]
     },
-    "type_h" : {
+    "ele_type_h" : {
         "bins" : 65,
         "minX" : -0.5,
         "maxX" : 64.5,
         "xtitle" : "Type",
         "ytitle" : "Tracks"
     },
-    "nShared_h" : {
+    "ele_nShared_h" : {
         "bins" : 8,
         "minX" : -0.5,
         "maxX" : 7.5,
         "xtitle" : "N_{shared}^{hits}",
         "ytitle" : "Tracks"
     },
-    "sharingHits_h" : {
+    "ele_sharingHits_h" : {
         "bins" : 6,
         "minX" : -0.5,
         "maxX" : 5.5,
@@ -43,70 +43,184 @@
         "ytitle" : "Tracks",
         "labels" : ["All Tracks","nShared = 0","SharedLy0","SharedLy1","SharedLy0AndLy1","SharedOthers"]
     },
-    "d0_h" : {
+    "ele_d0_h" : {
         "bins" : 200,
         "minX" : -10,
         "maxX" : 10,
         "xtitle" : "d_{0} [mm]",
         "ytitle" : "Tracks"
     },
-    "Phi_h" : {
+    "ele_Phi_h" : {
         "bins" : 100,
         "minX" : -0.5,
         "maxX" : 0.5,
         "xtitle" : "phi_{0}",
         "ytitle" : "Tracks"
     },
-    "Omega_h" : {
+    "ele_Omega_h" : {
         "bins" : 100,
         "minX" : -0.002,
         "maxX" : 0.002,
         "xtitle" : "#omega",
         "ytitle" : "Tracks"
     },
-    "invpT_h" : {
+    "ele_invpT_h" : {
         "bins" : 100,
         "minX" : -2.5,
         "maxX" : 2.5,
         "xtitle" : "q/pT [GeV^{-1}]",
         "ytitle" : "Tracks"
     },
-    "pT_h" : {
+    "ele_pT_h" : {
         "bins" : 100,
         "minX" : -3,
         "maxX" : 3,
         "xtitle" : "q*pT [GeV^{-1}]",
         "ytitle" : "Tracks"
     },
-    "TanLambda_h" : {
+    "ele_TanLambda_h" : {
         "bins" : 200,
         "minX" : -0.6,
         "maxX" : 0.6,
         "xtitle" : "tan(#lambda)",
         "ytitle" : "Tracks"
     },
-    "Z0_h" : {
+    "ele_Z0_h" : {
         "bins" : 200,
         "minX" : -5,
         "maxX" : 5,
         "xtitle" : "z_0 [mm]",
         "ytitle" : "Tracks"
     },
-    "time_h" : {
+    "ele_time_h" : {
         "bins" : 200,
         "minX" : -10,
         "maxX" : 10,
         "xtitle" : "track time [ns]",
         "ytitle" : "Tracks"
     },
-    "chi2_h" : {
+    "ele_chi2_h" : {
         "bins" : 200,
         "minX" : 0,
         "maxX" : 100,
         "xtitle" : "track #chi^{2}",
         "ytitle" : "Tracks"
     },
-    "chi2ndf_h" : {
+    "ele_chi2ndf_h" : {
+        "bins" : 200,
+        "minX" : 0,
+        "maxX" : 30,
+        "xtitle" : "track #chi^{2} / ndf",
+        "ytitle" : "Tracks"
+    },
+    "pos_n_tracks_h" : {
+        "bins"   : 10,
+        "minX"   : 0,
+        "maxX"   : 10,
+        "xtitle" : "N_{tracks}",
+        "ytitle" : "Events"
+    },
+    "pos_nHits_2d_h" : {
+        "bins"  : 15,
+        "minX"  : 0,
+        "maxX"  : 15,
+        "xtitle" : "N_{2Dhits}",
+        "ytitle" : "Tracks"
+    },
+    "pos_strategy_h" : {
+        "bins" : 6,
+        "minX" : -0.5,
+        "maxX" : 5.5,
+        "xtitle" : "Strategy",
+        "ytitle" : "Tracks",
+        "labels" : ["s345","s456","s123c4","s123c5","Match","GBL"]
+    },
+    "pos_type_h" : {
+        "bins" : 65,
+        "minX" : -0.5,
+        "maxX" : 64.5,
+        "xtitle" : "Type",
+        "ytitle" : "Tracks"
+    },
+    "pos_nShared_h" : {
+        "bins" : 8,
+        "minX" : -0.5,
+        "maxX" : 7.5,
+        "xtitle" : "N_{shared}^{hits}",
+        "ytitle" : "Tracks"
+    },
+    "pos_sharingHits_h" : {
+        "bins" : 6,
+        "minX" : -0.5,
+        "maxX" : 5.5,
+        "xtitle" : "sharing hits",
+        "ytitle" : "Tracks",
+        "labels" : ["All Tracks","nShared = 0","SharedLy0","SharedLy1","SharedLy0AndLy1","SharedOthers"]
+    },
+    "pos_d0_h" : {
+        "bins" : 200,
+        "minX" : -10,
+        "maxX" : 10,
+        "xtitle" : "d_{0} [mm]",
+        "ytitle" : "Tracks"
+    },
+    "pos_Phi_h" : {
+        "bins" : 100,
+        "minX" : -0.5,
+        "maxX" : 0.5,
+        "xtitle" : "phi_{0}",
+        "ytitle" : "Tracks"
+    },
+    "pos_Omega_h" : {
+        "bins" : 100,
+        "minX" : -0.002,
+        "maxX" : 0.002,
+        "xtitle" : "#omega",
+        "ytitle" : "Tracks"
+    },
+    "pos_invpT_h" : {
+        "bins" : 100,
+        "minX" : -2.5,
+        "maxX" : 2.5,
+        "xtitle" : "q/pT [GeV^{-1}]",
+        "ytitle" : "Tracks"
+    },
+    "pos_pT_h" : {
+        "bins" : 100,
+        "minX" : -3,
+        "maxX" : 3,
+        "xtitle" : "q*pT [GeV^{-1}]",
+        "ytitle" : "Tracks"
+    },
+    "pos_TanLambda_h" : {
+        "bins" : 200,
+        "minX" : -0.6,
+        "maxX" : 0.6,
+        "xtitle" : "tan(#lambda)",
+        "ytitle" : "Tracks"
+    },
+    "pos_Z0_h" : {
+        "bins" : 200,
+        "minX" : -5,
+        "maxX" : 5,
+        "xtitle" : "z_0 [mm]",
+        "ytitle" : "Tracks"
+    },
+    "pos_time_h" : {
+        "bins" : 200,
+        "minX" : -10,
+        "maxX" : 10,
+        "xtitle" : "track time [ns]",
+        "ytitle" : "Tracks"
+    },
+    "pos_chi2_h" : {
+        "bins" : 200,
+        "minX" : 0,
+        "maxX" : 100,
+        "xtitle" : "track #chi^{2}",
+        "ytitle" : "Tracks"
+    },
+    "pos_chi2ndf_h" : {
         "bins" : 200,
         "minX" : 0,
         "maxX" : 30,
