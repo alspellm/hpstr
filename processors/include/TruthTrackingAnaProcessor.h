@@ -91,6 +91,7 @@ class TruthTrackingAnaProcessor : public Processor {
         std::map<std::string, std::shared_ptr<TrackHistos> > reg_trackHistos_;
         typedef std::map<std::string,std::shared_ptr<TrackHistos> >::iterator reg_it;
         std::map<std::string, std::shared_ptr<TrackHistos> > reg_truthHistos_;
+        std::map<std::string, std::shared_ptr<TrackHistos> > reg_misHistos_;
         
 
         bool doTruth_{false};

@@ -5,6 +5,7 @@
  */
 
 #include "Track.h"
+#include <iostream>
 
 ClassImp(Track)
 
@@ -97,5 +98,19 @@ void Track::setTrackTruthParameters(int goodhits[14], int nmcps[14], double puri
         nmcps_[i] = nmcps[i];
     }
     purity_ = purity;
+}
+
+double Track::getPhi() {
+    if (phi0_ == -999)
+        return -999;
+    if (phi0_ > M_PI){
+        return phi0_-(2*M_PI);
+    }
+    if (phi0_ < - M_PI){
+        return phi0_+(2*M_PI);
+    }
+    else{
+        return phi0_;
+    }
 }
 

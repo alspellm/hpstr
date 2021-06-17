@@ -1,4 +1,38 @@
 {
+   "hitCode_h" : {
+        "bins"   : 16,
+        "minX"   : -0.5,
+        "maxX"   : 15.5,
+        "xtitle" : "hit code",
+        "ytitle" : "Tracks"
+    }, 
+     "hitCode_trkType_hh" : {
+        "binsX"   : 16,
+        "minX"   : -0.5,
+        "maxX"   : 15.5,
+        "binsY"   : 2,
+        "minY"   : -0.5,
+        "maxY"   : 1.5,
+        "xtitle" : "hit combo",
+        "ytitle" : "track type"
+    },
+   "mishitCode_h" : {
+        "bins"   : 16,
+        "minX"   : -0.5,
+        "maxX"   : 15.5,
+        "xtitle" : "hit code",
+        "ytitle" : "Tracks"
+    }, 
+     "mishitCode_trkType_hh" : {
+        "binsX"   : 16,
+        "minX"   : -0.5,
+        "maxX"   : 15.5,
+        "binsY"   : 2,
+        "minY"   : -0.5,
+        "maxY"   : 1.5,
+        "xtitle" : "hit combo",
+        "ytitle" : "track type"
+    },
     "ele_d0_truth_res_h" : {
         "bins" : 200,
         "minX" : -5,

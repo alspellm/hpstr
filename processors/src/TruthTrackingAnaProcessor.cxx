@@ -46,16 +46,14 @@ void TruthTrackingAnaProcessor::initialize(TTree* tree) {
         trkSelector_->LoadSelection();
     }
     
-    if (doTruth_) {
-        truthHistos_ = new TrackHistos(trkCollName_+"_truthComparison");
-        truthHistos_->loadHistoConfig(histCfgFilename_);
-        truthHistos_->DefineHistos();
-        truthHistos_->loadHistoConfig(truthHistCfgFilename_);
-        truthHistos_->DefineHistos();
-        truthHistos_->doTrackComparisonPlots(false);
+    truthHistos_ = new TrackHistos(trkCollName_+"_truthComparison");
+    truthHistos_->loadHistoConfig(histCfgFilename_);
+    truthHistos_->DefineHistos();
+    truthHistos_->loadHistoConfig(truthHistCfgFilename_);
+    truthHistos_->DefineHistos();
+    truthHistos_->doTrackComparisonPlots(false);
         
         //tree->SetBranchAddress(truthCollName_.c_str(),&truth_tracks_,&btruth_tracks_);
-    }
 
     //Setup regions
     for (unsigned int i_reg = 0; i_reg < regionSelections_.size(); i_reg++){
@@ -75,6 +73,11 @@ void TruthTrackingAnaProcessor::initialize(TTree* tree) {
         reg_truthHistos_[regname]->doTrackComparisonPlots(false);
         reg_truthHistos_[regname]->DefineHistos();
 
+        reg_misHistos_[regname] = std::make_shared<TrackHistos>(regname +"_misassHits");
+        reg_misHistos_[regname]->loadHistoConfig(truthHistCfgFilename_);
+        reg_misHistos_[regname]->doTrackComparisonPlots(false);
+        reg_misHistos_[regname]->DefineHistos();
+
         regions_.push_back(regname);
     }
 
@@ -92,6 +95,8 @@ bool TruthTrackingAnaProcessor::process(IEvent* ievent) {
         // Get a track
         Track* track = tracks_->at(itrack);
         std::string trkname = "";
+        bool isPos = (track->getOmega() < 0.0);
+        int trkType = (int)isPos;
         double charge = (double) track->getCharge();
         if (charge < 0)
             trkname = "ele_";
@@ -112,40 +117,43 @@ bool TruthTrackingAnaProcessor::process(IEvent* ievent) {
 
         Track* truth_track = nullptr;
 
-        //Get the truth track
-        if (doTruth_) { 
-            truth_track = (Track*) track->getTruthLink().GetObject();
-            if (!truth_track)
-                std::cout<<"Warnings::TruthTrackingAnaProcessor::Requested Truth track but couldn't find it in the ntuple"<<std::endl;
-        }
-        
-        if(debug_ > 0)
-        {
-            std::cout<<"========================================="<<std::endl;
-            std::cout<<"========================================="<<std::endl;
-            std::cout<<"Track params:           "<<std::endl;
-            track->Print();
-        }
-        
         //trkHistos_->Fill1DHistograms(track);
         trkHistos_->Fill1DTrack(track, weight, trkname);
         trkHistos_->Fill2DTrack(track);
         
-        if (truthHistos_) {
-            //truthHistos_->Fill1DHistograms(truth_track, weight, trkname);
-            truthHistos_->Fill1DTrack(track, weight, trkname);
-            truthHistos_->Fill2DTrack(track,weight, trkname);
-            truthHistos_->Fill1DTrackTruth(track, truth_track, weight, trkname);
-        }
+        //Get the truth track
+        truth_track = (Track*) track->getTruthLink().GetObject();
+        //if no truth track, continue to next track
+        if(!truth_track)
+            continue;
+
+        //truthHistos_->Fill1DHistograms(truth_track, weight, trkname);
+        truthHistos_->Fill1DTrack(truth_track, weight, trkname);
+        truthHistos_->Fill2DTrack(truth_track,weight, trkname);
+        truthHistos_->Fill1DTrackTruth(track, truth_track, weight, trkname);
 
         //generate track hit code
         int hitCode = 0;
+        int mishitCode = 0;
         int* goodhits = track->getTrackTruthGoodHits();
         for (int layer = 0; layer < 4; layer++) {
             if (goodhits[layer] != 0){
                 hitCode = hitCode | (0x1 << layer);
             }
         }
+        //Check hit misassociation for Tracks that have hits in first 4 layers
+        if (hitCode == 15){
+            for (int layer = 0; layer < 4; layer++) {
+                if(goodhits[layer] == -1){
+                    mishitCode = mishitCode | (0x1 << layer);
+                }
+            }
+        }
+
+        truthHistos_->Fill1DHisto("hitCode_h", hitCode);
+        truthHistos_->Fill2DHisto("hitCode_trkType_hh", hitCode, trkType);
+        truthHistos_->Fill1DHisto("mishitCode_h", mishitCode);
+        truthHistos_->Fill2DHisto("mishitCode_trkType_hh", mishitCode, trkType);
 
         for (auto region : regions_){
             //Hit code req
@@ -153,8 +161,11 @@ bool TruthTrackingAnaProcessor::process(IEvent* ievent) {
             if (!reg_selectors_[region]->passCutGt("hitCode_gt", ((double)hitCode)+0.5, weight) ) continue;
             reg_trackHistos_[region]->Fill1DTrack(track, weight, trkname);
             reg_truthHistos_[region]->Fill1DTrackTruth(track, truth_track, weight, trkname);
-        }
 
+            if (!reg_selectors_[region]->passCutLt("hitCode_lt", ((double)mishitCode)-0.5, weight) ) continue;
+            if (!reg_selectors_[region]->passCutGt("hitCode_gt", ((double)mishitCode)+0.5, weight) ) continue;
+            reg_misHistos_[region]->Fill1DTrackTruth(track, truth_track, weight, trkname);
+        }
         
         n_sel_tracks++;
     }//Loop on tracks
@@ -173,11 +184,9 @@ void TruthTrackingAnaProcessor::finalize() {
     if (trkSelector_)
         trkSelector_->getCutFlowHisto()->Write();
 
-    if (truthHistos_) {
-        truthHistos_->saveHistos(outF_,trkCollName_+"_truth");
-        delete truthHistos_;
-        truthHistos_ = nullptr;
-    }
+    truthHistos_->saveHistos(outF_,trkCollName_+"_truth");
+    delete truthHistos_;
+    truthHistos_ = nullptr;
 
     for (reg_it it = reg_trackHistos_.begin(); it!=reg_trackHistos_.end(); ++it){
         std::string dirName = it->first + "_trackHistos";
@@ -186,6 +195,11 @@ void TruthTrackingAnaProcessor::finalize() {
 
     for (reg_it it = reg_truthHistos_.begin(); it!=reg_truthHistos_.end(); ++it){
         std::string dirName = it->first + "_truthHistos";
+        (it->second)->saveHistos(outF_, dirName);
+    }
+
+    for (reg_it it = reg_misHistos_.begin(); it!=reg_misHistos_.end(); ++it){
+        std::string dirName = it->first + "_mishitHistos";
         (it->second)->saveHistos(outF_, dirName);
     }
 

@@ -1,7 +1,7 @@
 #include "TrackHistos.h"
 #include "TLorentzVector.h"
 #include "TVector3.h"
-#include <iostream>
+
 
 void TrackHistos::BuildAxes(){}
 
@@ -197,6 +197,9 @@ void TrackHistos::Fill2DTrack(Track* track, float weight, const std::string& trk
 }
 
 void TrackHistos::Fill1DTrack(Track* track, float weight, const std::string& trkname) {
+
+    if(!track)
+        return;
 
     double charge = (double) track->getCharge();
 

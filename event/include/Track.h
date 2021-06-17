@@ -85,7 +85,8 @@ class Track : public TObject {
         
         
         double getD0       () const {return d0_;}
-        double getPhi      () const {return phi0_;}
+        //double getPhi      () const {return phi0_;}
+        double getPhi();
         void   setPhi      (const double phi0) {phi0_ = phi0;}
         double getOmega    () const {return omega_;}
         double getTanLambda() const {return tan_lambda_;}
