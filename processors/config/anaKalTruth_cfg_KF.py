@@ -32,7 +32,7 @@ trkana.parameters["trkCollName"] = "KalmanFullTracks"
 trkana.parameters["histCfg"] = os.environ['HPSTR_BASE'] + '/analysis/plotconfigs/tracking/basicTracking.json'
 trkana.parameters["doTruth"] = 1
 trkana.parameters["truthHistCfg"] = os.environ['HPSTR_BASE'] + '/analysis/plotconfigs/tracking/truthTrackComparison.json'
-trkana.parameters["puritycut"] = 0.0
+trkana.parameters["puritycut"] = 1.0
 RegionPath = os.environ['HPSTR_BASE']+"/analysis/selections/trackHit/"
 trkana.parameters["regionDefinitions"] = [RegionPath+'hc15_1111.json', 
                                            RegionPath+'hc14_1110.json',

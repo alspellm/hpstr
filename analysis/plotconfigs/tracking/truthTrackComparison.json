@@ -41,7 +41,7 @@
         "ytitle"  : "Tracks"      
     },
     "ele_Phi_truth_res_h" : {
-        "bins" : 200,
+        "bins" : 2000,
         "minX" : -0.5,
         "maxX" :  0.5,
         "xtitle"  : "#phi_{reco} - #phi_{truth}",
@@ -97,7 +97,7 @@
         "ytitle"  : "Tracks"      
     },
     "ele_Phi_truth_pull_h" : {
-        "bins" : 200,
+        "bins" : 2000,
         "minX" : -5,
         "maxX" :  5,
         "xtitle"  : "#phi_{reco} - #phi_{truth} / #sigma_{#phi}",
@@ -124,7 +124,13 @@
         "xtitle"  : "z0_{reco} - z0_{truth} / #sigma_{z0}",
         "ytitle"  : "Tracks"      
     },
-
+    "ele_p_truth_pull_h" : {
+        "bins" : 2000,
+        "minX" : -10,
+        "maxX" :  10,
+        "xtitle"  : "p_{reco} - p_{truth}",
+        "ytitle"  : "Tracks"      
+    },
     "pos_d0_truth_res_h" : {
         "bins" : 200,
         "minX" : -5,
@@ -133,7 +139,7 @@
         "ytitle"  : "Tracks"      
     },
     "pos_Phi_truth_res_h" : {
-        "bins" : 200,
+        "bins" : 2000,
         "minX" : -0.5,
         "maxX" :  0.5,
         "xtitle"  : "#phi_{reco} - #phi_{truth}",
@@ -189,7 +195,7 @@
         "ytitle"  : "Tracks"      
     },
     "pos_Phi_truth_pull_h" : {
-        "bins" : 200,
+        "bins" : 2000,
         "minX" : -5,
         "maxX" :  5,
         "xtitle"  : "#phi_{reco} - #phi_{truth} / #sigma_{#phi}",
@@ -214,6 +220,13 @@
         "minX" : -5,
         "maxX" :  5,
         "xtitle"  : "z0_{reco} - z0_{truth} / #sigma_{z0}",
+        "ytitle"  : "Tracks"      
+    },
+    "pos_p_truth_pull_h" : {
+        "bins" : 2000,
+        "minX" : -10,
+        "maxX" :  10,
+        "xtitle"  : "p_{reco} - p_{truth}",
         "ytitle"  : "Tracks"      
     }
 }

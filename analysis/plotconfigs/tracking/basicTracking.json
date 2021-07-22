@@ -43,6 +43,13 @@
         "ytitle" : "Tracks",
         "labels" : ["All Tracks","nShared = 0","SharedLy0","SharedLy1","SharedLy0AndLy1","SharedOthers"]
     },
+    "ele_p_h" : {
+        "bins" : 2000,
+        "minX" : -10,
+        "maxX" : 10,
+        "xtitle" : "P [GeV]",
+        "ytitle" : "Tracks"
+    },
     "ele_d0_h" : {
         "bins" : 200,
         "minX" : -10,
@@ -51,7 +58,7 @@
         "ytitle" : "Tracks"
     },
     "ele_Phi_h" : {
-        "bins" : 100,
+        "bins" : 1000,
         "minX" : -0.5,
         "maxX" : 0.5,
         "xtitle" : "phi_{0}",
@@ -157,6 +164,13 @@
         "ytitle" : "Tracks",
         "labels" : ["All Tracks","nShared = 0","SharedLy0","SharedLy1","SharedLy0AndLy1","SharedOthers"]
     },
+    "pos_p_h" : {
+        "bins" : 2000,
+        "minX" : -10,
+        "maxX" : 10,
+        "xtitle" : "P [GeV]",
+        "ytitle" : "Tracks"
+    },
     "pos_d0_h" : {
         "bins" : 200,
         "minX" : -10,
@@ -165,7 +179,7 @@
         "ytitle" : "Tracks"
     },
     "pos_Phi_h" : {
-        "bins" : 100,
+        "bins" : 1000,
         "minX" : -0.5,
         "maxX" : 0.5,
         "xtitle" : "phi_{0}",

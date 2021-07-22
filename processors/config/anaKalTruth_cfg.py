@@ -35,12 +35,13 @@ trkana.parameters["truthHistCfg"] = os.environ['HPSTR_BASE'] + '/analysis/plotco
 
 
 trkgblana.parameters["debug"]        = 0;
-trkgblana.parameters["trkCollName"]  = "GBLRefittedTracks"
+trkgblana.parameters["trkCollName"]  = "GBLTracks"
 trkgblana.parameters["histCfg"]      = os.environ['HPSTR_BASE'] + '/analysis/plotconfigs/tracking/basicTracking.json'
 trkgblana.parameters["doTruth"]      = 1
 trkgblana.parameters["truthHistCfg"] = os.environ['HPSTR_BASE'] + '/analysis/plotconfigs/tracking/truthTrackComparison.json'
 
-p.sequence = [trkana,trkgblana]
+#p.sequence = [trkana,trkgblana]
+p.sequence = [trkgblana]
 
 p.input_files = infile
 p.output_files = [outfile]

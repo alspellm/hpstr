@@ -353,6 +353,7 @@ void TrackHistos::Fill1DTrackTruth(Track *track, Track* truth_track, float weigh
     Fill1DHisto(trkname+"Omega_truth_pull_h",    (omega - omega_truth)         / omegaerr, weight);
     Fill1DHisto(trkname+"TanLambda_truth_pull_h",(tanLambda - tanLambda_truth) / tanLambdaerr, weight);
     Fill1DHisto(trkname+"Z0_truth_pull_h",       (z0 - z0_truth)               / z0err, weight);
+    Fill1DHisto(trkname+"p_truth_pull_h",       (p - p_truth));
 }
 
 

@@ -102,11 +102,16 @@ bool TruthTrackingAnaProcessor::process(IEvent* ievent) {
             trkname = "ele_";
         else
             trkname = "pos_";
-
         double purity = track->getTrackTruthPurity();
         if (purity < purityCut_)
             continue;
+        //adding cuts for debug
+        if (track->getP() < 4)
+            continue;
         int n2dhits_onTrack = !track->isKalmanTrack() ? track->getTrackerHitCount() * 2 : track->getTrackerHitCount();
+        //added cut for debug
+        if (n2dhits_onTrack < 14)
+            continue;
         
         //Track Selection
         if (trkSelector_ && !trkSelector_->passCutGt("n_hits_gt",n2dhits_onTrack,weight))

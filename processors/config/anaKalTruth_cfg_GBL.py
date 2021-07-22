@@ -39,7 +39,7 @@ trkgblana.parameters["trkCollName"]  = "GBLTracks"
 trkgblana.parameters["histCfg"]      = os.environ['HPSTR_BASE'] + '/analysis/plotconfigs/tracking/basicTracking.json'
 trkgblana.parameters["doTruth"]      = 1
 trkgblana.parameters["truthHistCfg"] = os.environ['HPSTR_BASE'] + '/analysis/plotconfigs/tracking/truthTrackComparison.json'
-trkgblana.parameters["puritycut"] = 0.0
+trkgblana.parameters["puritycut"] = 1.0
 RegionPath = os.environ['HPSTR_BASE']+"/analysis/selections/trackHit/"
 trkgblana.parameters["regionDefinitions"] = [RegionPath+'hc15_1111.json',
                                            RegionPath+'hc14_1110.json',
