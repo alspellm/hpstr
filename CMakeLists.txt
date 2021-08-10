@@ -39,9 +39,13 @@ if (LCIO_DIR)
 endif()
 find_package(LCIO REQUIRED)
 
+find_package(ROOT REQUIRED)
+include(${ROOT_USE_FILE})
+find_package(EvioTool CONFIG REQUIRED)
 
 # find the HPSEvioReader and EvioTool directory
 if (HPSEvioReader_DIR)
+    message(STATUS "FOUND ${HPSEvioReader_DIR}")
     set(HPSEvioReader_INCLUDE_DIR "${HPSEvioReader_DIR}/include")
 
     if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
