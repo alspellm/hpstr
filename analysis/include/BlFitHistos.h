@@ -45,12 +45,10 @@ class BlFitHistos : public HistoManager{
         void GausFitHistos2D(std::map<std::string, TH2F*> histos2d,int rebin_, int minStats_,int deadRMS_, FlatTupleMaker* flat_tuple_);
         TF1* singleGausIterative(TH1D* hist, double sigmaRange, double min, double max);
         void backwardsIterativeChi2Fit(TH1D* hist, double min, double max);
-        void setDebug(bool val){debug_ = val;}
         
     private:
         
         TH1F* fitHistos{nullptr};
-        bool debug_{false};
 
     protected:
         std::map<std::string, TH2F*> histos2d;

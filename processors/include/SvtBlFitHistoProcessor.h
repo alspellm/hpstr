@@ -39,8 +39,6 @@ class SvtBlFitHistoProcessor : public Processor {
         TFile* inF_{nullptr};
         TFile* outF_chi2{nullptr};
 
-        bool debug_{false};
-
         //Select which layer to fit baselines. Default is all.
         std::string layer_{""};
         //json file for histo config
