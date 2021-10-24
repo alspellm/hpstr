@@ -20,6 +20,7 @@
 #include "ModuleMapper.h"
 #include "TFitResult.h"
 #include "TF1.h"
+#include <fstream>
 
 class BlFitHistos : public HistoManager{
     
@@ -42,9 +43,9 @@ class BlFitHistos : public HistoManager{
         }
 
         void getHistosFromFile(TFile* inFile, std::string layer = "");
-        void GausFitHistos2D(std::map<std::string, TH2F*> histos2d,int rebin_, int minStats_,int deadRMS_, FlatTupleMaker* flat_tuple_);
-        TF1* singleGausIterative(TH1D* hist, double sigmaRange, double min, double max);
-        void backwardsIterativeChi2Fit(TH1D* hist, double min, double max);
+        void fit2DHistoChannelBaselines(std::map<std::string, TH2F*> histos2d,int rebin_, int minStats_,int deadRMS_, std::string thresholdsFileIn_, FlatTupleMaker* flat_tuple_);
+        void iterativeGausFit(TH1D* hist, double min, double max, double sigmaRange, int threshold);
+        void setDebug(bool value){debug_ = value;};
         
     private:
         
@@ -54,8 +55,10 @@ class BlFitHistos : public HistoManager{
         std::map<std::string, TH2F*> histos2d;
         std::map<std::string, TH1F*> histos1d;
         std::map<std::string,std::map<int,int>> svtIDMap;
+        std::map<std::string,std::map<std::string,std::vector<int>>> threshMap_;
         bool simpleGausFit_;
         ModuleMapper * mmapper_;
+        bool debug_{false};
 };
 
 #endif
