@@ -89,7 +89,7 @@ def getHistosFromFile(inFile, histoType = "TH2D", name = ""):
 
 def getOfflineFitTuple(inFile, key):
     print("Grabbing Ntuples for %s from TTree"%(key))
-    channel, svt_id, mean, sigma, norm, chi2, ndf, fitlow, fithigh, RMS, lowdaq, lowstats, badfit, hm_string, superlowDaq = ([] for i in range(15))
+    channel, svt_id, mean, sigma, norm, chi2, ndf, fitlow, fithigh, RMS, lowdaq, lowstats, badfit, hm_string, superlowDaq, threshold, minthreshold = ([] for i in range(17))
     myTree = inFile.gaus_fit
     for fitData in myTree:
         tupleKey = str(fitData.halfmodule_hh)
@@ -108,8 +108,10 @@ def getOfflineFitTuple(inFile, key):
             badfit.append(fitData.badfit)
             hm_string.append(fitData.halfmodule_hh)
             superlowDaq.append(fitData.suplowDaq)
+            threshold.append(fitData.threshold)
+            minthreshold.append(fitData.minthreshold)
 
-    fitTuple = (svt_id, channel, mean, sigma, norm, ndf, fitlow, fithigh, RMS, lowdaq, lowstats, badfit, hm_string, superlowDaq)
+    fitTuple = (svt_id, channel, mean, sigma, norm, ndf, fitlow, fithigh, RMS, lowdaq, lowstats, badfit, hm_string, superlowDaq, threshold, minthreshold)
 
     #Tuple map for reference
     svt_id = fitTuple[0]
@@ -126,6 +128,7 @@ def getOfflineFitTuple(inFile, key):
     badfit = fitTuple[11]
     hm_string = fitTuple[12]
     superlowDaq = fitTuple[13]
+    thresholds = fitTuple[14]
 
     return fitTuple
 
@@ -663,23 +666,40 @@ def plotOfflineChannelFits(hybrid, hh, offlineTuple, outFile):
     fithigh = offlineTuple[7]
     rms = offlineTuple[8]
     lowdaq = offlineTuple[9]
+    threshold = offlineTuple[14]
+    minthreshold = offlineTuple[15]
 
     for cc in range(len(channel)):
         canvas = r.TCanvas("%s_ch_%i_h"%(hybrid,channel[cc]), "c", 1800,800)
         canvas.cd()
-        yproj_h = hh.ProjectionY('%s_ch%i_h'%(hybrid,channel[cc]),int(channel[cc]+1),int(channel[cc]+1),"e")
-        if yproj_h.GetEntries() == 0:
+        projy_h = hh.ProjectionY('%s_ch%i_h'%(hybrid,channel[cc]),int(channel[cc]+1),int(channel[cc]+1),"e")
+        if projy_h.GetEntries() == 0:
             continue
-        yproj_h.SetTitle("%s_ch_%i_h"%(hybrid,channel[cc]))
+        projy_h.SetTitle("%s_ch_%i_h"%(hybrid,channel[cc]))
 
         func = r.TF1("m1","gaus",fitlow[cc],fithigh[cc])
         func.SetParameter(0,norm[cc])
         func.SetParameter(2,sigma[cc])
         func.SetParameter(1,mean[cc])
 
-        yproj_h.SetTitle("%s_ch_%i_h"%(hybrid,channel[cc]))
-        yproj_h.Draw()
+        projy_h.SetTitle("%s_ch_%i_h"%(hybrid,channel[cc]))
+        projy_h.Draw()
+
         func.Draw("same")
+
+        tbin = projy_h.FindBin(threshold[cc])
+        tbinVal = projy_h.GetBinContent(tbin)
+        maxline = r.TLine(threshold[cc],0,threshold[cc],tbinVal)
+        maxline.SetLineWidth(2)
+        maxline.Draw("same")
+
+        
+        tbin = projy_h.FindBin(minthreshold[cc])
+        tbinVal = projy_h.GetBinContent(tbin)
+        minline = r.TLine(minthreshold[cc],0,minthreshold[cc],tbinVal)
+        maxline.SetLineWidth(2)
+        maxline.Draw("same")
+
         canvas.Write()
         canvas.Close()
     outFile.cd()
