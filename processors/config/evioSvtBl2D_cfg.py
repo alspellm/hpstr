@@ -3,11 +3,17 @@ import sys
 import os
 import baseConfig
 
-args = baseConfig.parser.parse_args()
+baseConfig.parser.add_argument("-c", "--chNumCfg", type=str, dest="chNumCfg", action='store',
+                  help="Configuration for channel numbering.", metavar="chNumCfg", default="fw")
+baseConfig.parser.add_argument("-N", "--histNames", type=str, dest="histNames", action='store',
+                  help="Configuration for histogram naming convention.", 
+                  metavar="histNames", default="fw")
+
+options = baseConfig.parser.parse_args()
 
 # Use the input file to set the output file name
-in_file  = args.inFilename[0]
-out_file = args.outFilename
+in_file  = options.inFilename[0]
+out_file = options.outFilename
 
 print('In file: %s' % in_file)
 print('Out file: %s' % out_file)
@@ -33,7 +39,9 @@ evio = HpstrConf.Processor('evio', 'SvtBl2DEvioProcessor')
 #evio
 evio.parameters["debug"]    = 0
 evio.parameters["trigConf"] = "hps_v12_1.cnf"
-evio.parameters["histCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/svt/Svt2DBl.json'
+evio.parameters["chNumCfg"] = options.chNumCfg
+evio.parameters["histNames"] = options.histNames
+evio.parameters["histCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/svt/Svt2DBlHw.json'
 
 # Sequence which the processors will run.
 p.sequence = [evio]
