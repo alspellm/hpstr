@@ -242,11 +242,15 @@ void SvtCalPulseEvioProcessor::finalize() {
     rawhits_tup_->close();
     
     //Read Ttree and pass to fit pulses
-    TFile* readFile = outF_ = new TFile("testout.root","READ");
+    TFile* readFile = new TFile("testout.root","READ");
     std::cout << "getting tree" << std::endl;
-    TTree* rawhittree = (TTree*)outF_->Get("rawhits");
+    TTree* rawhittree = (TTree*)readFile->Get("rawhits");
     std::cout << "got tree" << std::endl;
     svtPulseFitHistos->fitRawHitPulses(rawhittree);
+    readFile->Close();
+    
+    svtPulseFitHistos->saveTProfiles(outF_, "");
+
 
     //svtPulseFitHistos->saveHistos(outF_,"");
     outF_->Close();

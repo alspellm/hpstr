@@ -17,7 +17,7 @@ double SvtPulseFitHistos::GetHitTime(int sample_number, int cdel) {
 }
 
 void SvtPulseFitHistos::buildRawSvtHitsTuple(std::vector<RawSvtHit*> *rawSvtHits_, FlatTupleMaker* rawhits_tup_) {
-    
+
     bool debug = false;
     //int nhits = rawSvtHits_->size();
     int nhits = 10;
@@ -57,11 +57,23 @@ void SvtPulseFitHistos::buildRawSvtHitsTuple(std::vector<RawSvtHit*> *rawSvtHits
 
 }
 
+void SvtPulseFitHistos::defineTProfiles(int maxchannels){
+    for(int i = 0; i < maxchannels; i++){
+        std::string name = "svtid_"+std::to_string(i);
+        TProfile* prof = new TProfile(name.c_str(),name.c_str(), 48,0,150,2000,8000);
+        tprofiles_[name] = prof;
+    }
+}
+
 void SvtPulseFitHistos::fitRawHitPulses(TTree* rawhittree) {
-    
+
+    //define TProfiles for all channels
+    defineTProfiles(200);
+
     double module, layer, channel, svtid, cdel, calgroup;
     std::string hwTag;
-    std::vector<RawSvtHit*> rawsvthits;
+    std::vector<double> adcs;
+
 
     std::cout << "setting branch address" << std::endl;
     rawhittree->Print();
@@ -72,11 +84,32 @@ void SvtPulseFitHistos::fitRawHitPulses(TTree* rawhittree) {
     std::cout << "nentries = " << nentries << std::endl;
     for(long i=0; i < nentries; i++){
         rawhittree->GetEntry(i);
-        std::cout << "svtid: " << svtid << std::endl;
+        for(int t=0; t < adcs.size(); t++){
+            double adc = adcs.at(t);
+            double time = GetHitTime(t, cdel);
+            tprofiles_["svtid_"+std::to_string(svtid)]->Fill(time, adc);
+        }
     }
-    
+
 }
 
+void SvtPulseFitHistos::saveTProfiles(TFile* outF, std::string folder) {
+    if (outF) outF->cd();
+    TDirectory* dir{nullptr};
+    if (!folder.empty()) {
+        dir = outF->mkdir(folder.c_str());
+        dir->cd();
+    }
+
+    for (ittp it = tprofiles_.begin(); it!=tprofiles_.end(); ++it) {
+        if (!it->second){
+            std::cout<<it->first<<" Null ptr in saving.."<<std::endl;
+            continue;
+        }
+        it->second->Write();
+    }
+
+}
 
 void SvtPulseFitHistos::FillHistogramsByHw(std::vector<RawSvtHit*> *rawSvtHits_,float weight) {
 
@@ -97,9 +130,9 @@ void SvtPulseFitHistos::FillHistogramsByHw(std::vector<RawSvtHit*> *rawSvtHits_,
         std::string hwTag= mmapper_->getHwFromSw("ly"+lay+"_m"+mod);
         float channel = rawSvtHit->getStrip();
         int svtid = mmapper_->getSvtIDFromHWChannel(channel, hwTag, svtid_map_); 
-            
 
-        
+
+
         for (int ss = 0; ss < 6; ss++)
         {
             //histokey = hwTag + "_SvtHybrids_s"+std::to_string(ss)+"_hh";
