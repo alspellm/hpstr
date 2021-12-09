@@ -108,6 +108,7 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
     rawhits_tup_->addVector("adcs");
 
     //tuple for storing rawhit fits
+    /*
     rawhitfits_tup_ = new FlatTupleMaker(outFilename.c_str(), "fits");
     rawhitfits_tup_->addVariable("t0");
     rawhitfits_tup_->addVariable("tau1");
@@ -117,6 +118,7 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
     rawhitfits_tup_->addVariable("baseline");
     rawhitfits_tup_->addVariable("chi2");
     rawhitfits_tup_->addVariable("ndf");
+    */
 
     //Init histos
     svtPulseFitHistos = new SvtPulseFitHistos("raw_hits", mmapper_);
@@ -131,6 +133,9 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
 }
 
 bool SvtCalPulseEvioProcessor::process() {
+
+    int maxevents = 10;
+    int eventn = 0;
 
     std::cout << "SvtCalPulseEvioProcessor::process" << std::endl;
     unsigned long evt_count=0;
@@ -152,6 +157,11 @@ bool SvtCalPulseEvioProcessor::process() {
         if( (etool->this_tag & 128) != 128) continue;
         if(debug_) cout<<"EVIO Event " << evt_count << endl;
         if(debug_) cout << "Event Number:  " << etool->Head->GetEventNumber() << "  seq: " << evt_count << endl;
+        eventn++;
+        std::cout << eventn << std::endl;
+        if(eventn > maxevents){
+            break;
+        }
         for(int i = 0; i < rawSvtHits_.size(); i++)
         {
             delete rawSvtHits_[i];
@@ -228,8 +238,16 @@ void SvtCalPulseEvioProcessor::finalize() {
     std::cout << "SvtCalPulseEvioProcessor::finalize" << std::endl;
     outF_->cd();
     std::cout << "SvtCalPulseEvioProcessor::write rawhits tuple" << std::endl;
+    rawhits_tup_->writeTree();
     rawhits_tup_->close();
-    std::cout << "SvtCalPulseEvioProcessor::write histos" << std::endl;
+    
+    //Read Ttree and pass to fit pulses
+    TFile* readFile = outF_ = new TFile("testout.root","READ");
+    std::cout << "getting tree" << std::endl;
+    TTree* rawhittree = (TTree*)outF_->Get("rawhits");
+    std::cout << "got tree" << std::endl;
+    svtPulseFitHistos->fitRawHitPulses(rawhittree);
+
     //svtPulseFitHistos->saveHistos(outF_,"");
     outF_->Close();
     delete svtPulseFitHistos;

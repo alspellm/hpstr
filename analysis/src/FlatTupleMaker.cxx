@@ -79,6 +79,8 @@ std::vector<double> FlatTupleMaker::getVector(std::string variable_name) {
 }
 
 void FlatTupleMaker::fill() { 
+
+    file->cd();
     
     // Fill the event with the current variables.
     tree->Fill();

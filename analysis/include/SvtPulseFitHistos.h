@@ -1,5 +1,5 @@
-#ifndef CLUSTERHISTOS_H
-#define CLUSTERHISTOS_H
+#ifndef SVTPULSEFITHISTOS_H
+#define SVTPULSEFITHISTOS_H
 
 #include "TFile.h"
 #include "HistoManager.h"
@@ -26,6 +26,7 @@ class SvtPulseFitHistos : public HistoManager{
         void FillHistogramsByHw(std::vector<RawSvtHit*> *rawSvtHits_,float weight = 1.);
         double GetHitTime(int sample_number, int cdel);
         void buildRawSvtHitsTuple(std::vector<RawSvtHit*> *rawSvtHits_, FlatTupleMaker* rawhits_tup_);
+        void fitRawHitPulses(TTree* rawhittree);
 
 
     private:
