@@ -86,9 +86,9 @@ void FlatTupleMaker::fill() {
     tree->Fill();
 
     // Reset the variables to their original values
-    for (auto& element : variables) { 
-        element.second = -9999; 
-    }
+    //for (auto& element : variables) { 
+    //    element.second = -9999; 
+    //}
     
     for (auto& element : vectors) { 
         element.second.clear();

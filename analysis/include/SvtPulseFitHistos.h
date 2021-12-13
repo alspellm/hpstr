@@ -12,6 +12,7 @@
 #include "TTree.h"
 #include "FlatTupleMaker.h"
 #include "TProfile.h"
+#include "TF1.h"
 
 #include "ModuleMapper.h"
 
@@ -29,8 +30,12 @@ class SvtPulseFitHistos : public HistoManager{
         void buildRawSvtHitsTuple(std::vector<RawSvtHit*> *rawSvtHits_, FlatTupleMaker* rawhits_tup_);
         void fitRawHitPulses(TTree* rawhittree);
         void defineTProfiles(int maxchannels);
+        void defineTProfile(std::string name);
         std::map<std::string, TProfile*> getTProfiles(){ return tprofiles_;};
         virtual void saveTProfiles(TFile* outF = nullptr,std::string folder = "");
+        double getAmplitudeIntegralNorm(double tau1, double tau2);
+        TF1* fourPoleFitFunction();
+        void fitPulse(TProfile* tprofile);
 
 
     private:

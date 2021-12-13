@@ -91,8 +91,6 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
 
     etool->fAutoAdd = false;
 
-    std::cout << "Run Number: " << run_number_ <<"  Start trigger time:  " << trigtime_start_ << std::endl;
-
     if(debug_>1) etool->PrintBank(5);
 
     //Setup flat tuple branches
@@ -105,7 +103,13 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
     rawhits_tup_->addVariable("svtid");
     rawhits_tup_->addVariable("cdel");
     rawhits_tup_->addVariable("calgroup");
-    rawhits_tup_->addVector("adcs");
+    rawhits_tup_->addVariable("adc0");
+    rawhits_tup_->addVariable("adc1");
+    rawhits_tup_->addVariable("adc2");
+    rawhits_tup_->addVariable("adc3");
+    rawhits_tup_->addVariable("adc4");
+    rawhits_tup_->addVariable("adc5");
+    rawhits_tup_->addVariable("event");
 
     //tuple for storing rawhit fits
     /*
@@ -134,31 +138,24 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
 
 bool SvtCalPulseEvioProcessor::process() {
 
-    int maxevents = 10;
+    int maxevents = 50;
     int eventn = 0;
 
     std::cout << "SvtCalPulseEvioProcessor::process" << std::endl;
     unsigned long evt_count=0;
-    unsigned long totalCount=0;
     int l0APVmap[4] = {1, 0, 2, 3};
     int APVmap[5] = {4, 3, 2, 1, 0};
-
-    std::chrono::microseconds totalTime(0);
-
-    auto start = std::chrono::system_clock::now();
-    auto time1 = start;
-
-    unsigned long time_of_last_event = 0;
-    int last_event_trigger_bits = 0;
 
     etool->Open(inFilename_.c_str());
     std::cout << "SvtCalPulseEvioProcessor::opened file" << std::endl;
     while(etool->Next() == S_SUCCESS){
+        if(etool->Head->GetEventNumber() == 1 || (etool->Head->GetEventNumber())%2==0)
+            continue;
         if( (etool->this_tag & 128) != 128) continue;
-        if(debug_) cout<<"EVIO Event " << evt_count << endl;
+        if(debug_) cout<<"EVIO Event " << etool->Head->GetEventNumber() << endl;
         if(debug_) cout << "Event Number:  " << etool->Head->GetEventNumber() << "  seq: " << evt_count << endl;
+        cout<<"EVIO Event " << etool->Head->GetEventNumber() << endl;
         eventn++;
-        std::cout << eventn << std::endl;
         if(eventn > maxevents){
             break;
         }
@@ -169,24 +166,12 @@ bool SvtCalPulseEvioProcessor::process() {
         rawSvtHits_.clear();
         //      etool->VtpTop->ParseBank();
         //      etool->VtpBot->ParseBank();
+        rawhits_tup_->setVariableValue("event", (double)etool->Head->GetEventNumber());
         evt_count++;
 
         if(debug_>0) {
             etool->PrintBank(10);
         }
-        if( evt_count%50000 ==0 ){
-            //      statistics
-            auto time2 = std::chrono::system_clock::now();
-            std::chrono::microseconds delta_t = std::chrono::duration_cast<std::chrono::microseconds>(time2-time1);
-            totalTime += delta_t;
-            double rate = 1000000.0 * ((double) evt_count) / delta_t.count();
-            totalCount += evt_count;
-            double avgRate = 1000000.0 * ((double) totalCount) / totalTime.count();
-            evt_count = 0;
-            time1 = std::chrono::system_clock::now();
-        }
-
-        TSBank::TriggerBits tstrig = etool->Trigger->GetTriggerBits();
         if(etool->SVT){
             //etool->PrintBank(0);
             //std::cout << etool->SVT->svt_data.size() << " raw svt hits" << endl;
@@ -220,15 +205,7 @@ bool SvtCalPulseEvioProcessor::process() {
             svtPulseFitHistos->buildRawSvtHitsTuple(&rawSvtHits_,rawhits_tup_);
         }
 
-        time_of_last_event= etool->GetTrigTime();
-        last_event_trigger_bits = etool->Trigger->GetTriggerInt();
     }
-    totalCount += evt_count;
-    totalCount += evt_count;
-    double avgRate = 1000000.0 * ((double) totalCount) / totalTime.count();
-    printf("Last event: %6d\n",etool->Head->GetEventNumber());
-    printf("Total events: %6ld \n",totalCount);
-    printf("Final: %3.4g kHz \n", avgRate/1000.);
 
     return true;
 }
@@ -238,18 +215,20 @@ void SvtCalPulseEvioProcessor::finalize() {
     std::cout << "SvtCalPulseEvioProcessor::finalize" << std::endl;
     outF_->cd();
     std::cout << "SvtCalPulseEvioProcessor::write rawhits tuple" << std::endl;
-    rawhits_tup_->writeTree();
     rawhits_tup_->close();
+    //rawhits_tup_->writeTree();
+    outF_->Close();
     
     //Read Ttree and pass to fit pulses
-    TFile* readFile = new TFile("testout.root","READ");
-    std::cout << "getting tree" << std::endl;
-    TTree* rawhittree = (TTree*)readFile->Get("rawhits");
-    std::cout << "got tree" << std::endl;
+    outF_ = new TFile("testout.root","UPDATE");
+    outF_->ls();
+    TTree* rawhittree = (TTree*)outF_->Get("rawhits");
+    rawhittree->Print();
     svtPulseFitHistos->fitRawHitPulses(rawhittree);
-    readFile->Close();
+    //outF_->Close();
     
-    svtPulseFitHistos->saveTProfiles(outF_, "");
+    //outF_ = new TFile("testout.root","UPDATE");
+    //svtPulseFitHistos->saveTProfiles(outF_, "");
 
 
     //svtPulseFitHistos->saveHistos(outF_,"");
