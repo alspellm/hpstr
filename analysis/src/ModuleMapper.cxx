@@ -538,13 +538,13 @@ std::map<std::string, std::map<int,int>> ModuleMapper::buildChannelSvtIDMap(){
 }
 
 int ModuleMapper::getSvtIDFromHWChannel(int channel, std::string hwTag, std::map<std::string,std::map<int,int>> svtid_map) {
-      std::map<int,int> channelMap = svtid_map[hwTag];
-      std::map<int,int>::iterator it = channelMap.find(channel);
-      if(it != channelMap.end()){
-        return it->second;
-      }
-      else
-          return 99999; //Indicates channel not found in map. Feb 0-1 have max_channel = 512. If function receives channel > 512 in these    cases, returns 99999 for svt_id
+      return svtid_map[hwTag].at(channel);
+      //std::map<int,int>::iterator it = channelMap.find(channel);
+      //if(it != channelMap.end()){
+      //  return it->second;
+      //}
+      //else
+          //return 99999; //Indicates channel not found in map. Feb 0-1 have max_channel = 512. If function receives channel > 512 in these    cases, returns 99999 for svt_id
   }
 
 

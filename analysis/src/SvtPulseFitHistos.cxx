@@ -28,7 +28,9 @@ void SvtPulseFitHistos::buildRawSvtHitsTuple(std::vector<RawSvtHit*> *rawSvtHits
         int layer = (rawSvtHit->getLayer());
         std::string hwTag= mmapper_->getHwFromSw("ly"+std::to_string(layer)+"_m"+std::to_string(module));
         float channel = rawSvtHit->getStrip();
-        int svtid = mmapper_->getSvtIDFromHWChannel(channel, hwTag, svtid_map_); 
+        int svtid = svtid_map_[hwTag].at(channel); 
+        //int svtid = mmapper_->getSvtIDFromHWChannel(channel, hwTag, svtid_map_); 
+        //int svtid = 99999;
         int calgroup = (int)channel%8;
         //Hard coded for now. Need to find way to determine this from data
         int cdel = 1;
