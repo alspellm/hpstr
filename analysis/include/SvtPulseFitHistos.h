@@ -35,7 +35,8 @@ class SvtPulseFitHistos : public HistoManager{
         virtual void saveTProfiles(TFile* outF = nullptr,std::string folder = "");
         double getAmplitudeIntegralNorm(double tau1, double tau2);
         TF1* fourPoleFitFunction();
-        void fitPulse(TProfile* tprofile);
+        void fitPulse(TProfile* tprofile, int svtid);
+        void saveHistos(TFile* outFile);
 
 
     private:
@@ -50,6 +51,13 @@ class SvtPulseFitHistos : public HistoManager{
         TTree* hittree_{nullptr};
         RawSvtHit* rawhit_{nullptr};
         std::map<std::string,TProfile*> tprofiles_;
+
+        TH1F* chi2_h_{nullptr};
+        TH1F* ndf_h_{nullptr};
+        TH2F* t0_amp_h{nullptr};
+        TH2F* tau1_2_h{nullptr};
+        TH1F* tau1_v_id{nullptr};
+        TH1F* tau2_v_id{nullptr};
 
     protected:
         typedef std::map<std::string, TProfile*>::iterator ittp;

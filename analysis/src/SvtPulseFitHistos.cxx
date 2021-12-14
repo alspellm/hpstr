@@ -1,6 +1,7 @@
 #include "SvtPulseFitHistos.h"
 #include <math.h>
 #include "TCanvas.h"
+#include "TRandom.h"
 
 SvtPulseFitHistos::SvtPulseFitHistos(const std::string& inputName, ModuleMapper* mmapper) {
     m_name = inputName;
@@ -40,6 +41,10 @@ void SvtPulseFitHistos::buildRawSvtHitsTuple(std::vector<RawSvtHit*> *rawSvtHits
                 " svtid: " << svtid << " calgroup: " << calgroup << std::endl;
         }
 
+        //ignore negative pulses
+        if(rawSvtHit->getADCs()[3] < rawSvtHit->getADCs()[0])
+            continue;
+
         rawhits_tup_->setVariableValue("hwTag", hwTag);
         rawhits_tup_->setVariableValue("layer", layer);
         rawhits_tup_->setVariableValue("module", module);
@@ -60,15 +65,11 @@ void SvtPulseFitHistos::buildRawSvtHitsTuple(std::vector<RawSvtHit*> *rawSvtHits
 }
 
 void SvtPulseFitHistos::defineTProfiles(int maxchannels){
-    for(int i = 0; i < maxchannels; i++){
-        std::string name = "svtid_"+std::to_string(i);
-        TProfile* prof = new TProfile(name.c_str(),name.c_str(), 73,-1,145,2000,8000);
-        tprofiles_[name] = prof;
-    }
+    int b = 0;
 }
 
 void SvtPulseFitHistos::defineTProfile(std::string name) {
-    TProfile* prof = new TProfile(name.c_str(),name.c_str(), 73,-1,145,2000,8000);
+    TProfile* prof = new TProfile(name.c_str(),name.c_str(), 73,-1,145,2000,12000);
     tprofiles_[name] = prof;
 }
 
@@ -99,6 +100,15 @@ void SvtPulseFitHistos::fitRawHitPulses(TTree* rawhittree) {
     }
     */
 
+    chi2_h_ = new TH1F("bestchi2","best_chi2;chi2;entries",1000,0,10);
+    ndf_h_ = new TH1F("bestndf","best_ndf;ndf;entries",1000,0,10);
+    t0_amp_h = new TH2F("t0_v_amp","t0_v_amp;t0 (ns);Amp (adc)",100,0,100,4000,0,400000);
+    tau1_2_h = new TH2F("tau1_v_tau2","tau1_v_tau2;tau1;tau2",1000,0,100,1000,0,100);
+    
+    tau1_v_id = new TH1F("tau1_v_id","tau1_v_id",25000,-0.5,24999.5);
+    tau2_v_id = new TH1F("tau2_v_id","tau2_v_id",25000,-0.5,24999.5);
+
+
     long nentries = rawhittree->GetEntries();
     for(long i=0; i < nentries; i++){
         rawhittree->GetEntry(i);
@@ -122,7 +132,6 @@ void SvtPulseFitHistos::fitRawHitPulses(TTree* rawhittree) {
         }
 
         for(int t=0; t < 6; t++){
-            //std::cout << "adc" << t << ": " << adc << " at time " << time << std::endl;
             double adc = adcs.at(t);
             double time = GetHitTime(t, cdel);
             tprofiles_[name]->Fill(time,adc,1.0);
@@ -130,7 +139,11 @@ void SvtPulseFitHistos::fitRawHitPulses(TTree* rawhittree) {
     }
 
     for (ittp it = tprofiles_.begin(); it!=tprofiles_.end(); ++it) {
-        fitPulse(it->second);
+        std::string s = it->first;
+        std::string delim = "_";
+        std::string token = s.substr(s.find(delim)+1,s.size()-1);
+        svtid = std::stoi(token);
+        fitPulse(it->second, svtid);
     }
 }
 
@@ -147,7 +160,7 @@ TF1* SvtPulseFitHistos::fourPoleFitFunction(){
     return func;
 }
 
-void SvtPulseFitHistos::fitPulse(TProfile* tprofile){
+void SvtPulseFitHistos::fitPulse(TProfile* tprofile, int svtid){
 
     double t0 = 0.0;
     double tau1 = 55.0;
@@ -159,7 +172,6 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile){
     double maxamp = 0.0;
     double count = 0.0;
     for (int i = 0; i < tprofile->GetNbinsX(); i++) {
-        std::cout << tprofile->GetName() << std::endl;
         double a = tprofile->GetBinContent(i+1);
         if(a > maxamp){
             maxamp = a;
@@ -176,17 +188,59 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile){
     baseline = baseline/count;
     amp = maxamp;
 
-    //std::cout << "baseline seed: " << baseline << std::endl;
-    //std::cout << "amp seed: " << amp << std::endl;
-
     TF1* fitfunc = fourPoleFitFunction();
-    fitfunc->SetParameter(0,t0);
-    fitfunc->SetParameter(1,tau1);
-    fitfunc->SetParameter(2,tau2);
-    fitfunc->SetParameter(3,amp);
+
+    TRandom *r1=new TRandom();
+
+    double bestchi2 = 9999999.0;
+    double besttau1 = tau1;
+    double besttau2 = tau2;
+    double bestt0 = t0;
+    double bestamp = amp;
+    double bestndf = 0.0;
+    int niters = 20;
+    for(int i = 0; i < niters; i++){
+        double rtau1 = r1->Uniform(40,70);
+        double rtau2 = r1->Uniform(7,14);
+        double rt0 = r1->Uniform(10,20);
+        double ramp = r1->Uniform(200000,400000);
+
+        fitfunc->SetParameter(1,rtau1);
+        fitfunc->SetParameter(2,rtau2);
+        fitfunc->SetParameter(0,rt0);
+        fitfunc->SetParameter(3,ramp);
+        fitfunc->FixParameter(4,baseline);
+
+        tprofile->Fit(fitfunc, "q");
+
+        double chi2 = fitfunc->GetChisquare();
+        double ndf = (double) fitfunc->GetNDF();
+        double chi2ndf = chi2/ndf;
+
+        if(chi2ndf < bestchi2){
+            bestchi2 = chi2ndf;
+            besttau1 = rtau1;
+            besttau2 = rtau2;
+            bestt0 = rt0;
+            bestamp = ramp;
+            bestndf = ndf;
+        }
+    }
+
+
+    fitfunc->SetParameter(1,besttau1);
+    fitfunc->SetParameter(2,besttau2);
+    fitfunc->SetParameter(0,bestt0);
+    fitfunc->SetParameter(3,bestamp);
     fitfunc->FixParameter(4,baseline);
-    
     tprofile->Fit(fitfunc, "q");
+
+    chi2_h_->Fill(fitfunc->GetChisquare()/fitfunc->GetNDF());
+    t0_amp_h->Fill(fitfunc->GetParameter(0),fitfunc->GetParameter(3),1.0);
+    tau1_2_h->Fill(fitfunc->GetParameter(1),fitfunc->GetParameter(2),1.0);
+    tau1_v_id->SetBinContent(svtid+1,fitfunc->GetParameter(1));
+    tau2_v_id->SetBinContent(svtid+1,fitfunc->GetParameter(2));
+
     tprofile->Draw();
     tprofile->Write();
 
@@ -198,6 +252,16 @@ void SvtPulseFitHistos::saveTProfiles(TFile* outF, std::string folder) {
 
         it->second->Write();
     }
+}
+
+void SvtPulseFitHistos::saveHistos(TFile* outFile){
+    outFile->cd();
+    chi2_h_->Write();
+    ndf_h_->Write();
+    t0_amp_h->Write();
+    tau1_2_h->Write();
+    tau1_v_id->Write();
+    tau2_v_id->Write();
 }
 
 void SvtPulseFitHistos::FillHistogramsByHw(std::vector<RawSvtHit*> *rawSvtHits_,float weight) {
