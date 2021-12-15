@@ -33,7 +33,7 @@ class SvtPulseFitHistos : public HistoManager{
         virtual void saveTProfiles(TFile* outF = nullptr,std::string folder = "");
         double getAmplitudeIntegralNorm(double tau1, double tau2);
         TF1* fourPoleFitFunction();
-        void fitPulse(TProfile* tprofile, int svtid, int layer, int module, FlatTupleMaker* rawhitfits_tup_);
+        void fitPulse(TProfile* tprofile, FlatTupleMaker* rawhitfits_tup_);
         void saveHistos(TFile* outFile);
 
     private:

@@ -117,7 +117,9 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
     //rawhitfits_tup_ = new FlatTupleMaker(outFilename.c_str(), "fits");
     rawhitfits_tup_ = new FlatTupleMaker("fits");
     rawhitfits_tup_->setOutFile(outF_);
+    rawhitfits_tup_->addString("hwTag");
     rawhitfits_tup_->addVariable("svtid");
+    rawhitfits_tup_->addVariable("channel");
     rawhitfits_tup_->addVariable("layer");
     rawhitfits_tup_->addVariable("module");
     rawhitfits_tup_->addVariable("t0");

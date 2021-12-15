@@ -129,13 +129,14 @@ void SvtPulseFitHistos::fitRawHitPulses(TTree* rawhittree, FlatTupleMaker* rawhi
     }
 
     for (ittp it = tprofiles_.begin(); it!=tprofiles_.end(); ++it) {
+        /*
         std::string s = it->first;
-        std::string delim = "svtid_";
-        std::string token = s.substr(s.find(delim)+6,s.size()-1);
-        svtid = std::stoi(token);
-        
+        int svtid = std::stoi(s.substr(s.find("svtid_")+6,s.size()-1));
+        std::string hwTag = s.substr(0,s.find("_"));
+        int channel = std::stoi(s.substr(s.find("ch_"),s.find("_s")-5));
+        */
 
-        fitPulse(it->second, svtid, layer, module, rawhitfits_tup);
+        fitPulse(it->second, rawhitfits_tup);
     }
 }
 
@@ -152,7 +153,15 @@ TF1* SvtPulseFitHistos::fourPoleFitFunction(){
     return func;
 }
 
-void SvtPulseFitHistos::fitPulse(TProfile* tprofile, int svtid, int layer, int module, FlatTupleMaker* rawhitfits_tup_){
+void SvtPulseFitHistos::fitPulse(TProfile* tprofile, FlatTupleMaker* rawhitfits_tup_){
+
+    std::string s = tprofile->GetName();
+    int svtid = std::stoi(s.substr(s.find("svtid_")+6,s.size()-1));
+    std::string hwTag = s.substr(0,s.find("_"));
+    int channel = std::stoi(s.substr(s.find("ch_")+3,s.find("_s")-5));
+    std::string sw = mmapper_->getSwFromHw(hwTag);
+    int layer = std::stoi(sw.substr(sw.find("ly")+2,sw.find("_")-1));
+    int module = std::stoi(sw.substr(sw.find("m")+1,sw.size()-1));
 
     double t0 = 0.0;
     double tau1 = 55.0;
@@ -239,6 +248,8 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile, int svtid, int layer, int m
     double tau2err = fitfunc->GetParError(2);
     double amperr = fitfunc->GetParError(3);
 
+    rawhitfits_tup_->setVariableValue("hwTag", hwTag);
+    rawhitfits_tup_->setVariableValue("channel", channel);
     rawhitfits_tup_->setVariableValue("svtid", svtid);
     rawhitfits_tup_->setVariableValue("module", module);
     rawhitfits_tup_->setVariableValue("layer", layer);
