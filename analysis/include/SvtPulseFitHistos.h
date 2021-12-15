@@ -25,19 +25,16 @@ class SvtPulseFitHistos : public HistoManager{
         SvtPulseFitHistos(const std::string& inputName, ModuleMapper* mmapper_);
         ~SvtPulseFitHistos();
 
-        void FillHistogramsByHw(std::vector<RawSvtHit*> *rawSvtHits_,float weight = 1.);
         double GetHitTime(int sample_number, int cdel);
         void buildRawSvtHitsTuple(std::vector<RawSvtHit*> *rawSvtHits_, FlatTupleMaker* rawhits_tup_);
-        void fitRawHitPulses(TTree* rawhittree);
-        void defineTProfiles(int maxchannels);
+        void fitRawHitPulses(TTree* rawhittree, FlatTupleMaker* rawhitfits_tup_);
         void defineTProfile(std::string name);
         std::map<std::string, TProfile*> getTProfiles(){ return tprofiles_;};
         virtual void saveTProfiles(TFile* outF = nullptr,std::string folder = "");
         double getAmplitudeIntegralNorm(double tau1, double tau2);
         TF1* fourPoleFitFunction();
-        void fitPulse(TProfile* tprofile, int svtid);
+        void fitPulse(TProfile* tprofile, int svtid, int layer, int module, FlatTupleMaker* rawhitfits_tup_);
         void saveHistos(TFile* outFile);
-
 
     private:
 
@@ -51,6 +48,8 @@ class SvtPulseFitHistos : public HistoManager{
         TTree* hittree_{nullptr};
         RawSvtHit* rawhit_{nullptr};
         std::map<std::string,TProfile*> tprofiles_;
+        std::map<std::string,TH1F*> ch_histos_h_;
+        std::map<std::string,TH2F*> ch_histos_hh_;
 
         TH1F* chi2_h_{nullptr};
         TH1F* ndf_h_{nullptr};

@@ -73,11 +73,15 @@ class FlatTupleMaker {
         void writeTree() {
             tree->Write();
         }
+
+        void writeTree(TFile* outF){ outF->cd(); tree->Write();};
         
         /**
          *
          */
         void fill();
+
+        void setOutFile(TFile* outF){file = outF;};
 
     private: 
     

@@ -94,7 +94,9 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
     if(debug_>1) etool->PrintBank(5);
 
     //Setup flat tuple branches
-    rawhits_tup_ = new FlatTupleMaker(outFilename.c_str(), "rawhits");
+    //rawhits_tup_ = new FlatTupleMaker(outFilename.c_str(), "rawhits");
+    rawhits_tup_ = new FlatTupleMaker("rawhits");
+    rawhits_tup_->setOutFile(outF_);
     //hardware tag F<n>H<m>
     rawhits_tup_->addString("hwTag");
     rawhits_tup_->addVariable("layer");
@@ -112,28 +114,27 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
     rawhits_tup_->addVariable("event");
 
     //tuple for storing rawhit fits
-    /*
-    rawhitfits_tup_ = new FlatTupleMaker(outFilename.c_str(), "fits");
+    //rawhitfits_tup_ = new FlatTupleMaker(outFilename.c_str(), "fits");
+    rawhitfits_tup_ = new FlatTupleMaker("fits");
+    rawhitfits_tup_->setOutFile(outF_);
+    rawhitfits_tup_->addVariable("svtid");
+    rawhitfits_tup_->addVariable("layer");
+    rawhitfits_tup_->addVariable("module");
     rawhitfits_tup_->addVariable("t0");
     rawhitfits_tup_->addVariable("tau1");
     rawhitfits_tup_->addVariable("tau2");
-    rawhitfits_tup_->addVariable("fitamp");
+    rawhitfits_tup_->addVariable("amp");
+    rawhitfits_tup_->addVariable("t0err");
+    rawhitfits_tup_->addVariable("tau1err");
+    rawhitfits_tup_->addVariable("tau2err");
+    rawhitfits_tup_->addVariable("amperr");
     rawhitfits_tup_->addVariable("integralNorm");
     rawhitfits_tup_->addVariable("baseline");
     rawhitfits_tup_->addVariable("chi2");
     rawhitfits_tup_->addVariable("ndf");
-    */
 
     //Init histos
     svtPulseFitHistos = new SvtPulseFitHistos("raw_hits", mmapper_);
-
-    /*
-    std::cout << "[SvtCalPulseEvioProcessor] Load JSON" << std::endl;
-    svtPulseFitHistos->loadHistoConfig(histCfgFilename_);
-    if (debug_ > 0) std::cout << "[SvtCalPulseAnaProcessor] Define 2DHistos" << std::endl;
-    svtPulseFitHistos->SvtPulseFitHistos::DefineHistosByHw();
-    */
-
 }
 
 bool SvtCalPulseEvioProcessor::process() {
@@ -215,24 +216,28 @@ void SvtCalPulseEvioProcessor::finalize() {
     std::cout << "SvtCalPulseEvioProcessor::finalize" << std::endl;
     outF_->cd();
     std::cout << "SvtCalPulseEvioProcessor::write rawhits tuple" << std::endl;
+    /*
     rawhits_tup_->close();
-    //rawhits_tup_->writeTree();
     outF_->Close();
+    */
+    rawhits_tup_->writeTree(outF_);
     
+    /*
     //Read Ttree and pass to fit pulses
     outF_ = new TFile("testout.root","UPDATE");
     outF_->ls();
+    */
     TTree* rawhittree = (TTree*)outF_->Get("rawhits");
     rawhittree->Print();
     std::cout << "Fitting raw hit pulses" << std::endl;
-    svtPulseFitHistos->fitRawHitPulses(rawhittree);
+    svtPulseFitHistos->fitRawHitPulses(rawhittree, rawhitfits_tup_);
+    std::cout << "save fit tuple" << std::endl;
+    //outF_->cd();
+    //rawhitfits_tup_->writeTree();
+    rawhitfits_tup_->writeTree(outF_);
+    svtPulseFitHistos->saveTProfiles(outF_);
     svtPulseFitHistos->saveHistos(outF_);
-    //outF_->Close();
     
-    //outF_ = new TFile("testout.root","UPDATE");
-    //svtPulseFitHistos->saveTProfiles(outF_, "");
-
-
     //svtPulseFitHistos->saveHistos(outF_,"");
     outF_->Close();
     delete svtPulseFitHistos;

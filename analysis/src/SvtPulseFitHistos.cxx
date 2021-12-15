@@ -64,26 +64,21 @@ void SvtPulseFitHistos::buildRawSvtHitsTuple(std::vector<RawSvtHit*> *rawSvtHits
     }
 }
 
-void SvtPulseFitHistos::defineTProfiles(int maxchannels){
-    int b = 0;
-}
-
 void SvtPulseFitHistos::defineTProfile(std::string name) {
     TProfile* prof = new TProfile(name.c_str(),name.c_str(), 73,-1,145,2000,12000);
     tprofiles_[name] = prof;
+
 }
 
-void SvtPulseFitHistos::fitRawHitPulses(TTree* rawhittree) {
-
-    //define TProfiles for all channels
-    //defineTProfiles(200);
-
+void SvtPulseFitHistos::fitRawHitPulses(TTree* rawhittree, FlatTupleMaker* rawhitfits_tup) {
 
     double module, layer, channel, svtid, cdel, calgroup;
     double adc0, adc1, adc2, adc3, adc4, adc5;
-    std::string hwTag;
 
     rawhittree->SetBranchAddress("svtid", &svtid);
+    rawhittree->SetBranchAddress("channel", &channel);
+    rawhittree->SetBranchAddress("layer", &layer);
+    rawhittree->SetBranchAddress("module", &module);
     rawhittree->SetBranchAddress("adc0", &adc0);
     rawhittree->SetBranchAddress("adc1", &adc1);
     rawhittree->SetBranchAddress("adc2", &adc2);
@@ -92,14 +87,6 @@ void SvtPulseFitHistos::fitRawHitPulses(TTree* rawhittree) {
     rawhittree->SetBranchAddress("adc5", &adc5);
     rawhittree->SetBranchAddress("cdel", &cdel);
 
-    /*
-    for (ittp it = tprofiles_.begin(); it!=tprofiles_.end(); ++it) {
-        std::cout << "TP NAMES: " <<  it->first << std::endl;
-        //it->second->Fill(100.0,100.0,1.0);
-        tprofiles_[it->first]->Fill(100.0,100.0,1.0);
-    }
-    */
-
     chi2_h_ = new TH1F("bestchi2","best_chi2;chi2;entries",1000,0,10);
     ndf_h_ = new TH1F("bestndf","best_ndf;ndf;entries",1000,0,10);
     t0_amp_h = new TH2F("t0_v_amp","t0_v_amp;t0 (ns);Amp (adc)",100,0,100,4000,0,400000);
@@ -107,7 +94,6 @@ void SvtPulseFitHistos::fitRawHitPulses(TTree* rawhittree) {
     
     tau1_v_id = new TH1F("tau1_v_id","tau1_v_id",25000,-0.5,24999.5);
     tau2_v_id = new TH1F("tau2_v_id","tau2_v_id",25000,-0.5,24999.5);
-
 
     long nentries = rawhittree->GetEntries();
     for(long i=0; i < nentries; i++){
@@ -120,8 +106,12 @@ void SvtPulseFitHistos::fitRawHitPulses(TTree* rawhittree) {
         adcs.push_back(adc3);
         adcs.push_back(adc4);
         adcs.push_back(adc5);
+        channel = (double)((int)channel);
 
-        std::string name = "svtid_"+std::to_string((int)svtid);
+        std::string hwTag = mmapper_->getHwFromSw("ly"+std::to_string((int)layer)+"_m"+std::to_string((int)module));
+
+        std::string name = hwTag+"_ch_"+std::to_string((int)channel)+"_svtid_"+std::to_string((int)svtid);
+        //std::cout << name << std::endl;
 
         //check if tprofile exists
         if (tprofiles_.find(name) != tprofiles_.end()) {
@@ -140,10 +130,12 @@ void SvtPulseFitHistos::fitRawHitPulses(TTree* rawhittree) {
 
     for (ittp it = tprofiles_.begin(); it!=tprofiles_.end(); ++it) {
         std::string s = it->first;
-        std::string delim = "_";
-        std::string token = s.substr(s.find(delim)+1,s.size()-1);
+        std::string delim = "svtid_";
+        std::string token = s.substr(s.find(delim)+6,s.size()-1);
         svtid = std::stoi(token);
-        fitPulse(it->second, svtid);
+        
+
+        fitPulse(it->second, svtid, layer, module, rawhitfits_tup);
     }
 }
 
@@ -160,7 +152,7 @@ TF1* SvtPulseFitHistos::fourPoleFitFunction(){
     return func;
 }
 
-void SvtPulseFitHistos::fitPulse(TProfile* tprofile, int svtid){
+void SvtPulseFitHistos::fitPulse(TProfile* tprofile, int svtid, int layer, int module, FlatTupleMaker* rawhitfits_tup_){
 
     double t0 = 0.0;
     double tau1 = 55.0;
@@ -227,7 +219,6 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile, int svtid){
         }
     }
 
-
     fitfunc->SetParameter(1,besttau1);
     fitfunc->SetParameter(2,besttau2);
     fitfunc->SetParameter(0,bestt0);
@@ -235,6 +226,38 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile, int svtid){
     fitfunc->FixParameter(4,baseline);
     tprofile->Fit(fitfunc, "q");
 
+    t0 = fitfunc->GetParameter(0);
+    tau1 = fitfunc->GetParameter(1);
+    tau2 = fitfunc->GetParameter(2);
+    amp = fitfunc->GetParameter(3);
+    baseline = fitfunc->GetParameter(4);
+    double chi2 = fitfunc->GetChisquare();
+    double ndf = fitfunc->GetNDF();
+
+    double t0err = fitfunc->GetParError(0);
+    double tau1err = fitfunc->GetParError(1);
+    double tau2err = fitfunc->GetParError(2);
+    double amperr = fitfunc->GetParError(3);
+
+    rawhitfits_tup_->setVariableValue("svtid", svtid);
+    rawhitfits_tup_->setVariableValue("module", module);
+    rawhitfits_tup_->setVariableValue("layer", layer);
+    rawhitfits_tup_->setVariableValue("t0", t0);
+    rawhitfits_tup_->setVariableValue("tau1", tau1);
+    rawhitfits_tup_->setVariableValue("tau2", tau2);
+    rawhitfits_tup_->setVariableValue("amp", amp);
+    rawhitfits_tup_->setVariableValue("baseline", baseline);
+    rawhitfits_tup_->setVariableValue("chi2", chi2);
+    rawhitfits_tup_->setVariableValue("ndf", ndf);
+    rawhitfits_tup_->setVariableValue("t0err", t0err);
+    rawhitfits_tup_->setVariableValue("tau1err", tau1err);
+    rawhitfits_tup_->setVariableValue("tau2err", tau2err);
+    rawhitfits_tup_->setVariableValue("amperr", amperr);
+    rawhitfits_tup_->setVariableValue("integralNorm", SvtPulseFitHistos::getAmplitudeIntegralNorm(tau1, tau2));
+
+    rawhitfits_tup_->fill();
+
+    //Fill Histograms
     chi2_h_->Fill(fitfunc->GetChisquare()/fitfunc->GetNDF());
     t0_amp_h->Fill(fitfunc->GetParameter(0),fitfunc->GetParameter(3),1.0);
     tau1_2_h->Fill(fitfunc->GetParameter(1),fitfunc->GetParameter(2),1.0);
@@ -242,14 +265,34 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile, int svtid){
     tau2_v_id->SetBinContent(svtid+1,fitfunc->GetParameter(2));
 
     tprofile->Draw();
-    tprofile->Write();
-
 }
 
 void SvtPulseFitHistos::saveTProfiles(TFile* outF, std::string folder) {
-    outF->cd();
     for (ittp it = tprofiles_.begin(); it!=tprofiles_.end(); ++it) {
 
+        outF->cd();
+        std::string s = it->first;
+        std::string delim = "_ch";
+        std::string dirname = s.substr(0,s.find(delim));
+
+        bool exists = false;
+        TKey* key;
+        TIter next( outF->GetListOfKeys());
+        while( (key = (TKey*) next())){
+            std::string classname = key->GetClassName();
+            if(classname.find("TDirectoryFile") != std::string::npos){
+                std::string keyname = key->GetName();
+                if(keyname.find(dirname) != std::string::npos){
+                    exists = true;
+                }
+            }
+        }
+        //std::cout << outF->GetDirectory(dirname.c_str()) << std::endl;
+        if(!exists){
+            gDirectory->mkdir(dirname.c_str());
+        }
+
+        outF->cd(dirname.c_str());
         it->second->Write();
     }
 }
@@ -264,34 +307,3 @@ void SvtPulseFitHistos::saveHistos(TFile* outFile){
     tau2_v_id->Write();
 }
 
-void SvtPulseFitHistos::FillHistogramsByHw(std::vector<RawSvtHit*> *rawSvtHits_,float weight) {
-
-    int nhits = rawSvtHits_->size();
-    std::vector<std::string> hybridStrings={};
-    std::string histokey;
-    if(Event_number%10000 == 0) std::cout << "Event: " << Event_number 
-        << " Number of RawSvtHits: " << nhits << std::endl;
-
-    //Populates histograms for each hybrid channel
-    for (int i = 0; i < nhits; i++)
-    {
-        RawSvtHit* rawSvtHit = rawSvtHits_->at(i);
-        auto mod = std::to_string(rawSvtHit->getModule());
-        auto lay = std::to_string(rawSvtHit->getLayer());
-        std::string hwTag= mmapper_->getHwFromSw("ly"+lay+"_m"+mod);
-        float channel = rawSvtHit->getStrip();
-        int svtid = mmapper_->getSvtIDFromHWChannel(channel, hwTag, svtid_map_); 
-
-        for (int ss = 0; ss < 6; ss++)
-        {
-            //histokey = hwTag + "_SvtHybrids_s"+std::to_string(ss)+"_hh";
-            //histokey = hwTag + "_SvtHybrids_s0_hh";
-            Fill2DHisto(histokey, 
-                    (float)rawSvtHit->getStrip(),
-                    (float)rawSvtHit->getADCs()[ss], 
-                    weight);
-        }
-    }
-
-    Event_number++;
-}      
