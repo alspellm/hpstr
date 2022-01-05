@@ -21,7 +21,6 @@ void SvtPulseFitHistos::buildRawSvtHitsTuple(std::vector<RawSvtHit*> *rawSvtHits
 
     bool debug = false;
     int nhits = rawSvtHits_->size();
-    std::cout << "NHITS = " << nhits << std::endl;
     for (int i = 0; i < nhits; i++)
     {
         RawSvtHit* rawSvtHit = rawSvtHits_->at(i);
@@ -193,14 +192,19 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile, FlatTupleMaker* rawhitfits_
 
     TRandom *r1=new TRandom();
 
+    //Fit with random seeds
+    int not_nan_count = 0;
+    bool isnan = false;
     double bestchi2 = 9999999.0;
     double besttau1 = tau1;
     double besttau2 = tau2;
     double bestt0 = t0;
     double bestamp = amp;
     double bestndf = 0.0;
-    int niters = 20;
-    for(int i = 0; i < niters; i++){
+    int maxiter = 20;
+    int iter = 0;
+    //while ((iter < maxiter || (not_nan_count < 5 && iter < 46)) || (isnan && iter < 40)){ 
+    while(iter < maxiter){
         double rtau1 = r1->Uniform(40,70);
         double rtau2 = r1->Uniform(7,14);
         double rt0 = r1->Uniform(10,20);
@@ -212,11 +216,33 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile, FlatTupleMaker* rawhitfits_
         fitfunc->SetParameter(3,ramp);
         fitfunc->FixParameter(4,baseline);
 
+        if(svtid == 21480){
+            std::cout << "tau1 seed: " << rtau1 << std::endl;
+            std::cout << "tau2 seed: " << rtau2 << std::endl;
+            std::cout << "t0 seed: " << rt0 << std::endl;
+            std::cout << "amp seed: " << ramp << std::endl;
+        }
+
         tprofile->Fit(fitfunc, "q");
+
+        //If fit gets nan errors, indicative of failed fit. 
+        if (TMath::IsNaN(fitfunc->GetParError(0)) || TMath::IsNaN(fitfunc->GetParError(1)) || TMath::IsNaN(fitfunc->GetParError(2)) || TMath::IsNaN(fitfunc->GetParError(3))){
+            //std::cout << "Found nan errors" << std::endl;
+            isnan = true;
+        }
+        else{
+            isnan = false;
+            not_nan_count++;
+        }
 
         double chi2 = fitfunc->GetChisquare();
         double ndf = (double) fitfunc->GetNDF();
         double chi2ndf = chi2/ndf;
+
+        if(svtid == 21480){
+            std::cout << "fit chi2: " << chi2ndf << std::endl;
+            std::cout << "ITERATION " << iter << std::endl;
+        }
 
         if(chi2ndf < bestchi2){
             bestchi2 = chi2ndf;
@@ -226,6 +252,10 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile, FlatTupleMaker* rawhitfits_
             bestamp = ramp;
             bestndf = ndf;
         }
+
+        iter++;
+        if(bestchi2 < 1)
+            break;
     }
 
     fitfunc->SetParameter(1,besttau1);
@@ -247,6 +277,13 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile, FlatTupleMaker* rawhitfits_
     double tau1err = fitfunc->GetParError(1);
     double tau2err = fitfunc->GetParError(2);
     double amperr = fitfunc->GetParError(3);
+
+    if (isnan){
+        std::cout << "NAN FIT SVTID: " << svtid << std::endl;
+    }
+    if (TMath::IsNaN(fitfunc->GetParError(0)) || TMath::IsNaN(fitfunc->GetParError(1)) || TMath::IsNaN(fitfunc->GetParError(2)) || TMath::IsNaN(fitfunc->GetParError(3))){
+        nan_channels_++;
+    }
 
     rawhitfits_tup_->setVariableValue("hwTag", hwTag);
     rawhitfits_tup_->setVariableValue("channel", channel);
@@ -316,5 +353,7 @@ void SvtPulseFitHistos::saveHistos(TFile* outFile){
     tau1_2_h->Write();
     tau1_v_id->Write();
     tau2_v_id->Write();
+
+    std::cout << "Number of NAN channel fits: " << nan_channels_ << std::endl;
 }
 

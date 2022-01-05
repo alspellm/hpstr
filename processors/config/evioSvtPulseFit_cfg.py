@@ -41,6 +41,8 @@ evio.parameters["debug"]    = 0
 evio.parameters["trigConf"] = "hps_v12_1.cnf"
 evio.parameters["chNumCfg"] = options.chNumCfg
 evio.parameters["histNames"] = options.histNames
+evio.parameters["processEvio"] = 0
+evio.parameters["fitPulses"] = 1
 #evio.parameters["histCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/svt/Svt2DBlHw.json'
 
 # Sequence which the processors will run.

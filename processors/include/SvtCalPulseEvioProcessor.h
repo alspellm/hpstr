@@ -62,6 +62,8 @@ class SvtCalPulseEvioProcessor : public Processor {
         std::string chNumCfg_{""};
         std::string trigFilename_{""};
         std::string inFilename_{""};
+        int processEvio_{1};
+        int fitPulses_{1};
 
         //evio interface 
         HPSEvioReader * etool{nullptr};

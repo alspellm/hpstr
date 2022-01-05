@@ -58,6 +58,8 @@ class SvtPulseFitHistos : public HistoManager{
         TH1F* tau1_v_id{nullptr};
         TH1F* tau2_v_id{nullptr};
 
+        int nan_channels_ = 0;
+
     protected:
         typedef std::map<std::string, TProfile*>::iterator ittp;
 

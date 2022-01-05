@@ -23,7 +23,9 @@ void SvtCalPulseEvioProcessor::configure(const ParameterSet& parameters) {
         chNumCfg_   = parameters.getString("chNumCfg");
         trigFilename_   = parameters.getString("trigConf");
         histNames_  = parameters.getString("histNames");
-        histCfgFilename_  = parameters.getString("histCfg");
+        //histCfgFilename_  = parameters.getString("histCfg");
+        processEvio_      = parameters.getInteger("processEvio");
+        fitPulses_       = parameters.getInteger("fitPulses");
     }
     catch (std::runtime_error& error)
     {
@@ -37,6 +39,9 @@ void SvtCalPulseEvioProcessor::configure(const ParameterSet& parameters) {
     {
         throw std::runtime_error("[ SvtCalPulseEvioProcessor ]: chNumCfg must be 'fw' or 'sw'!");
     }
+
+    std::cout << "processEvio? " << processEvio_ << std::endl;
+    std::cout << "fitPulses? " << fitPulses_ << std::endl;
 }
 
 void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string outFilename) {
@@ -141,106 +146,116 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
 
 bool SvtCalPulseEvioProcessor::process() {
 
-    int maxevents = 50;
-    int eventn = 0;
+    if(!processEvio_){
+        std::cout << "SKIPPING EVIO PROCESSOR" << std::endl;
+        return true;
+    }
+    //Else input is evio data, need to process evio data into a TTree before fitting
+    else {
+        std::cout << "PROCESSING EVIO DATA INTO TTREE" << std::endl;
+        int eventn = 0;
+        int maxevents = 50;
+        std::cout << "SvtCalPulseEvioProcessor::process" << std::endl;
+        unsigned long evt_count=0;
+        int l0APVmap[4] = {1, 0, 2, 3};
+        int APVmap[5] = {4, 3, 2, 1, 0};
 
-    std::cout << "SvtCalPulseEvioProcessor::process" << std::endl;
-    unsigned long evt_count=0;
-    int l0APVmap[4] = {1, 0, 2, 3};
-    int APVmap[5] = {4, 3, 2, 1, 0};
-
-    etool->Open(inFilename_.c_str());
-    std::cout << "SvtCalPulseEvioProcessor::opened file" << std::endl;
-    while(etool->Next() == S_SUCCESS){
-        if(etool->Head->GetEventNumber() == 1 || (etool->Head->GetEventNumber())%2==0)
-            continue;
-        if( (etool->this_tag & 128) != 128) continue;
-        if(debug_) cout<<"EVIO Event " << etool->Head->GetEventNumber() << endl;
-        if(debug_) cout << "Event Number:  " << etool->Head->GetEventNumber() << "  seq: " << evt_count << endl;
-        cout<<"EVIO Event " << etool->Head->GetEventNumber() << endl;
-        eventn++;
-        if(eventn > maxevents){
-            break;
-        }
-        for(int i = 0; i < rawSvtHits_.size(); i++)
-        {
-            delete rawSvtHits_[i];
-        }
-        rawSvtHits_.clear();
-        //      etool->VtpTop->ParseBank();
-        //      etool->VtpBot->ParseBank();
-        rawhits_tup_->setVariableValue("event", (double)etool->Head->GetEventNumber());
-        evt_count++;
-
-        if(debug_>0) {
-            etool->PrintBank(10);
-        }
-        if(etool->SVT){
-            //etool->PrintBank(0);
-            //std::cout << etool->SVT->svt_data.size() << " raw svt hits" << endl;
-            for(int i = 0; i < etool->SVT->svt_data.size(); i++)
+        etool->Open(inFilename_.c_str());
+        std::cout << "SvtCalPulseEvioProcessor::opened file" << std::endl;
+        while(etool->Next() == S_SUCCESS){
+            if(etool->Head->GetEventNumber() == 1 || (etool->Head->GetEventNumber())%2==0)
+                continue;
+            if( (etool->this_tag & 128) != 128) continue;
+            if(debug_) cout<<"EVIO Event " << etool->Head->GetEventNumber() << endl;
+            if(debug_) cout << "Event Number:  " << etool->Head->GetEventNumber() << "  seq: " << evt_count << endl;
+            eventn++;
+            if (eventn > maxevents){
+                break;
+            }
+            for(int i = 0; i < rawSvtHits_.size(); i++)
             {
-                RawSvtHit * rawHit = new RawSvtHit();
-                std::string hwTag = "F"+std::to_string(int(etool->SVT->svt_data[i].head.feb_id))+"H"+std::to_string(int(etool->SVT->svt_data[i].head.hyb_id));
-                std::string swTag = mmapper_->getSwFromHw(hwTag);
-                int layer = std::stoi(swTag.substr(2, swTag.find("_")));
-                int module = std::stoi(swTag.substr(swTag.find("m")+1, swTag.length()));
-                rawHit->setLayer(layer);
-                rawHit->setModule(module);
-                int apv = int(etool->SVT->svt_data[i].head.apv);
-                int strip = apv*128;
-                if (chNumCfg_ == "sw")
+                delete rawSvtHits_[i];
+            }
+            rawSvtHits_.clear();
+            //      etool->VtpTop->ParseBank();
+            //      etool->VtpBot->ParseBank();
+            rawhits_tup_->setVariableValue("event", (double)etool->Head->GetEventNumber());
+            evt_count++;
+
+            if(debug_>0) {
+                etool->PrintBank(10);
+            }
+            if(etool->SVT){
+                //etool->PrintBank(0);
+                //std::cout << etool->SVT->svt_data.size() << " raw svt hits" << endl;
+                for(int i = 0; i < etool->SVT->svt_data.size(); i++)
                 {
-                    strip = l0APVmap[apv]*128;
-                    if ( int(etool->SVT->svt_data[i].head.feb_id) > 1 ) strip = APVmap[apv]*128;
+                    RawSvtHit * rawHit = new RawSvtHit();
+                    std::string hwTag = "F"+std::to_string(int(etool->SVT->svt_data[i].head.feb_id))+"H"+std::to_string(int(etool->SVT->svt_data[i].head.hyb_id));
+                    std::string swTag = mmapper_->getSwFromHw(hwTag);
+                    int layer = std::stoi(swTag.substr(2, swTag.find("_")));
+                    int module = std::stoi(swTag.substr(swTag.find("m")+1, swTag.length()));
+                    rawHit->setLayer(layer);
+                    rawHit->setModule(module);
+                    int apv = int(etool->SVT->svt_data[i].head.apv);
+                    int strip = apv*128;
+                    if (chNumCfg_ == "sw")
+                    {
+                        strip = l0APVmap[apv]*128;
+                        if ( int(etool->SVT->svt_data[i].head.feb_id) > 1 ) strip = APVmap[apv]*128;
+                    }
+                    strip += int(etool->SVT->svt_data[i].head.chan);
+                    rawHit->setStrip(strip);
+                    int adcs[6];
+                    for(int adcI = 0; adcI < etool->SVT->svt_data.size(); adcI++)
+                    {
+                        adcs[adcI] = int(etool->SVT->svt_data[i].samples[adcI]);
+                    }
+                    rawHit->setADCs(adcs);
+                    rawSvtHits_.push_back(rawHit);
                 }
-                strip += int(etool->SVT->svt_data[i].head.chan);
-                rawHit->setStrip(strip);
-                int adcs[6];
-                for(int adcI = 0; adcI < etool->SVT->svt_data.size(); adcI++)
-                {
-                    adcs[adcI] = int(etool->SVT->svt_data[i].samples[adcI]);
-                }
-                rawHit->setADCs(adcs);
-                rawSvtHits_.push_back(rawHit);
+
+                svtPulseFitHistos->buildRawSvtHitsTuple(&rawSvtHits_,rawhits_tup_);
             }
 
-            svtPulseFitHistos->buildRawSvtHitsTuple(&rawSvtHits_,rawhits_tup_);
         }
 
+        return true;
     }
-
-    return true;
 }
 
 void SvtCalPulseEvioProcessor::finalize() { 
-
     std::cout << "SvtCalPulseEvioProcessor::finalize" << std::endl;
-    outF_->cd();
-    std::cout << "SvtCalPulseEvioProcessor::write rawhits tuple" << std::endl;
-    /*
-    rawhits_tup_->close();
-    outF_->Close();
-    */
-    rawhits_tup_->writeTree(outF_);
+    TTree* rawhittree{nullptr};
+    //If input file is evio, write evio->rawhit TTree
+    if (processEvio_){
+        outF_->cd();
+        std::cout << "SAVING EVIO DATA TO TTREE" << std::endl;
+        rawhits_tup_->writeTree(outF_);
+    }
+    if (processEvio_ && fitPulses_){
+        outF_->cd();
+        std::cout << "READING PROCESSED EVIO TTREE TO FIT PULSES" << std::endl;
+        rawhittree = (TTree*)outF_->Get("rawhits");
+    }
+    else if (fitPulses_ && !processEvio_){
+        TFile* readF = new TFile(inFilename_.c_str(),"READ");
+        readF->cd();
+        std::cout << "READING TTREE FROM INPUT FILE TO FIT PULSES" << std::endl;
+        rawhittree = (TTree*)readF->Get("rawhits");
+    }
     
-    /*
-    //Read Ttree and pass to fit pulses
-    outF_ = new TFile("testout.root","UPDATE");
-    outF_->ls();
-    */
-    TTree* rawhittree = (TTree*)outF_->Get("rawhits");
-    rawhittree->Print();
-    std::cout << "Fitting raw hit pulses" << std::endl;
-    svtPulseFitHistos->fitRawHitPulses(rawhittree, rawhitfits_tup_);
-    std::cout << "save fit tuple" << std::endl;
-    //outF_->cd();
-    //rawhitfits_tup_->writeTree();
-    rawhitfits_tup_->writeTree(outF_);
-    svtPulseFitHistos->saveTProfiles(outF_);
-    svtPulseFitHistos->saveHistos(outF_);
+    if(fitPulses_){
+        outF_->cd();
+        std::cout << "FITTING CALIBRATION SCAN PULSES" << std::endl;
+        svtPulseFitHistos->fitRawHitPulses(rawhittree, rawhitfits_tup_);
+        std::cout << "save fit tuple" << std::endl;
+
+        rawhitfits_tup_->writeTree(outF_);
+        svtPulseFitHistos->saveTProfiles(outF_);
+        svtPulseFitHistos->saveHistos(outF_);
+    }
     
-    //svtPulseFitHistos->saveHistos(outF_,"");
     outF_->Close();
     delete svtPulseFitHistos;
     svtPulseFitHistos = nullptr;
