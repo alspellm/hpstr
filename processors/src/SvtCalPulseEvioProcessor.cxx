@@ -127,6 +127,7 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
     rawhitfits_tup_->addVariable("channel");
     rawhitfits_tup_->addVariable("layer");
     rawhitfits_tup_->addVariable("module");
+    rawhitfits_tup_->addVariable("noPulse");
     rawhitfits_tup_->addVariable("t0");
     rawhitfits_tup_->addVariable("tau1");
     rawhitfits_tup_->addVariable("tau2");
@@ -169,9 +170,9 @@ bool SvtCalPulseEvioProcessor::process() {
             if(debug_) cout<<"EVIO Event " << etool->Head->GetEventNumber() << endl;
             if(debug_) cout << "Event Number:  " << etool->Head->GetEventNumber() << "  seq: " << evt_count << endl;
             eventn++;
-            if (eventn > maxevents){
-                break;
-            }
+            //if (eventn > maxevents){
+            //    break;
+            //}
             for(int i = 0; i < rawSvtHits_.size(); i++)
             {
                 delete rawSvtHits_[i];

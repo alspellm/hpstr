@@ -96,6 +96,7 @@ void SvtPulseFitHistos::fitRawHitPulses(TTree* rawhittree, FlatTupleMaker* rawhi
 
     long nentries = rawhittree->GetEntries();
     for(long i=0; i < nentries; i++){
+    //for(long i=0; i < 1000; i++){
         rawhittree->GetEntry(i);
         //Build adcs vector
         std::vector<double> adcs;
@@ -167,6 +168,7 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile, FlatTupleMaker* rawhitfits_
     double tau2 = 8.0;
     double amp = 0.0;
     double baseline = 0.0;
+    bool noPulse = false;
 
     //Get amplitude and baseline seed
     double maxamp = 0.0;
@@ -188,6 +190,21 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile, FlatTupleMaker* rawhitfits_
     baseline = baseline/count;
     amp = maxamp;
 
+    //If tsample3 < tsample 2, no pulse in channel
+    int fbin = tprofile->FindFirstBinAbove(0.0);
+    /*
+    std::cout << tprofile->GetBinContent(fbin) << std::endl;
+    std::cout << tprofile->GetBinContent(fbin+12) << std::endl;
+    std::cout << tprofile->GetBinContent(fbin+(24)) << std::endl;
+    std::cout << tprofile->GetBinContent(fbin+(36)) << std::endl;
+    std::cout << tprofile->GetBinContent(fbin+(48)) << std::endl;
+    std::cout << tprofile->GetBinContent(fbin+(60)) << std::endl;
+    */
+    if ( (tprofile->GetBinContent(fbin+(2*6*3)) < tprofile->GetBinContent(fbin+(2*6*2)) ) && (tprofile->GetBinContent(fbin+(2*6*3)) < tprofile->GetBinContent(fbin+(2*6*4)) )) {
+        noPulse = true;
+        std::cout << "No Pulse in SVTID " << svtid << std::endl;
+    }
+
     TF1* fitfunc = fourPoleFitFunction();
 
     TRandom *r1=new TRandom();
@@ -205,10 +222,23 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile, FlatTupleMaker* rawhitfits_
     int iter = 0;
     //while ((iter < maxiter || (not_nan_count < 5 && iter < 46)) || (isnan && iter < 40)){ 
     while(iter < maxiter){
-        double rtau1 = r1->Uniform(40,70);
-        double rtau2 = r1->Uniform(7,14);
-        double rt0 = r1->Uniform(10,20);
-        double ramp = r1->Uniform(200000,400000);
+        double rtau1;
+        double rtau2;
+        double rt0;
+        double ramp; 
+
+        if (svtid < 4096){
+            rtau1 = r1->Gaus(53,2);
+            rtau2 = r1->Gaus(8,2);
+            rt0 = r1->Gaus(19,2);
+            ramp = r1->Gaus(320000,2);
+        }
+        else {
+            rtau1 = r1->Gaus(55,2);
+            rtau2 = r1->Gaus(12,2);
+            rt0 = r1->Gaus(16.5,2);
+            ramp = r1->Gaus(300000,2);
+        }
 
         fitfunc->SetParameter(1,rtau1);
         fitfunc->SetParameter(2,rtau2);
@@ -216,18 +246,10 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile, FlatTupleMaker* rawhitfits_
         fitfunc->SetParameter(3,ramp);
         fitfunc->FixParameter(4,baseline);
 
-        if(svtid == 21480){
-            std::cout << "tau1 seed: " << rtau1 << std::endl;
-            std::cout << "tau2 seed: " << rtau2 << std::endl;
-            std::cout << "t0 seed: " << rt0 << std::endl;
-            std::cout << "amp seed: " << ramp << std::endl;
-        }
-
         tprofile->Fit(fitfunc, "q");
 
         //If fit gets nan errors, indicative of failed fit. 
         if (TMath::IsNaN(fitfunc->GetParError(0)) || TMath::IsNaN(fitfunc->GetParError(1)) || TMath::IsNaN(fitfunc->GetParError(2)) || TMath::IsNaN(fitfunc->GetParError(3))){
-            //std::cout << "Found nan errors" << std::endl;
             isnan = true;
         }
         else{
@@ -238,11 +260,6 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile, FlatTupleMaker* rawhitfits_
         double chi2 = fitfunc->GetChisquare();
         double ndf = (double) fitfunc->GetNDF();
         double chi2ndf = chi2/ndf;
-
-        if(svtid == 21480){
-            std::cout << "fit chi2: " << chi2ndf << std::endl;
-            std::cout << "ITERATION " << iter << std::endl;
-        }
 
         if(chi2ndf < bestchi2){
             bestchi2 = chi2ndf;
@@ -290,6 +307,7 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile, FlatTupleMaker* rawhitfits_
     rawhitfits_tup_->setVariableValue("svtid", svtid);
     rawhitfits_tup_->setVariableValue("module", module);
     rawhitfits_tup_->setVariableValue("layer", layer);
+    rawhitfits_tup_->setVariableValue("noPulse", noPulse);
     rawhitfits_tup_->setVariableValue("t0", t0);
     rawhitfits_tup_->setVariableValue("tau1", tau1);
     rawhitfits_tup_->setVariableValue("tau2", tau2);
