@@ -13,7 +13,7 @@ SvtPulseFitHistos::~SvtPulseFitHistos() {
 }
 
 double SvtPulseFitHistos::GetHitTime(int sample_number, int cdel) {
-    double time = 24.0*sample_number;
+    double time = 3.125*(8-cdel) + 24.0*sample_number;
     return time;
 }
 
@@ -66,6 +66,59 @@ void SvtPulseFitHistos::buildRawSvtHitsTuple(std::vector<RawSvtHit*> *rawSvtHits
 void SvtPulseFitHistos::defineTProfile(std::string name) {
     TProfile* prof = new TProfile(name.c_str(),name.c_str(), 73,-1,145,2000,12000);
     tprofiles_[name] = prof;
+
+}
+
+void SvtPulseFitHistos::buildProfiles2019(TTree* rawhittree){
+    double event, module, layer, channel, svtid, cdel, calgroup;
+    double adc0, adc1, adc2, adc3, adc4, adc5;
+
+    std::map<int,std::pair<int,int>> cselmap = { {9,std::make_pair(0,2000)}, {8,std::make_pair(2000,4000)}, {7,std::make_pair(4000,6000)},{6,std::make_pair(6000,8000)},{5,std::make_pair(8000,10000)},{4,std::make_pair(10000,12000)},{3,std::make_pair(12000,14000)},{2,std::make_pair(14000,16000)},{1,std::make_pair(16000,18000)},{0,std::make_pair(18000,20000)} };
+
+    long nentries = rawhittree->GetEntries();
+    for(long i=0; i < nentries; i++){
+    //for(long i=0; i < 1000; i++){
+        rawhittree->GetEntry(i);
+        //Build adcs vector
+        std::vector<double> adcs;
+        adcs.push_back(adc0);
+        adcs.push_back(adc1);
+        adcs.push_back(adc2);
+        adcs.push_back(adc3);
+        adcs.push_back(adc4);
+        adcs.push_back(adc5);
+        channel = (double)((int)channel);
+
+        std::string hwTag = mmapper_->getHwFromSw("ly"+std::to_string((int)layer)+"_m"+std::to_string((int)module));
+
+        std::string name = hwTag+"_ch_"+std::to_string((int)channel)+"_svtid_"+std::to_string((int)svtid);
+        //std::cout << name << std::endl;
+
+        //check if tprofile exists
+        if (tprofiles_.find(name) != tprofiles_.end()) {
+            bool exists = true;
+        }
+        else{
+           defineTProfile(name); 
+        }
+
+        std::map<int,std::pair<int,int>>::iterator it;
+        int csel;
+        for (it=cselmap.begin(); it != cselmap.end(); it++) {
+            int min = it->second.first;
+            int max = it->second.second;
+            if (event >= min && event < max){
+                csel = it->first;
+                break;
+            }
+        }
+
+        for(int s=0; s < 6; s++){
+            double adc = adcs.at(s);
+            double time = GetHitTime(s, csel);
+            tprofiles_[name]->Fill(time,adc,1.0);
+        }
+    }
 
 }
 

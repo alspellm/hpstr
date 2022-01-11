@@ -35,6 +35,7 @@ class SvtPulseFitHistos : public HistoManager{
         TF1* fourPoleFitFunction();
         void fitPulse(TProfile* tprofile, FlatTupleMaker* rawhitfits_tup_);
         void saveHistos(TFile* outFile);
+        void buildProfiles2019(TTree* rawhittree);
 
     private:
 
