@@ -75,6 +75,9 @@ class SvtCalPulseEvioProcessor : public Processor {
         FlatTupleMaker* rawhits_tup_{nullptr};
         //Pulse fit tuple
         FlatTupleMaker* rawhitfits_tup_{nullptr};
+
+        //histos
+        std::map<std::string, TH1F*> histos1d_;
 };
 
 

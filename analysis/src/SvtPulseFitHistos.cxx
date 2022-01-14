@@ -7,6 +7,13 @@ SvtPulseFitHistos::SvtPulseFitHistos(const std::string& inputName, ModuleMapper*
     m_name = inputName;
     mmapper_ = mmapper;
     svtid_map_ = mmapper_->buildChannelSvtIDMap();
+
+    TH1F* hpe_h = new TH1F("nhits_per_event","nhits_per_event",160000,0,160000);
+    histos1d_["nhits_per_event"] = hpe_h;
+
+    TH2F* hpe_hh = new TH2F("nhits_per_event_hh","nhits_per_event_hh",160000,0,160000,8,-0.5,7.5);
+    histos2d_["nhits_per_event_hh"] = hpe_hh;
+    
 }
 
 SvtPulseFitHistos::~SvtPulseFitHistos() {
@@ -64,21 +71,108 @@ void SvtPulseFitHistos::buildRawSvtHitsTuple(std::vector<RawSvtHit*> *rawSvtHits
 }
 
 void SvtPulseFitHistos::defineTProfile(std::string name) {
-    TProfile* prof = new TProfile(name.c_str(),name.c_str(), 73,-1,145,2000,12000);
+    //TProfile* prof = new TProfile(name.c_str(),name.c_str(), 73,-1,145,2000,12000);
+    //TProfile* prof = new TProfile(name.c_str(),name.c_str(), 48,-0.5,149,2000,12000);
+    TProfile* prof = new TProfile(name.c_str(),name.c_str(), 49,-1.5625,151.5625,0,10000);
     tprofiles_[name] = prof;
+}
 
+void SvtPulseFitHistos::definePulseHistos(std::string name) {
+    TH2F* prof = new TH2F(name.c_str(),name.c_str(), 49,-1.5625,151.5625,10000,0,10000);
+    pulsehistos2d_[name] = prof;
 }
 
 void SvtPulseFitHistos::buildProfiles2019(TTree* rawhittree){
+
+    std::cout << "WORKING ON 2019" << std::endl;
     double event, module, layer, channel, svtid, cdel, calgroup;
     double adc0, adc1, adc2, adc3, adc4, adc5;
+    rawhittree->SetBranchAddress("event", &event);
+    rawhittree->SetBranchAddress("svtid", &svtid);
+    rawhittree->SetBranchAddress("channel", &channel);
+    rawhittree->SetBranchAddress("layer", &layer);
+    rawhittree->SetBranchAddress("module", &module);
+    rawhittree->SetBranchAddress("adc0", &adc0);
+    rawhittree->SetBranchAddress("adc1", &adc1);
+    rawhittree->SetBranchAddress("adc2", &adc2);
+    rawhittree->SetBranchAddress("adc3", &adc3);
+    rawhittree->SetBranchAddress("adc4", &adc4);
+    rawhittree->SetBranchAddress("adc5", &adc5);
+    rawhittree->SetBranchAddress("cdel", &cdel);
 
-    std::map<int,std::pair<int,int>> cselmap = { {9,std::make_pair(0,2000)}, {8,std::make_pair(2000,4000)}, {7,std::make_pair(4000,6000)},{6,std::make_pair(6000,8000)},{5,std::make_pair(8000,10000)},{4,std::make_pair(10000,12000)},{3,std::make_pair(12000,14000)},{2,std::make_pair(14000,16000)},{1,std::make_pair(16000,18000)},{0,std::make_pair(18000,20000)} };
+
+    //std::map<int,std::pair<int,int>> cselmap = { {9,std::make_pair(0,2000)}, {8,std::make_pair(2000,4000)}, {7,std::make_pair(4000,6000)},{6,std::make_pair(6000,8000)},{5,std::make_pair(8000,10000)},{4,std::make_pair(10000,12000)},{3,std::make_pair(12000,14000)},{2,std::make_pair(14000,16000)},{1,std::make_pair(16000,18000)},{0,std::make_pair(18000,20000)} };
+    //std::map<int,std::pair<int,int>> cselmap = {{0,std::make_pair(2000,4000)}, {1,std::make_pair(4000,6000)},{2,std::make_pair(6000,8000)},{3,std::make_pair(8000,10000)},{4,std::make_pair(10000,12000)},{5,std::make_pair(12000,14000)},{6,std::make_pair(14000,16000)},{7,std::make_pair(16000,18000)},{8,std::make_pair(18000,20000)} };
+    //std::map<int,std::pair<int,int>> cselmap = {{0,std::make_pair(2000,4000)}, {1,std::make_pair(4000,6000)},{2,std::make_pair(6000,8000)},{3,std::make_pair(8000,10000)},{4,std::make_pair(10000,12000)},{5,std::make_pair(12000,14000)},{6,std::make_pair(14000,16000)},{7,std::make_pair(16000,18000)} };
+    std::map<int,std::pair<int,int>> cgMap = { {0,std::make_pair(0,20000)},{1,std::make_pair(20000,40000)},{2,std::make_pair(40000,60000)},{3,std::make_pair(60000,80000)},{4,std::make_pair(80000,100000)},{5,std::make_pair(100000,120000)},{6,std::make_pair(120000,140000)},{7,std::make_pair(140000,160000)}  };
+    std::map<int,std::pair<int,int>> cselmap = {{0,std::make_pair(0,2000)}, {1,std::make_pair(2000,4000)},{2,std::make_pair(4000,6000)},{3,std::make_pair(6000,8000)},{4,std::make_pair(8000,10000)},{5,std::make_pair(10000,12000)},{6,std::make_pair(12000,14000)},{7,std::make_pair(14000,16000)}, {8,std::make_pair(16000,18000)}, {-1, std::make_pair(18000,20000)} };
+
+    int eventcount = -1;
+    int onEvent = -1;
+    int nrawhits = 0;
+    int currentEvent = 0;
 
     long nentries = rawhittree->GetEntries();
+    std::cout << "NENTRIES = " << nentries << std::endl;
+
     for(long i=0; i < nentries; i++){
-    //for(long i=0; i < 1000; i++){
         rawhittree->GetEntry(i);
+
+        histos1d_["nhits_per_event"]->Fill(event);
+        histos2d_["nhits_per_event_hh"]->Fill(event,(int)channel%8);
+        continue;
+
+        /*
+        if(event > 0 && event < 10000){
+            if((int)channel%8 == 1 && adc1 > 6500){
+                std::cout << "event " << event << "| channel " << channel << " --> ADC0: " << adc0 << " ADC1: " << adc1 << " ADC2: " << adc2 << " ADC3: " << adc3 << " ADC4: " << adc4 << " ADC5: " << adc5 <<std::endl;
+            }
+        }
+        else
+            continue;
+        */
+
+        if(eventcount >= 20000){
+            eventcount = -1;
+        }
+
+        if(event != onEvent){
+            eventcount = eventcount + 2;
+            onEvent = event;
+        }
+
+        //std::cout << "EVENTCOUNT: " << eventcount << std::endl;
+
+        int modgroup = (int)channel%8;
+        //std::cout << "modgroup: " << modgroup << std::endl;
+        std::pair<int,int> cgRange = cgMap[modgroup];
+        if(event >= cgRange.first && event < cgRange.second){
+            bool inrange = true;
+            //std::cout << "IS IN RANGE: " << cgRange.first << "-" << cgRange.second << std::endl;
+        }
+        else
+            continue;
+
+        std::map<int,std::pair<int,int>>::iterator it;
+        int csel;
+        for (it=cselmap.begin(); it != cselmap.end(); it++) {
+            int min = it->second.first;
+            int max = it->second.second;
+            if (eventcount >= min && eventcount < max){
+                csel = it->first;
+                break;
+            }
+        }
+
+        if(csel == -1 || csel == 0)
+            continue;
+        
+        //std::cout << "EVENT " << event <<  "; event count: " << eventcount << std::endl;
+        //std::cout << "CHANNEL : " << channel << std::endl;
+        //std::cout << "channel%8: " << (int)channel%8 << std::endl;
+        //if ((int)channel%8 != 0 && (int)channel%8 != 1)
+        //    continue;
+
         //Build adcs vector
         std::vector<double> adcs;
         adcs.push_back(adc0);
@@ -89,11 +183,16 @@ void SvtPulseFitHistos::buildProfiles2019(TTree* rawhittree){
         adcs.push_back(adc5);
         channel = (double)((int)channel);
 
+        if (svtid > 1000)
+            continue;
+        //std::cout << "event : " << event << std::endl;
+
         std::string hwTag = mmapper_->getHwFromSw("ly"+std::to_string((int)layer)+"_m"+std::to_string((int)module));
 
         std::string name = hwTag+"_ch_"+std::to_string((int)channel)+"_svtid_"+std::to_string((int)svtid);
         //std::cout << name << std::endl;
 
+        /*
         //check if tprofile exists
         if (tprofiles_.find(name) != tprofiles_.end()) {
             bool exists = true;
@@ -101,25 +200,24 @@ void SvtPulseFitHistos::buildProfiles2019(TTree* rawhittree){
         else{
            defineTProfile(name); 
         }
+        */
 
-        std::map<int,std::pair<int,int>>::iterator it;
-        int csel;
-        for (it=cselmap.begin(); it != cselmap.end(); it++) {
-            int min = it->second.first;
-            int max = it->second.second;
-            if (event >= min && event < max){
-                csel = it->first;
-                break;
-            }
+        //Temporary analysis on 2d histos using incorrect but useful 25ns clock binning
+        if (pulsehistos2d_.find(name) != pulsehistos2d_.end()){
+            bool exists = true;
         }
+        else
+            definePulseHistos(name);
+
 
         for(int s=0; s < 6; s++){
             double adc = adcs.at(s);
-            double time = GetHitTime(s, csel);
-            tprofiles_[name]->Fill(time,adc,1.0);
+            //double time = GetHitTime(s, csel);
+            //tprofiles_[name]->Fill(time,adc,1.0);
+            double time = 3.125*(8-csel) + 25.0*s;
+            pulsehistos2d_[name]->Fill(time,adc);
         }
     }
-
 }
 
 void SvtPulseFitHistos::fitRawHitPulses(TTree* rawhittree, FlatTupleMaker* rawhitfits_tup) {
@@ -174,9 +272,10 @@ void SvtPulseFitHistos::fitRawHitPulses(TTree* rawhittree, FlatTupleMaker* rawhi
            defineTProfile(name); 
         }
 
+        //For 2021 Jlab cal pulse run, default cdel=0
         for(int t=0; t < 6; t++){
             double adc = adcs.at(t);
-            double time = GetHitTime(t, cdel);
+            double time = GetHitTime(t, 8);
             tprofiles_[name]->Fill(time,adc,1.0);
         }
     }
@@ -240,7 +339,9 @@ void SvtPulseFitHistos::fitPulse(TProfile* tprofile, FlatTupleMaker* rawhitfits_
         }
     }
 
-    baseline = baseline/count;
+    //baseline = baseline/count;
+    //Fix baseline to value of first bin
+    baseline = tprofile->GetBinContent(1);
     amp = maxamp;
 
     //If tsample3 < tsample 2, no pulse in channel
@@ -418,12 +519,58 @@ void SvtPulseFitHistos::saveTProfiles(TFile* outF, std::string folder) {
 
 void SvtPulseFitHistos::saveHistos(TFile* outFile){
     outFile->cd();
+
+    std::cout << "Saving 2d histos" << std::endl;
+    std::cout << "SIZE OF 2DHISTOS : " << pulsehistos2d_.size() << std::endl;
+    for (itth it = pulsehistos2d_.begin(); it!=pulsehistos2d_.end(); ++it) {
+
+        outFile->cd();
+        std::string s = it->first;
+        std::string delim = "_ch";
+        std::string dirname = s.substr(0,s.find(delim));
+
+        bool exists = false;
+        TKey* key;
+        TIter next( outFile->GetListOfKeys());
+        while( (key = (TKey*) next())){
+            std::string classname = key->GetClassName();
+            if(classname.find("TDirectoryFile") != std::string::npos){
+                std::string keyname = key->GetName();
+                if(keyname.find(dirname) != std::string::npos){
+                    exists = true;
+                }
+            }
+        }
+        //std::cout << outF->GetDirectory(dirname.c_str()) << std::endl;
+        if(!exists){
+            gDirectory->mkdir(dirname.c_str());
+        }
+
+        outFile->cd(dirname.c_str());
+        it->second->Write();
+    }
+
+    //save 1d histos
+    outFile->cd();
+    typedef std::map<std::string, TH1F*>::iterator it1d;
+    for (it1d it = histos1d_.begin(); it!=histos1d_.end(); it++) {
+        it->second->Write();
+    }
+    //save 2d histos
+    outFile->cd();
+    typedef std::map<std::string, TH2F*>::iterator it2d;
+    for (it2d it = histos2d_.begin(); it!=histos2d_.end(); it++) {
+        it->second->Write();
+    }
+
+    /*
     chi2_h_->Write();
     ndf_h_->Write();
     t0_amp_h->Write();
     tau1_2_h->Write();
     tau1_v_id->Write();
     tau2_v_id->Write();
+    */
 
     std::cout << "Number of NAN channel fits: " << nan_channels_ << std::endl;
 }

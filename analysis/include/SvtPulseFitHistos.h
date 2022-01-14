@@ -36,6 +36,8 @@ class SvtPulseFitHistos : public HistoManager{
         void fitPulse(TProfile* tprofile, FlatTupleMaker* rawhitfits_tup_);
         void saveHistos(TFile* outFile);
         void buildProfiles2019(TTree* rawhittree);
+        void definePulseHistos(std::string name);
+        void setOutFile(TFile* outFile){ outFile_ = outFile;};
 
     private:
 
@@ -49,8 +51,9 @@ class SvtPulseFitHistos : public HistoManager{
         TTree* hittree_{nullptr};
         RawSvtHit* rawhit_{nullptr};
         std::map<std::string,TProfile*> tprofiles_;
-        std::map<std::string,TH1F*> ch_histos_h_;
-        std::map<std::string,TH2F*> ch_histos_hh_;
+        std::map<std::string,TH2F*> histos2d_;
+        std::map<std::string,TH2F*>pulsehistos2d_;
+        std::map<std::string,TH1F*> histos1d_;
 
         TH1F* chi2_h_{nullptr};
         TH1F* ndf_h_{nullptr};
@@ -59,10 +62,12 @@ class SvtPulseFitHistos : public HistoManager{
         TH1F* tau1_v_id{nullptr};
         TH1F* tau2_v_id{nullptr};
 
+        TFile* outFile_{nullptr};
         int nan_channels_ = 0;
 
     protected:
         typedef std::map<std::string, TProfile*>::iterator ittp;
+        typedef std::map<std::string, TH2F*>::iterator itth;
 
 };
 

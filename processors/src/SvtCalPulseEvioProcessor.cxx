@@ -45,6 +45,7 @@ void SvtCalPulseEvioProcessor::configure(const ParameterSet& parameters) {
 }
 
 void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string outFilename) {
+
     std::cout << "SvtCalPulseEvioProcessor::initialize" << std::endl;
     inFilename_ = inFilename;
     outF_ = new TFile(outFilename.c_str(),"RECREATE");
@@ -155,7 +156,7 @@ bool SvtCalPulseEvioProcessor::process() {
     else {
         std::cout << "PROCESSING EVIO DATA INTO TTREE" << std::endl;
         int eventn = 0;
-        int maxevents = 50;
+        int maxevents = 200000;
         std::cout << "SvtCalPulseEvioProcessor::process" << std::endl;
         unsigned long evt_count=0;
         int l0APVmap[4] = {1, 0, 2, 3};
@@ -244,19 +245,21 @@ void SvtCalPulseEvioProcessor::finalize() {
         readF->cd();
         std::cout << "READING TTREE FROM INPUT FILE TO FIT PULSES" << std::endl;
         rawhittree = (TTree*)readF->Get("rawhits");
+        rawhittree->Print();
     }
     
     if(fitPulses_){
         outF_->cd();
         std::cout << "FITTING CALIBRATION SCAN PULSES" << std::endl;
-        svtPulseFitHistos->fitRawHitPulses(rawhittree, rawhitfits_tup_);
+        //svtPulseFitHistos->fitRawHitPulses(rawhittree, rawhitfits_tup_);
+        svtPulseFitHistos->buildProfiles2019(rawhittree);
         std::cout << "save fit tuple" << std::endl;
 
-        rawhitfits_tup_->writeTree(outF_);
-        svtPulseFitHistos->saveTProfiles(outF_);
+        //rawhitfits_tup_->writeTree(outF_);
+        //svtPulseFitHistos->saveTProfiles(outF_);
         svtPulseFitHistos->saveHistos(outF_);
     }
-    
+
     outF_->Close();
     delete svtPulseFitHistos;
     svtPulseFitHistos = nullptr;
