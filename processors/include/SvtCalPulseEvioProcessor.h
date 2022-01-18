@@ -55,6 +55,7 @@ class SvtCalPulseEvioProcessor : public Processor {
         //Initialize some containers
         ModuleMapper * mmapper_;
         std::vector<RawSvtHit*> rawSvtHits_;
+        TFile* outFile_{nullptr};
         
         //configuration parameters
         std::string histCfgFilename_;
@@ -78,6 +79,11 @@ class SvtCalPulseEvioProcessor : public Processor {
 
         //histos
         std::map<std::string, TH1F*> histos1d_;
+
+        //tree
+        TTree* rawhitsTree_{nullptr};
+        std::vector<RawSvtHit*> rawsvthits_;
+        int eventnumber_;
 };
 
 

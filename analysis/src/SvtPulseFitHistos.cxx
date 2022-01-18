@@ -26,6 +26,7 @@ double SvtPulseFitHistos::GetHitTime(int sample_number, int cdel) {
 
 void SvtPulseFitHistos::buildRawSvtHitsTuple(std::vector<RawSvtHit*> *rawSvtHits_, FlatTupleMaker* rawhits_tup_) {
 
+    /*
     bool debug = false;
     int nhits = rawSvtHits_->size();
     for (int i = 0; i < nhits; i++)
@@ -68,6 +69,7 @@ void SvtPulseFitHistos::buildRawSvtHitsTuple(std::vector<RawSvtHit*> *rawSvtHits
 
         rawhits_tup_->fill();
     }
+    */
 }
 
 void SvtPulseFitHistos::defineTProfile(std::string name) {

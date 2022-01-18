@@ -48,7 +48,7 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
 
     std::cout << "SvtCalPulseEvioProcessor::initialize" << std::endl;
     inFilename_ = inFilename;
-    outF_ = new TFile(outFilename.c_str(),"RECREATE");
+    outFile_ = new TFile(outFilename.c_str(),"RECREATE");
     etool = new HPSEvioReader();
     etool->Open(inFilename.c_str());
     etool->SVT->fSaveHeaders = true;
@@ -98,31 +98,38 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
     etool->fAutoAdd = false;
 
     if(debug_>1) etool->PrintBank(5);
+    rawhitsTree_ = new TTree("rawsvthits","rawsvthits");
+    rawhitsTree_->Branch("event",&eventnumber_);
+    rawhitsTree_->Branch("rawsvthits",&rawsvthits_);
+
 
     //Setup flat tuple branches
-    //rawhits_tup_ = new FlatTupleMaker(outFilename.c_str(), "rawhits");
-    rawhits_tup_ = new FlatTupleMaker("rawhits");
-    rawhits_tup_->setOutFile(outF_);
+    //rawsvthits_tup_ = new FlatTupleMaker(outFilename.c_str(), "rawhits");
+    /*
+    rawsvthits_tup_ = new FlatTupleMaker("rawhits");
+    rawsvthits_tup_->setOutFile(outFile_);
+    rawsvthits_tup_->addVector("rawsvthits");
     //hardware tag F<n>H<m>
-    rawhits_tup_->addString("hwTag");
-    rawhits_tup_->addVariable("layer");
-    rawhits_tup_->addVariable("module");
-    rawhits_tup_->addVariable("channel");
-    rawhits_tup_->addVariable("svtid");
-    rawhits_tup_->addVariable("cdel");
-    rawhits_tup_->addVariable("calgroup");
-    rawhits_tup_->addVariable("adc0");
-    rawhits_tup_->addVariable("adc1");
-    rawhits_tup_->addVariable("adc2");
-    rawhits_tup_->addVariable("adc3");
-    rawhits_tup_->addVariable("adc4");
-    rawhits_tup_->addVariable("adc5");
-    rawhits_tup_->addVariable("event");
+    rawsvthits_tup_->addString("hwTag");
+    rawsvthits_tup_->addVariable("layer");
+    rawsvthits_tup_->addVariable("module");
+    rawsvthits_tup_->addVariable("channel");
+    rawsvthits_tup_->addVariable("svtid");
+    rawsvthits_tup_->addVariable("cdel");
+    rawsvthits_tup_->addVariable("calgroup");
+    rawsvthits_tup_->addVariable("adc0");
+    rawsvthits_tup_->addVariable("adc1");
+    rawsvthits_tup_->addVariable("adc2");
+    rawsvthits_tup_->addVariable("adc3");
+    rawsvthits_tup_->addVariable("adc4");
+    rawsvthits_tup_->addVariable("adc5");
+    rawsvthits_tup_->addVariable("event");
+    */
 
     //tuple for storing rawhit fits
     //rawhitfits_tup_ = new FlatTupleMaker(outFilename.c_str(), "fits");
     rawhitfits_tup_ = new FlatTupleMaker("fits");
-    rawhitfits_tup_->setOutFile(outF_);
+    rawhitfits_tup_->setOutFile(outFile_);
     rawhitfits_tup_->addString("hwTag");
     rawhitfits_tup_->addVariable("svtid");
     rawhitfits_tup_->addVariable("channel");
@@ -181,7 +188,9 @@ bool SvtCalPulseEvioProcessor::process() {
             rawSvtHits_.clear();
             //      etool->VtpTop->ParseBank();
             //      etool->VtpBot->ParseBank();
-            rawhits_tup_->setVariableValue("event", (double)etool->Head->GetEventNumber());
+            //rawsvthits_tup_->setVariableValue("event", (double)etool->Head->GetEventNumber());
+            eventnumber_ = (double)etool->Head->GetEventNumber();
+
             evt_count++;
 
             if(debug_>0) {
@@ -214,31 +223,44 @@ bool SvtCalPulseEvioProcessor::process() {
                         adcs[adcI] = int(etool->SVT->svt_data[i].samples[adcI]);
                     }
                     rawHit->setADCs(adcs);
-                    rawSvtHits_.push_back(rawHit);
+                    //rawSvtHits_.push_back(rawHit);
+                    rawsvthits_.push_back(rawHit);
                 }
 
-                svtPulseFitHistos->buildRawSvtHitsTuple(&rawSvtHits_,rawhits_tup_);
+                outFile_->cd(); 
+                rawhitsTree_->Fill();
+                
+                //svtPulseFitHistos->buildRawSvtHitsTuple(&rawSvtHits_,rawsvthits_tup_);
             }
-
+            rawhitsTree_->Fill();
         }
-
         return true;
     }
 }
 
 void SvtCalPulseEvioProcessor::finalize() { 
     std::cout << "SvtCalPulseEvioProcessor::finalize" << std::endl;
+    //If input file is evio, write evio->rawhit TTree
+    if (processEvio_){
+        outFile_->cd();
+        std::cout << "SAVING EVIO DATA TO TTREE" << std::endl;
+        //rawsvthits_tup_->writeTree(outFile_);
+        outFile_->Write();
+    }
+
+    /*
     TTree* rawhittree{nullptr};
     //If input file is evio, write evio->rawhit TTree
     if (processEvio_){
-        outF_->cd();
+        outFile_->cd();
         std::cout << "SAVING EVIO DATA TO TTREE" << std::endl;
-        rawhits_tup_->writeTree(outF_);
+        //rawsvthits_tup_->writeTree(outFile_);
+        outFile_->Write();
     }
     if (processEvio_ && fitPulses_){
-        outF_->cd();
+        outFile_->cd();
         std::cout << "READING PROCESSED EVIO TTREE TO FIT PULSES" << std::endl;
-        rawhittree = (TTree*)outF_->Get("rawhits");
+        rawhittree = (TTree*)outFile_->Get("rawhits");
     }
     else if (fitPulses_ && !processEvio_){
         TFile* readF = new TFile(inFilename_.c_str(),"READ");
@@ -249,18 +271,19 @@ void SvtCalPulseEvioProcessor::finalize() {
     }
     
     if(fitPulses_){
-        outF_->cd();
+        outFile_->cd();
         std::cout << "FITTING CALIBRATION SCAN PULSES" << std::endl;
         //svtPulseFitHistos->fitRawHitPulses(rawhittree, rawhitfits_tup_);
         svtPulseFitHistos->buildProfiles2019(rawhittree);
         std::cout << "save fit tuple" << std::endl;
 
-        //rawhitfits_tup_->writeTree(outF_);
-        //svtPulseFitHistos->saveTProfiles(outF_);
-        svtPulseFitHistos->saveHistos(outF_);
+        //rawhitfits_tup_->writeTree(outFile_);
+        //svtPulseFitHistos->saveTProfiles(outFile_);
+        svtPulseFitHistos->saveHistos(outFile_);
     }
+    */
 
-    outF_->Close();
+    outFile_->Close();
     delete svtPulseFitHistos;
     svtPulseFitHistos = nullptr;
     delete mmapper_;
