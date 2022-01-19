@@ -141,7 +141,7 @@ void SvtPulseFitHistos::jlab2019CalPulseScan(TTree* rawhitsTree) {
                 break;
             }
         }
-        if(csel == 0 || csel == -1)
+        if(csel == -1)
             continue;
 
         //std::cout << "calgroup = " << calgroup << std::endl;
@@ -166,6 +166,11 @@ void SvtPulseFitHistos::jlab2019CalPulseScan(TTree* rawhitsTree) {
             //dev cut on channels
             if(svtid > 100)
                 continue;
+            //Grab baseline for channel using csel=0 events
+            if(csel == 0){
+                baselines_[name]->Fill(rawSvtHit->getADCs()[0]);
+            }
+
             std::vector<double> adcs;
             for(int ii=0; ii < 6; ii++){
                 adcs.push_back(rawSvtHit->getADCs()[ii]);
@@ -177,7 +182,7 @@ void SvtPulseFitHistos::jlab2019CalPulseScan(TTree* rawhitsTree) {
                 }
                 else
                     definePulseHistos(name);
-                double time = 3.124*(8-csel) + 25.0*ii;
+                double time = 3.125*(8-csel) + 25.0*ii;
                 pulsehistos2d_[name]->Fill(time,rawSvtHit->getADCs()[ii]);
             }
         }
@@ -185,9 +190,234 @@ void SvtPulseFitHistos::jlab2019CalPulseScan(TTree* rawhitsTree) {
 }
 
 
+void SvtPulseFitHistos::adjustClock25nsTo24ns(){
+    for (itth it = pulsehistos2d_.begin(); it!=pulsehistos2d_.end(); ++it) {
+        std::string name = it->first;
+        TH2F* histo = it->second;
+        int nbins = histo->GetNbinsX();
+        std::vector<Double_t> means, errors, hhtimes;
+        //std::vector<double> errors;
+        //std::vector<double> hhtimes;
+        double adjustedTimes[48];
+        for(int i=0; i < nbins; i++){
+            std::string projname = name + "_bin_"+std::to_string(i);
+            TH1F* projy = (TH1F*)histo->ProjectionY(projname.c_str(), i+1,i+1);
+            int entries = projy->GetEntries();
+            if(entries < 1)
+                continue;
+            double time = projy->GetXaxis()->GetBinCenter(i+1);
+            double mean = projy->GetMean();
+            double err = projy->GetStdDevError();
+            means.push_back(mean);
+            errors.push_back(err);
+            hhtimes.push_back(time);
+        }
 
+        for(int i=0; i<8; i++){
+            int iter = 0;
+            for(int ii=i; ii<48; ii+8){
+                double t_adjusted = hhtimes.at(ii) - iter; 
+                adjustedTimes[ii] = t_adjusted;
+                iter = iter + 1;
 
+            }
+        }
 
+        TGraphErrors* tgr = new TGraphErrors((int)means.size(),&(adjustedTimes[0]),&(means[0]), 0, &(errors[0]) ); 
+        tgr->SetName(name.c_str());
+        tgr->SetTitle((name+";time (ns);ADC").c_str());
+        tgrapherrs_[name] = tgr;
+    }
+}
+
+void SvtPulseFitHistos::fitTGraphPulses(){
+
+    for (it_tgr it = tgrapherrs_.begin(); it!=tgrapherrs_.end(); ++it) {
+
+        TGraphErrors* tgraph = it->second;
+
+        std::string s = tgraph->GetName();
+        int svtid = std::stoi(s.substr(s.find("svtid_")+6,s.size()-1));
+        std::string hwTag = s.substr(0,s.find("_"));
+        int channel = std::stoi(s.substr(s.find("ch_")+3,s.find("_s")-5));
+        std::string sw = mmapper_->getSwFromHw(hwTag);
+        int layer = std::stoi(sw.substr(sw.find("ly")+2,sw.find("_")-1));
+        int module = std::stoi(sw.substr(sw.find("m")+1,sw.size()-1));
+
+        //amplitude seed
+        double maxamp = tgraph->GetMaximum();
+
+        double t0 = 0.0;
+        double tau1 = 55.0;
+        double tau2 = 8.0;
+        double amp = 0.0;
+        double baseline = 0.0;
+        bool noPulse = false;
+
+        //Get amplitude and baseline seed
+        double maxamp = 0.0;
+        double count = 0.0;
+        for (int i = 0; i < tgraph->GetNbinsX(); i++) {
+            double a = tgraph->GetBinContent(i+1);
+            if(a > maxamp){
+                maxamp = a;
+            }
+
+            if(i < 9){
+                if(a > 0.0){
+                    baseline = baseline + a;
+                    count = count + 1.0;
+                }
+            }
+        }
+
+        //baseline = baseline/count;
+        //Fix baseline to value of first bin
+        baseline = tgraph->GetBinContent(1);
+        amp = maxamp;
+
+        //If tsample3 < tsample 2, no pulse in channel
+        int fbin = tgraph->FindFirstBinAbove(0.0);
+        /*
+        std::cout << tgraph->GetBinContent(fbin) << std::endl;
+        std::cout << tgraph->GetBinContent(fbin+12) << std::endl;
+        std::cout << tgraph->GetBinContent(fbin+(24)) << std::endl;
+        std::cout << tgraph->GetBinContent(fbin+(36)) << std::endl;
+        std::cout << tgraph->GetBinContent(fbin+(48)) << std::endl;
+        std::cout << tgraph->GetBinContent(fbin+(60)) << std::endl;
+        */
+        if ( (tgraph->GetBinContent(fbin+(2*6*3)) < tgraph->GetBinContent(fbin+(2*6*2)) ) && (tgraph->GetBinContent(fbin+(2*6*3)) < tgraph->GetBinContent(fbin+(2*6*4)) )) {
+            noPulse = true;
+            std::cout << "No Pulse in SVTID " << svtid << std::endl;
+        }
+
+        TF1* fitfunc = fourPoleFitFunction();
+
+        TRandom *r1=new TRandom();
+
+        //Fit with random seeds
+        int not_nan_count = 0;
+        bool isnan = false;
+        double bestchi2 = 9999999.0;
+        double besttau1 = tau1;
+        double besttau2 = tau2;
+        double bestt0 = t0;
+        double bestamp = amp;
+        double bestndf = 0.0;
+        int maxiter = 20;
+        int iter = 0;
+        while(iter < maxiter){
+            double rtau1;
+            double rtau2;
+            double rt0;
+            double ramp; 
+
+            if (svtid < 4096){
+                rtau1 = r1->Gaus(53,2);
+                rtau2 = r1->Gaus(8,2);
+                rt0 = r1->Gaus(19,2);
+                ramp = r1->Gaus(320000,2);
+            }
+            else {
+                rtau1 = r1->Gaus(55,2);
+                rtau2 = r1->Gaus(12,2);
+                rt0 = r1->Gaus(16.5,2);
+                ramp = r1->Gaus(300000,2);
+            }
+
+            fitfunc->SetParameter(1,rtau1);
+            fitfunc->SetParameter(2,rtau2);
+            fitfunc->SetParameter(0,rt0);
+            fitfunc->SetParameter(3,ramp);
+            fitfunc->FixParameter(4,baseline);
+
+            tgraph->Fit(fitfunc, "q");
+
+            //If fit gets nan errors, indicative of failed fit. 
+            if (TMath::IsNaN(fitfunc->GetParError(0)) || TMath::IsNaN(fitfunc->GetParError(1)) || TMath::IsNaN(fitfunc->GetParError(2)) || TMath::IsNaN(fitfunc->GetParError(3))){
+                isnan = true;
+            }
+            else{
+                isnan = false;
+                not_nan_count++;
+            }
+
+            double chi2 = fitfunc->GetChisquare();
+            double ndf = (double) fitfunc->GetNDF();
+            double chi2ndf = chi2/ndf;
+
+            if(chi2ndf < bestchi2){
+                bestchi2 = chi2ndf;
+                besttau1 = rtau1;
+                besttau2 = rtau2;
+                bestt0 = rt0;
+                bestamp = ramp;
+                bestndf = ndf;
+            }
+
+            iter++;
+            if(bestchi2 < 1)
+                break;
+        }
+
+        fitfunc->SetParameter(1,besttau1);
+        fitfunc->SetParameter(2,besttau2);
+        fitfunc->SetParameter(0,bestt0);
+        fitfunc->SetParameter(3,bestamp);
+        fitfunc->FixParameter(4,baseline);
+        tgraph->Fit(fitfunc, "q");
+
+        t0 = fitfunc->GetParameter(0);
+        tau1 = fitfunc->GetParameter(1);
+        tau2 = fitfunc->GetParameter(2);
+        amp = fitfunc->GetParameter(3);
+        baseline = fitfunc->GetParameter(4);
+        double chi2 = fitfunc->GetChisquare();
+        double ndf = fitfunc->GetNDF();
+
+        double t0err = fitfunc->GetParError(0);
+        double tau1err = fitfunc->GetParError(1);
+        double tau2err = fitfunc->GetParError(2);
+        double amperr = fitfunc->GetParError(3);
+
+        if (isnan){
+            std::cout << "NAN FIT SVTID: " << svtid << std::endl;
+        }
+        if (TMath::IsNaN(fitfunc->GetParError(0)) || TMath::IsNaN(fitfunc->GetParError(1)) || TMath::IsNaN(fitfunc->GetParError(2)) || TMath::IsNaN(fitfunc->GetParError(3))){
+            nan_channels_++;
+        }
+
+        rawhitfits_tup_->setVariableValue("hwTag", hwTag);
+        rawhitfits_tup_->setVariableValue("channel", channel);
+        rawhitfits_tup_->setVariableValue("svtid", svtid);
+        rawhitfits_tup_->setVariableValue("module", module);
+        rawhitfits_tup_->setVariableValue("layer", layer);
+        rawhitfits_tup_->setVariableValue("noPulse", noPulse);
+        rawhitfits_tup_->setVariableValue("t0", t0);
+        rawhitfits_tup_->setVariableValue("tau1", tau1);
+        rawhitfits_tup_->setVariableValue("tau2", tau2);
+        rawhitfits_tup_->setVariableValue("amp", amp);
+        rawhitfits_tup_->setVariableValue("baseline", baseline);
+        rawhitfits_tup_->setVariableValue("chi2", chi2);
+        rawhitfits_tup_->setVariableValue("ndf", ndf);
+        rawhitfits_tup_->setVariableValue("t0err", t0err);
+        rawhitfits_tup_->setVariableValue("tau1err", tau1err);
+        rawhitfits_tup_->setVariableValue("tau2err", tau2err);
+        rawhitfits_tup_->setVariableValue("amperr", amperr);
+        rawhitfits_tup_->setVariableValue("integralNorm", SvtPulseFitHistos::getAmplitudeIntegralNorm(tau1, tau2));
+
+        rawhitfits_tup_->fill();
+
+        //Fill Histograms
+        chi2_h_->Fill(fitfunc->GetChisquare()/fitfunc->GetNDF());
+        t0_amp_h->Fill(fitfunc->GetParameter(0),fitfunc->GetParameter(3),1.0);
+        tau1_2_h->Fill(fitfunc->GetParameter(1),fitfunc->GetParameter(2),1.0);
+        tau1_v_id->SetBinContent(svtid+1,fitfunc->GetParameter(1));
+        tau2_v_id->SetBinContent(svtid+1,fitfunc->GetParameter(2));
+
+        tgraph->Draw();
+    }
+}
 
 
 

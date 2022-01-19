@@ -4,7 +4,7 @@ import os
 import baseConfig
 
 baseConfig.parser.add_argument("-c", "--chNumCfg", type=str, dest="chNumCfg", action='store',
-                  help="Configuration for channel numbering.", metavar="chNumCfg", default="fw")
+                  help="Configuration for channel numbering.", metavar="chNumCfg", default="sw")
 baseConfig.parser.add_argument("-N", "--histNames", type=str, dest="histNames", action='store',
                   help="Configuration for histogram naming convention.", 
                   metavar="histNames", default="fw")

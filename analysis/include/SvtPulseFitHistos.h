@@ -40,6 +40,8 @@ class SvtPulseFitHistos : public HistoManager{
         void setOutFile(TFile* outFile){ outFile_ = outFile;};
         void initHistos();
         void jlab2019CalPulseScan(TTree* rawhitsTree);
+        void adjustClock25nsTo24ns();
+        void fitTGraphPulses();
     
 
     private:
@@ -57,6 +59,7 @@ class SvtPulseFitHistos : public HistoManager{
         std::map<std::string,TH2F*> histos2d_;
         std::map<std::string,TH2F*>pulsehistos2d_;
         std::map<std::string,TH1F*> histos1d_;
+        std::map<std::string,TGraphErrors*> tgrapherrs_;
 
         TH1F* chi2_h_{nullptr};
         TH1F* ndf_h_{nullptr};
@@ -71,6 +74,7 @@ class SvtPulseFitHistos : public HistoManager{
     protected:
         typedef std::map<std::string, TProfile*>::iterator ittp;
         typedef std::map<std::string, TH2F*>::iterator itth;
+        typedef std::map<std::string, TGraphErrors*>::iterator it_tgr;
 
 };
 
