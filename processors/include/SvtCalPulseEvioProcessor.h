@@ -82,7 +82,7 @@ class SvtCalPulseEvioProcessor : public Processor {
 
         //tree
         TTree* rawhitsTree_{nullptr};
-        std::vector<RawSvtHit*> rawsvthits_;
+        //std::vector<RawSvtHit*> rawsvthits_;
         int eventnumber_;
 };
 

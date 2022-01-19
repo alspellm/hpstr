@@ -49,58 +49,60 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
     std::cout << "SvtCalPulseEvioProcessor::initialize" << std::endl;
     inFilename_ = inFilename;
     outFile_ = new TFile(outFilename.c_str(),"RECREATE");
-    etool = new HPSEvioReader();
-    etool->Open(inFilename.c_str());
-    etool->SVT->fSaveHeaders = true;
+    if(processEvio_){
+        etool = new HPSEvioReader();
+        etool->Open(inFilename.c_str());
+        etool->SVT->fSaveHeaders = true;
 
-    if(trigFilename_.size()>2){
-        etool->TrigConf->Parse_trigger_file(trigFilename_); // If requested, parse the Trigger config file supplied.
-        etool->ECAL->Config();
-        std::cout << "Parsed trigger file: " << trigFilename_ << std::endl;
-    }
-
-    //DEBUGGING  
-    if(debug_==0){
-        etool->fDebug = 0b000000;
-    }else if(debug_==1){
-        etool->fDebug = 0b000001;
-    }else if(debug_==2){
-        etool->fDebug = 0b000011;
-    } else if(debug_ == 3){
-        etool->fDebug = 0b000111;
-    } else{
-        etool->fDebug = 0xFF;
-    }
-
-
-    bool found = false;
-    while( !found &&   etool->Next()== S_SUCCESS){
-        if( (etool->this_tag & 128) == 128){
-            found = true;
-            run_number_ = etool->GetRunNumber();
-            trigtime_start_ = etool->GetTrigTime();
-            break;
+        if(trigFilename_.size()>2){
+            etool->TrigConf->Parse_trigger_file(trigFilename_); // If requested, parse the Trigger config file supplied.
+            etool->ECAL->Config();
+            std::cout << "Parsed trigger file: " << trigFilename_ << std::endl;
         }
-    }
-    if( found == false) std::cout << "WARNING -- Not able to find a bank with a runnumber! \n";
-    etool->Close();
 
-    if(etool->SVT){
-        if(run_number_ < 8000){ // This is 2015 or 2016 data.
-            etool->Set2016Data();
+        //DEBUGGING  
+        if(debug_==0){
+            etool->fDebug = 0b000000;
+        }else if(debug_==1){
+            etool->fDebug = 0b000001;
+        }else if(debug_==2){
+            etool->fDebug = 0b000011;
+        } else if(debug_ == 3){
+            etool->fDebug = 0b000111;
+        } else{
+            etool->fDebug = 0xFF;
+        }
+
+
+        bool found = false;
+        while( !found &&   etool->Next()== S_SUCCESS){
+            if( (etool->this_tag & 128) == 128){
+                found = true;
+                run_number_ = etool->GetRunNumber();
+                trigtime_start_ = etool->GetTrigTime();
+                break;
+            }
+        }
+        if( found == false) std::cout << "WARNING -- Not able to find a bank with a runnumber! \n";
+        etool->Close();
+
+        if(etool->SVT){
+            if(run_number_ < 8000){ // This is 2015 or 2016 data.
+                etool->Set2016Data();
+            }else{
+                etool->Set2019Data();
+            }
         }else{
-            etool->Set2019Data();
+            std::cout << "NO SVT initialized \n";
         }
-    }else{
-        std::cout << "NO SVT initialized \n";
+
+        etool->fAutoAdd = false;
+
+        if(debug_>1) etool->PrintBank(5);
     }
-
-    etool->fAutoAdd = false;
-
-    if(debug_>1) etool->PrintBank(5);
     rawhitsTree_ = new TTree("rawsvthits","rawsvthits");
     rawhitsTree_->Branch("event",&eventnumber_);
-    rawhitsTree_->Branch("rawsvthits",&rawsvthits_);
+    rawhitsTree_->Branch("rawsvthits",&rawSvtHits_);
 
 
     //Setup flat tuple branches
@@ -150,7 +152,10 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
     rawhitfits_tup_->addVariable("ndf");
 
     //Init histos
-    svtPulseFitHistos = new SvtPulseFitHistos("raw_hits", mmapper_);
+    if(fitPulses_){
+        svtPulseFitHistos = new SvtPulseFitHistos("raw_hits", mmapper_);
+        svtPulseFitHistos->initHistos();
+    }
 }
 
 bool SvtCalPulseEvioProcessor::process() {
@@ -163,7 +168,7 @@ bool SvtCalPulseEvioProcessor::process() {
     else {
         std::cout << "PROCESSING EVIO DATA INTO TTREE" << std::endl;
         int eventn = 0;
-        int maxevents = 200000;
+        int maxevents = 20;
         std::cout << "SvtCalPulseEvioProcessor::process" << std::endl;
         unsigned long evt_count=0;
         int l0APVmap[4] = {1, 0, 2, 3};
@@ -190,6 +195,7 @@ bool SvtCalPulseEvioProcessor::process() {
             //      etool->VtpBot->ParseBank();
             //rawsvthits_tup_->setVariableValue("event", (double)etool->Head->GetEventNumber());
             eventnumber_ = (double)etool->Head->GetEventNumber();
+            //std::cout << eventnumber_ << std::endl;
 
             evt_count++;
 
@@ -223,15 +229,14 @@ bool SvtCalPulseEvioProcessor::process() {
                         adcs[adcI] = int(etool->SVT->svt_data[i].samples[adcI]);
                     }
                     rawHit->setADCs(adcs);
-                    //rawSvtHits_.push_back(rawHit);
-                    rawsvthits_.push_back(rawHit);
+                    rawSvtHits_.push_back(rawHit);
+                    //rawsvthits_.push_back(rawHit);
                 }
 
-                outFile_->cd(); 
-                rawhitsTree_->Fill();
                 
                 //svtPulseFitHistos->buildRawSvtHitsTuple(&rawSvtHits_,rawsvthits_tup_);
             }
+            outFile_->cd(); 
             rawhitsTree_->Fill();
         }
         return true;
@@ -240,12 +245,31 @@ bool SvtCalPulseEvioProcessor::process() {
 
 void SvtCalPulseEvioProcessor::finalize() { 
     std::cout << "SvtCalPulseEvioProcessor::finalize" << std::endl;
+
+    TTree* rawhitTree{nullptr};
     //If input file is evio, write evio->rawhit TTree
     if (processEvio_){
         outFile_->cd();
         std::cout << "SAVING EVIO DATA TO TTREE" << std::endl;
         //rawsvthits_tup_->writeTree(outFile_);
         outFile_->Write();
+    }
+
+    if (fitPulses_ && !processEvio_){
+        TFile* readF = new TFile(inFilename_.c_str(),"READ");
+        readF->cd();
+        std::cout << "READING TTREE FROM INPUT FILE TO FIT PULSES" << std::endl;
+        rawhitTree = (TTree*)readF->Get("rawsvthits");
+        std::cout << "Tree Read" << std::endl;
+    }
+
+
+    if(fitPulses_){
+        std::cout << "FITTING CALIBRATION SCAN PULSES" << std::endl;
+        svtPulseFitHistos->jlab2019CalPulseScan(rawhitTree);
+        std::cout << "Done fitting" << std::endl;
+        svtPulseFitHistos->saveHistos(outFile_);
+        std::cout << "Histograms Saved" << std::endl;
     }
 
     /*

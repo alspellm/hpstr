@@ -38,6 +38,9 @@ class SvtPulseFitHistos : public HistoManager{
         void buildProfiles2019(TTree* rawhittree);
         void definePulseHistos(std::string name);
         void setOutFile(TFile* outFile){ outFile_ = outFile;};
+        void initHistos();
+        void jlab2019CalPulseScan(TTree* rawhitsTree);
+    
 
     private:
 

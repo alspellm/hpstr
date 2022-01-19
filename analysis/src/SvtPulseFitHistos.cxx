@@ -7,13 +7,14 @@ SvtPulseFitHistos::SvtPulseFitHistos(const std::string& inputName, ModuleMapper*
     m_name = inputName;
     mmapper_ = mmapper;
     svtid_map_ = mmapper_->buildChannelSvtIDMap();
+}
 
-    TH1F* hpe_h = new TH1F("nhits_per_event","nhits_per_event",160000,0,160000);
+void SvtPulseFitHistos::initHistos(){
+    TH1F* hpe_h = new TH1F("nhits_per_event","nhits_per_event",25000,0,25000);
     histos1d_["nhits_per_event"] = hpe_h;
 
-    TH2F* hpe_hh = new TH2F("nhits_per_event_hh","nhits_per_event_hh",160000,0,160000,8,-0.5,7.5);
-    histos2d_["nhits_per_event_hh"] = hpe_hh;
-    
+    TH2F* adcs_hh = new TH2F("adcs","adcs;sample N;ADC",6,0,6,5000,0,10000);
+    histos2d_["adcs"] = adcs_hh;
 }
 
 SvtPulseFitHistos::~SvtPulseFitHistos() {
@@ -83,6 +84,114 @@ void SvtPulseFitHistos::definePulseHistos(std::string name) {
     TH2F* prof = new TH2F(name.c_str(),name.c_str(), 49,-1.5625,151.5625,10000,0,10000);
     pulsehistos2d_[name] = prof;
 }
+
+void SvtPulseFitHistos::jlab2019CalPulseScan(TTree* rawhitsTree) {
+    /*
+    std::map<int,std::pair<int,int>> cgMap = { {0,std::make_pair(0,20000)},{1,std::make_pair(20000,40000)},{2,std::make_pair(40000,60000)},{3,std::make_pair(60000,80000)},{4,std::make_pair(80000,100000)},{5,std::make_pair(100000,120000)},{6,std::make_pair(120000,140000)},{7,std::make_pair(140000,160000)}  };
+    std::map<int,std::pair<int,int>> cselmap = {{0,std::make_pair(0,2000)}, {1,std::make_pair(2000,4000)},{2,std::make_pair(4000,6000)},{3,std::make_pair(6000,8000)},{4,std::make_pair(8000,10000)},{5,std::make_pair(10000,12000)},{6,std::make_pair(12000,14000)},{7,std::make_pair(14000,16000)}, {8,std::make_pair(16000,18000)}, {-1, std::make_pair(18000,20000)} };
+    */
+
+    std::map<std::pair<int,int>,int> cgMap = { {std::make_pair(0,20000),0},{std::make_pair(20000,40000),1},{std::make_pair(40000,60000),2},{std::make_pair(60000,80000),3},{std::make_pair(80000,100000),4},{std::make_pair(100000,120000),5},{std::make_pair(120000,140000),6},{std::make_pair(140000,160000),7}};
+
+    std::map<std::pair<int,int>,int> cselmap = {{std::make_pair(0,2000),0}, {std::make_pair(2000,4000),1},{std::make_pair(4000,6000),2},{std::make_pair(6000,8000),3},{std::make_pair(8000,10000),4},{std::make_pair(10000,12000),5},{std::make_pair(12000,14000),6},{std::make_pair(14000,16000),7}, {std::make_pair(16000,18000),8}, {std::make_pair(18000,20000),-1} };
+    double module, layer, channel, svtid, cdel, calgroup;
+    double adc0, adc1, adc2, adc3, adc4, adc5;
+    
+    //Read rawsvthit TTree
+    rawhitsTree->Print();
+    std::vector<RawSvtHit*>* rawSvtHits{};
+    int event;
+    rawhitsTree->SetBranchAddress("event", &event);
+    rawhitsTree->SetBranchAddress("rawsvthits", &rawSvtHits);
+
+     
+
+    //Loop over tree
+    long nentries = rawhitsTree->GetEntries();
+    std::cout << "TTree N Entries: " << nentries << std::endl;
+    int cselcount = -1;
+    for(long i=0; i < nentries; i++){
+        rawhitsTree->GetEntry(i);
+        if((cselcount-1)%1000==0)
+            std::cout << "event " << event << std::endl;
+        cselcount = cselcount + 2;
+        if(cselcount > 19999)
+            cselcount = -1;
+        //Cut on event
+        //if(event > 2100)
+        //    break;
+        //
+        //Event calgroup and csel mapping
+        std::map<std::pair<int,int>,int>::iterator it;
+        int calgroup; 
+        for(it=cgMap.begin(); it!=cgMap.end(); it++){
+            int min = it->first.first;
+            int max = it->first.second;
+            if(event >= min && event < max){
+                calgroup = it->second;
+                break;
+            }
+        }
+        int csel; 
+        for(it=cselmap.begin(); it!=cselmap.end(); it++){
+            int min = it->first.first;
+            int max = it->first.second;
+            if(cselcount >= min && cselcount < max){
+                csel = it->second;
+                break;
+            }
+        }
+        if(csel == 0 || csel == -1)
+            continue;
+
+        //std::cout << "calgroup = " << calgroup << std::endl;
+        //std::cout << "csel = " << csel << std::endl;
+        //
+        int nhits = rawSvtHits->size();
+        //std::cout << "nhits = " << nhits << std::endl;
+        histos1d_["nhits_per_event"]->Fill(nhits);
+
+        for(int hit=0; hit < nhits; hit++){ 
+            //Get hit attributes
+            RawSvtHit* rawSvtHit = rawSvtHits->at(hit);
+            int module = (rawSvtHit->getModule());
+            int layer = (rawSvtHit->getLayer());
+            std::string hwTag= mmapper_->getHwFromSw("ly"+std::to_string(layer)+"_m"+std::to_string(module));
+            int channel = (int)rawSvtHit->getStrip();
+            int cg = (int)channel%8;
+            if(cg != calgroup)
+                continue;
+            int svtid = svtid_map_[hwTag].at(channel); 
+            std::string name = hwTag+"_ch_"+std::to_string((int)channel)+"_svtid_"+std::to_string((int)svtid);
+            //dev cut on channels
+            if(svtid > 100)
+                continue;
+            std::vector<double> adcs;
+            for(int ii=0; ii < 6; ii++){
+                adcs.push_back(rawSvtHit->getADCs()[ii]);
+                histos2d_["adcs"]->Fill(ii,rawSvtHit->getADCs()[ii]);
+
+                //Temporary values for dev. Real clock value is 24.0 ns
+                if (pulsehistos2d_.find(name) != pulsehistos2d_.end()){
+                    bool exists = true;
+                }
+                else
+                    definePulseHistos(name);
+                double time = 3.124*(8-csel) + 25.0*ii;
+                pulsehistos2d_[name]->Fill(time,rawSvtHit->getADCs()[ii]);
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
 
 void SvtPulseFitHistos::buildProfiles2019(TTree* rawhittree){
 
