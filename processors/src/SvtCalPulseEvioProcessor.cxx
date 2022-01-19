@@ -104,32 +104,7 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
     rawhitsTree_->Branch("event",&eventnumber_);
     rawhitsTree_->Branch("rawsvthits",&rawSvtHits_);
 
-
-    //Setup flat tuple branches
-    //rawsvthits_tup_ = new FlatTupleMaker(outFilename.c_str(), "rawhits");
-    /*
-    rawsvthits_tup_ = new FlatTupleMaker("rawhits");
-    rawsvthits_tup_->setOutFile(outFile_);
-    rawsvthits_tup_->addVector("rawsvthits");
-    //hardware tag F<n>H<m>
-    rawsvthits_tup_->addString("hwTag");
-    rawsvthits_tup_->addVariable("layer");
-    rawsvthits_tup_->addVariable("module");
-    rawsvthits_tup_->addVariable("channel");
-    rawsvthits_tup_->addVariable("svtid");
-    rawsvthits_tup_->addVariable("cdel");
-    rawsvthits_tup_->addVariable("calgroup");
-    rawsvthits_tup_->addVariable("adc0");
-    rawsvthits_tup_->addVariable("adc1");
-    rawsvthits_tup_->addVariable("adc2");
-    rawsvthits_tup_->addVariable("adc3");
-    rawsvthits_tup_->addVariable("adc4");
-    rawsvthits_tup_->addVariable("adc5");
-    rawsvthits_tup_->addVariable("event");
-    */
-
-    //tuple for storing rawhit fits
-    //rawhitfits_tup_ = new FlatTupleMaker(outFilename.c_str(), "fits");
+    //Define tuple to store channel pulse fit results
     rawhitfits_tup_ = new FlatTupleMaker("fits");
     rawhitfits_tup_->setOutFile(outFile_);
     rawhitfits_tup_->addString("hwTag");
@@ -137,23 +112,24 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
     rawhitfits_tup_->addVariable("channel");
     rawhitfits_tup_->addVariable("layer");
     rawhitfits_tup_->addVariable("module");
-    rawhitfits_tup_->addVariable("noPulse");
     rawhitfits_tup_->addVariable("t0");
     rawhitfits_tup_->addVariable("tau1");
     rawhitfits_tup_->addVariable("tau2");
     rawhitfits_tup_->addVariable("amp");
+    rawhitfits_tup_->addVariable("baseline");
+    rawhitfits_tup_->addVariable("chi2");
+    rawhitfits_tup_->addVariable("ndf");
     rawhitfits_tup_->addVariable("t0err");
     rawhitfits_tup_->addVariable("tau1err");
     rawhitfits_tup_->addVariable("tau2err");
     rawhitfits_tup_->addVariable("amperr");
     rawhitfits_tup_->addVariable("integralNorm");
-    rawhitfits_tup_->addVariable("baseline");
-    rawhitfits_tup_->addVariable("chi2");
-    rawhitfits_tup_->addVariable("ndf");
+    rawhitfits_tup_->addVariable("nanfit");
 
     //Init histos
     if(fitPulses_){
         svtPulseFitHistos = new SvtPulseFitHistos("raw_hits", mmapper_);
+        svtPulseFitHistos->passFitTupleOut(rawhitfits_tup_);
         svtPulseFitHistos->initHistos();
     }
 }
@@ -244,6 +220,7 @@ bool SvtCalPulseEvioProcessor::process() {
 }
 
 void SvtCalPulseEvioProcessor::finalize() { 
+
     std::cout << "SvtCalPulseEvioProcessor::finalize" << std::endl;
 
     TTree* rawhitTree{nullptr};
@@ -251,11 +228,16 @@ void SvtCalPulseEvioProcessor::finalize() {
     if (processEvio_){
         outFile_->cd();
         std::cout << "SAVING EVIO DATA TO TTREE" << std::endl;
-        //rawsvthits_tup_->writeTree(outFile_);
         outFile_->Write();
     }
 
-    if (fitPulses_ && !processEvio_){
+    if (processEvio_ && fitPulses_){
+        outFile_->cd();
+        std::cout << "READING PROCESSED EVIO TTREE TO FIT PULSES" << std::endl;
+        rawhitTree = (TTree*)outFile_->Get("rawsvthits");
+    }
+
+    else if (fitPulses_ && !processEvio_){
         TFile* readF = new TFile(inFilename_.c_str(),"READ");
         readF->cd();
         std::cout << "READING TTREE FROM INPUT FILE TO FIT PULSES" << std::endl;
@@ -263,49 +245,11 @@ void SvtCalPulseEvioProcessor::finalize() {
         std::cout << "Tree Read" << std::endl;
     }
 
-
     if(fitPulses_){
         std::cout << "FITTING CALIBRATION SCAN PULSES" << std::endl;
         svtPulseFitHistos->jlab2019CalPulseScan(rawhitTree);
-        std::cout << "Done fitting" << std::endl;
-        svtPulseFitHistos->saveHistos(outFile_);
-        std::cout << "Histograms Saved" << std::endl;
-    }
-
-    /*
-    TTree* rawhittree{nullptr};
-    //If input file is evio, write evio->rawhit TTree
-    if (processEvio_){
-        outFile_->cd();
-        std::cout << "SAVING EVIO DATA TO TTREE" << std::endl;
-        //rawsvthits_tup_->writeTree(outFile_);
-        outFile_->Write();
-    }
-    if (processEvio_ && fitPulses_){
-        outFile_->cd();
-        std::cout << "READING PROCESSED EVIO TTREE TO FIT PULSES" << std::endl;
-        rawhittree = (TTree*)outFile_->Get("rawhits");
-    }
-    else if (fitPulses_ && !processEvio_){
-        TFile* readF = new TFile(inFilename_.c_str(),"READ");
-        readF->cd();
-        std::cout << "READING TTREE FROM INPUT FILE TO FIT PULSES" << std::endl;
-        rawhittree = (TTree*)readF->Get("rawhits");
-        rawhittree->Print();
-    }
-    
-    if(fitPulses_){
-        outFile_->cd();
-        std::cout << "FITTING CALIBRATION SCAN PULSES" << std::endl;
-        //svtPulseFitHistos->fitRawHitPulses(rawhittree, rawhitfits_tup_);
-        svtPulseFitHistos->buildProfiles2019(rawhittree);
-        std::cout << "save fit tuple" << std::endl;
-
-        //rawhitfits_tup_->writeTree(outFile_);
-        //svtPulseFitHistos->saveTProfiles(outFile_);
         svtPulseFitHistos->saveHistos(outFile_);
     }
-    */
 
     outFile_->Close();
     delete svtPulseFitHistos;
