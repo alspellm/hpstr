@@ -249,6 +249,7 @@ void SvtCalPulseEvioProcessor::finalize() {
         std::cout << "FITTING CALIBRATION SCAN PULSES" << std::endl;
         svtPulseFitHistos->jlab2019CalPulseScan(rawhitTree);
         svtPulseFitHistos->saveHistos(outFile_);
+        rawhitfits_tup_->writeTree();
     }
 
     outFile_->Close();

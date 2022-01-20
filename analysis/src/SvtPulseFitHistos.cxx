@@ -131,7 +131,7 @@ void SvtPulseFitHistos::jlab2019CalPulseScan(TTree* rawhitsTree) {
 
             /*
             //dev cut on channels
-            if(svtid > 10)
+            if(svtid > 100)
                 continue;
                 */
 
@@ -214,7 +214,7 @@ void SvtPulseFitHistos::adjustClock25nsTo24ns(){
     //Fit TGraphErrors
     fitTGraphPulses();
     //Fit histos
-    fit2DHistoPulses();
+    //fit2DHistoPulses();
 }
 
 void SvtPulseFitHistos::fit2DHistoPulses(){
