@@ -37,6 +37,7 @@ class SvtPulseFitHistos : public HistoManager{
         void adjustClock25nsTo24ns();
         void fitTGraphPulses();
         void passFitTupleOut(FlatTupleMaker* rawhitfits_tup){rawhitfits_tup_ = rawhitfits_tup;};
+        void fit2DHistoPulses();
     
 
     private:

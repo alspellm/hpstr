@@ -47,7 +47,7 @@ void SvtPulseFitHistos::definePulseHistos(std::string name) {
     pulsehistos2d_[name] = prof;
 
     //store channel baselines in histogram
-    TH1F* baseline = new TH1F(name.c_str(),name.c_str(),10000,0,10000);
+    TH1F* baseline = new TH1F((name+"_baseline").c_str(),name.c_str(),10000,0,10000);
     baselines_[name] = baseline;
 }
 
@@ -80,10 +80,12 @@ void SvtPulseFitHistos::jlab2019CalPulseScan(TTree* rawhitsTree) {
         cselcount = cselcount + 2;
         if(cselcount > 19999)
             cselcount = -1;
+        /*
         //Cut on event
-        //if(event > 2100)
-        //    break;
-        //
+        if(event > 20000)
+            break;
+            */
+        
         //Event calgroup and csel mapping
         std::map<std::pair<int,int>,int>::iterator it;
         int calgroup; 
@@ -127,9 +129,11 @@ void SvtPulseFitHistos::jlab2019CalPulseScan(TTree* rawhitsTree) {
             int svtid = svtid_map_[hwTag].at(channel); 
             std::string name = hwTag+"_ch_"+std::to_string((int)channel)+"_svtid_"+std::to_string((int)svtid);
 
+            /*
             //dev cut on channels
-            if(svtid > 100)
+            if(svtid > 10)
                 continue;
+                */
 
             //Channel histograms defined below use incorrect clock binning (25.ns, should be 24.ns)
             //This will be adjusted as histos are transformed to TGraphErrors for fitting
@@ -166,25 +170,31 @@ void SvtPulseFitHistos::adjustClock25nsTo24ns(){
         std::string name = it->first;
         TH2F* histo = it->second;
         int nbins = histo->GetNbinsX();
-        std::vector<Double_t> means, errors, hhtimes;
+        //std::cout << "nbins = " << nbins << std::endl;
+        std::vector<Double_t> means, errors, times;
         //std::vector<double> errors;
         //std::vector<double> hhtimes;
-        double adjustedTimes[48];
-        for(int i=0; i < nbins; i++){
-            std::string projname = name + "_bin_"+std::to_string(i);
+        for(int i=0; i < 48; i++){
+            std::string projname = name + "_bin_"+std::to_string(i+1);
             TH1F* projy = (TH1F*)histo->ProjectionY(projname.c_str(), i+1,i+1);
+            double timeshift = floor((i+1)/9);
             int entries = projy->GetEntries();
             if(entries < 1)
                 continue;
-            double time = projy->GetXaxis()->GetBinCenter(i+1);
+            //std::cout << "time before shift = " << (histo->GetXaxis()->GetBinCenter(i+1)) << std::endl;
+            //std::cout << "timeshift = " << timeshift << std::endl;
+            double time = (histo->GetXaxis()->GetBinCenter(i+1)) - timeshift;
+            //std::cout << "time after shift = " << time << std::endl;
             double mean = projy->GetMean();
-            double err = projy->GetStdDevError();
+            double err = projy->GetStdDev();
             means.push_back(mean);
             errors.push_back(err);
-            hhtimes.push_back(time);
+            times.push_back(time);
 
             delete projy;
         }
+        /*
+        double adjustedTimes[(int)hhtimes.size()];
 
         for(int i=0; i<8; i++){
             int iter = 0;
@@ -194,15 +204,147 @@ void SvtPulseFitHistos::adjustClock25nsTo24ns(){
                 iter = iter + 1;
             }
         }
-
-        TGraphErrors* tgr = new TGraphErrors((int)means.size(),&(adjustedTimes[0]),&(means[0]), 0, &(errors[0]) ); 
-        tgr->SetName(name.c_str());
+        */
+        TGraphErrors* tgr = new TGraphErrors((int)means.size(),&(times[0]),&(means[0]), 0, &(errors[0]) ); 
+        tgr->SetName((name+"_tgr").c_str());
         tgr->SetTitle((name+";time (ns);ADC").c_str());
         tgrapherrs_[name] = tgr;
     }
 
     //Fit TGraphErrors
     fitTGraphPulses();
+    //Fit histos
+    fit2DHistoPulses();
+}
+
+void SvtPulseFitHistos::fit2DHistoPulses(){
+    for (it2d it = pulsehistos2d_.begin(); it!=pulsehistos2d_.end(); ++it) {
+
+        TH2F* pulsehisto2d = it->second;
+
+        //Get channel names and info
+        //std::string s = pulsehisto2d->GetName();
+        std::string s = it->first;
+        int svtid = std::stoi(s.substr(s.find("svtid_")+6,s.size()-1));
+        std::string hwTag = s.substr(0,s.find("_"));
+        int channel = std::stoi(s.substr(s.find("ch_")+3,s.find("_s")-5));
+        std::string sw = mmapper_->getSwFromHw(hwTag);
+        int layer = std::stoi(sw.substr(sw.find("ly")+2,sw.find("_")-1));
+        int module = std::stoi(sw.substr(sw.find("m")+1,sw.size()-1));
+
+        //amplitude seed
+        //TH1F* projy = (TH1F*)pulsehisto2d->ProjectionY((s+"tmp_projy").c_str(), 11,11);
+        double maxamp;
+        for (int i = 0; i < pulsehisto2d->GetNbinsX(); i++) {
+            double a = pulsehisto2d->GetBinContent(i+1);
+            if(a > maxamp){
+                maxamp = a;
+            }
+        }
+
+        //delete projy;
+        //fix baseline using csel = 0 events
+        double baseline = baselines_[s]->GetMean();
+
+        //APV25 Channel Response Fit Function
+        TF1* fitfunc = fourPoleFitFunction();
+        //Random seed generator
+        TRandom *r1 = new TRandom();
+
+        //Seed fit parameters
+        double bestchi2 = 99999999.0;
+        double t0;
+        double tau1;
+        double tau2;
+        double amp;
+        bool nanfit = false;
+        int maxiter = 30;
+        int iter = 0;
+        while(iter < maxiter){
+            double rtau1;
+            double rtau2;
+            double rt0;
+            double ramp; 
+
+            //Slim sensor random fit param seeds
+            if (svtid < 4096){
+                rtau1 = r1->Gaus(53.,3.);
+                rtau2 = r1->Gaus(9.,3.);
+                rt0 = r1->Uniform(0.,30.);
+                ramp = r1->Gaus(maxamp,3.);
+            }
+            //Non-slim sensor random fit param seeds
+            else {
+                rtau1 = r1->Gaus(55.,3.);
+                rtau2 = r1->Gaus(12.,3.);
+                rt0 = r1->Uniform(0.,30.);
+                ramp = r1->Gaus(maxamp,3);
+            }
+
+            //set function seeds
+            fitfunc->SetParameter(1,rtau1);
+            fitfunc->SetParameter(2,rtau2);
+            fitfunc->SetParameter(0,rt0);
+            fitfunc->SetParameter(3,ramp);
+            fitfunc->FixParameter(4,baseline);
+
+            //Fit using random seeds
+            pulsehisto2d->Fit(fitfunc, "q");
+
+            //Get fit quality via chi2
+            double chi2 = fitfunc->GetChisquare();
+            double ndf = (double) fitfunc->GetNDF();
+            if(ndf < 1){
+                iter++;
+                continue;
+            }
+            double chi2ndf = chi2/ndf;
+
+            //Keep fit with best chi2
+            if(chi2ndf < bestchi2){
+                bestchi2 = chi2ndf;
+                tau1 = rtau1;
+                tau2 = rtau2;
+                t0 = rt0;
+                amp = ramp;
+                ndf = ndf;
+            }
+
+            iter++;
+
+            //If bestchi2 < 1, fit should be good enough to stop iteration
+            if(bestchi2 < 1)
+                break;
+        }
+
+        //Refit with parameters set to values derived from fit with best chi2
+        fitfunc->SetParameter(1,tau1);
+        fitfunc->SetParameter(2,tau2);
+        fitfunc->SetParameter(0,t0);
+        fitfunc->SetParameter(3,amp);
+        fitfunc->FixParameter(4,baseline);
+        pulsehisto2d->Fit(fitfunc, "q");
+
+        //Get final fit parameters
+        t0 = fitfunc->GetParameter(0);
+        tau1 = fitfunc->GetParameter(1);
+        tau2 = fitfunc->GetParameter(2);
+        amp = fitfunc->GetParameter(3);
+        baseline = fitfunc->GetParameter(4);
+        double chi2 = fitfunc->GetChisquare();
+        double ndf = fitfunc->GetNDF();
+        if(ndf < 1){
+            nanfit = true;
+        }
+
+        double t0err = fitfunc->GetParError(0);
+        double tau1err = fitfunc->GetParError(1);
+        double tau2err = fitfunc->GetParError(2);
+        double amperr = fitfunc->GetParError(3);
+
+        pulsehisto2d->Draw();
+    }
+
 }
 
 void SvtPulseFitHistos::fitTGraphPulses(){
@@ -212,7 +354,8 @@ void SvtPulseFitHistos::fitTGraphPulses(){
         TGraphErrors* tgraph = it->second;
 
         //Get channel names and info
-        std::string s = tgraph->GetName();
+        //std::string s = tgraph->GetName();
+        std::string s = it->first;
         int svtid = std::stoi(s.substr(s.find("svtid_")+6,s.size()-1));
         std::string hwTag = s.substr(0,s.find("_"));
         int channel = std::stoi(s.substr(s.find("ch_")+3,s.find("_s")-5));
@@ -221,7 +364,18 @@ void SvtPulseFitHistos::fitTGraphPulses(){
         int module = std::stoi(sw.substr(sw.find("m")+1,sw.size()-1));
 
         //amplitude seed
-        double maxamp = tgraph->GetMaximum();
+        //TH1F* projy = (TH1F*)pulsehistos2d_[s]->ProjectionY((s+"tmp_projy").c_str(), 11,11);
+        //double maxamp = projy->GetMean();
+        double maxamp;
+        for (int i = 0; i < pulsehistos2d_[s]->GetNbinsX(); i++) {
+            double a = pulsehistos2d_[s]->GetBinContent(i+1);
+            if(a > maxamp){
+                maxamp = a;
+            }
+        }
+
+        //double maxamp = tgraph->GetMaximum();
+        std::cout << "TGRAPH GET MAXIMUM: " << maxamp << std::endl;
         //fix baseline using csel = 0 events
         double baseline = baselines_[s]->GetMean();
 
@@ -431,6 +585,11 @@ void SvtPulseFitHistos::saveHistos(TFile* outFile){
         }
 
         outFile->cd(dirname.c_str());
+        it->second->Write();
+    }
+
+    //save baseline histos
+    for(it1d it = baselines_.begin(); it!=baselines_.end(); it++){
         it->second->Write();
     }
 
