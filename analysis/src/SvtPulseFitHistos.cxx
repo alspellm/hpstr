@@ -73,16 +73,12 @@ void SvtPulseFitHistos::jlab2019CalPulseScan(TTree* rawhitsTree) {
     int minevent;
     int maxevent;
     std::cout << "SELECT CALGROUP: " << select_calgroup_ << std::endl;
-    std::cout << "is it true?" << select_calgroup_ << std::endl;
     if(select_calgroup_ != -1){
-        std::cout << "we are in" << std::endl;
         //Event calgroup and csel mapping
         std::map<std::pair<int,int>,int>::iterator it;
         int calgroup; 
-        std::cout << "Loop over cg map: " << (int)cgMap.size() << std::endl;
         for(it=cgMap.begin(); it!=cgMap.end(); it++){
             int calgroup = it->second;
-            std::cout << "CALGROUP IN MAP: " << calgroup << std::endl;
             if(calgroup == select_calgroup_){
                 minevent = it->first.first;
                 maxevent = (it->first.second);
@@ -104,25 +100,18 @@ void SvtPulseFitHistos::jlab2019CalPulseScan(TTree* rawhitsTree) {
         end = maxevent/2;
     }
 
-    int cselcount = 1;
+    int cselcount = -1;
     std::cout << "start: " << start << std::endl;
     std::cout << "end: " << end << std::endl;
     for(int i=start; i < end; i++){
         rawhitsTree->GetEntry(i);
         //std::cout << "Event: " << event << std::endl;
 
+        cselcount = cselcount + 2;
+        if(cselcount > 19999)
+            cselcount = -1;
         if((cselcount-1)%1000==0)
             std::cout << "event " << event << std::endl;
-
-        /*
-        //if specified calgroup only, skip non calgroup events
-        if(select_calgroup_ != -1){
-            if(event < minevent)
-                continue;
-            if(event > maxevent)
-                break;
-        }
-        */
 
         //Event calgroup and csel mapping
         std::map<std::pair<int,int>,int>::iterator it;
@@ -196,10 +185,6 @@ void SvtPulseFitHistos::jlab2019CalPulseScan(TTree* rawhitsTree) {
                 }
             }
         }
-        
-        cselcount = cselcount + 2;
-        if(cselcount > 19999)
-            cselcount = -1;
     }
 
     //Take UCSC Testbaord 25ns 2d histos and translate them into JLab DAQ 24ns TGraphErrors 
@@ -255,8 +240,6 @@ void SvtPulseFitHistos::adjustClock25nsTo24ns(){
 
     //Fit TGraphErrors
     fitTGraphPulses();
-    //Fit histos
-    //fit2DHistoPulses();
 }
 
 void SvtPulseFitHistos::fit2DHistoPulses(){
@@ -419,7 +402,7 @@ void SvtPulseFitHistos::fitTGraphPulses(){
             delete proj;
         }
 
-        std::cout << "TGRAPH GET MAXIMUM: " << maxamp << std::endl;
+        //std::cout << "TGRAPH GET MAXIMUM: " << maxamp << std::endl;
         //fix baseline using csel = 0 events
         double baseline = baselines_[s]->GetMean();
 
@@ -632,10 +615,12 @@ void SvtPulseFitHistos::saveHistos(TFile* outFile){
         it->second->Write();
     }
 
+    /*
     //save baseline histos
     for(it1d it = baselines_.begin(); it!=baselines_.end(); it++){
         it->second->Write();
     }
+    */
 
     //save 1d histos
     std::cout << "SAVING 1D HISTOS" << histos1d_.size() << std::endl;
