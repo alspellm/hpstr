@@ -51,6 +51,7 @@ class SvtCalPulseEvioProcessor : public Processor {
         //Debug Level
         int debug_{0};
         SvtPulseFitHistos* svtPulseFitHistos{nullptr};
+        int select_calgroup_;
 
         //Initialize some containers
         ModuleMapper * mmapper_;

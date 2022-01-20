@@ -38,6 +38,7 @@ class SvtPulseFitHistos : public HistoManager{
         void fitTGraphPulses();
         void passFitTupleOut(FlatTupleMaker* rawhitfits_tup){rawhitfits_tup_ = rawhitfits_tup;};
         void fit2DHistoPulses();
+        void setSelectCalgroup(int calgroup){select_calgroup_ = calgroup;};
     
 
     private:
@@ -49,6 +50,8 @@ class SvtPulseFitHistos : public HistoManager{
         
         //output fit tuple
         FlatTupleMaker* rawhitfits_tup_{nullptr};
+
+        int select_calgroup_ = -1;
 
         //ModuleMapper
         ModuleMapper* mmapper_;

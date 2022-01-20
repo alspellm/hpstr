@@ -69,23 +69,61 @@ void SvtPulseFitHistos::jlab2019CalPulseScan(TTree* rawhitsTree) {
     rawhitsTree->SetBranchAddress("event", &event);
     rawhitsTree->SetBranchAddress("rawsvthits", &rawSvtHits);
 
+    //Fit over specified calgroup only
+    int minevent;
+    int maxevent;
+    std::cout << "SELECT CALGROUP: " << select_calgroup_ << std::endl;
+    std::cout << "is it true?" << select_calgroup_ << std::endl;
+    if(select_calgroup_ != -1){
+        std::cout << "we are in" << std::endl;
+        //Event calgroup and csel mapping
+        std::map<std::pair<int,int>,int>::iterator it;
+        int calgroup; 
+        std::cout << "Loop over cg map: " << (int)cgMap.size() << std::endl;
+        for(it=cgMap.begin(); it!=cgMap.end(); it++){
+            int calgroup = it->second;
+            std::cout << "CALGROUP IN MAP: " << calgroup << std::endl;
+            if(calgroup == select_calgroup_){
+                minevent = it->first.first;
+                maxevent = (it->first.second);
+                break;
+            }
+        }
+    }
+
+    std::cout << "minevent: " << minevent << std::endl;
+    std::cout << "maxevent: " << maxevent << std::endl;
     //Loop over tree
     long nentries = rawhitsTree->GetEntries();
     std::cout << "TTree N Entries: " << nentries << std::endl;
-    int cselcount = -1;
-    for(long i=0; i < nentries; i++){
+
+    int start = 0;
+    int end = nentries;
+    if(select_calgroup_ != -1){
+        start = (minevent/2)-1;
+        end = maxevent/2;
+    }
+
+    int cselcount = 1;
+    std::cout << "start: " << start << std::endl;
+    std::cout << "end: " << end << std::endl;
+    for(int i=start; i < end; i++){
         rawhitsTree->GetEntry(i);
+        //std::cout << "Event: " << event << std::endl;
+
         if((cselcount-1)%1000==0)
             std::cout << "event " << event << std::endl;
-        cselcount = cselcount + 2;
-        if(cselcount > 19999)
-            cselcount = -1;
+
         /*
-        //Cut on event
-        if(event > 20000)
-            break;
-            */
-        
+        //if specified calgroup only, skip non calgroup events
+        if(select_calgroup_ != -1){
+            if(event < minevent)
+                continue;
+            if(event > maxevent)
+                break;
+        }
+        */
+
         //Event calgroup and csel mapping
         std::map<std::pair<int,int>,int>::iterator it;
         int calgroup; 
@@ -129,8 +167,8 @@ void SvtPulseFitHistos::jlab2019CalPulseScan(TTree* rawhitsTree) {
             int svtid = svtid_map_[hwTag].at(channel); 
             std::string name = hwTag+"_ch_"+std::to_string((int)channel)+"_svtid_"+std::to_string((int)svtid);
 
-            /*
             //dev cut on channels
+            /*
             if(svtid > 100)
                 continue;
                 */
@@ -158,6 +196,10 @@ void SvtPulseFitHistos::jlab2019CalPulseScan(TTree* rawhitsTree) {
                 }
             }
         }
+        
+        cselcount = cselcount + 2;
+        if(cselcount > 19999)
+            cselcount = -1;
     }
 
     //Take UCSC Testbaord 25ns 2d histos and translate them into JLab DAQ 24ns TGraphErrors 
@@ -233,13 +275,15 @@ void SvtPulseFitHistos::fit2DHistoPulses(){
         int module = std::stoi(sw.substr(sw.find("m")+1,sw.size()-1));
 
         //amplitude seed
-        //TH1F* projy = (TH1F*)pulsehisto2d->ProjectionY((s+"tmp_projy").c_str(), 11,11);
-        double maxamp;
+        double maxamp=0;
         for (int i = 0; i < pulsehisto2d->GetNbinsX(); i++) {
-            double a = pulsehisto2d->GetBinContent(i+1);
+            TH1F* proj = (TH1F*)pulsehisto2d->ProjectionY(((std::string)pulsehisto2d->GetName()+"_proj").c_str(), i+1, i+1);
+            //double a = pulsehisto2d->GetBinContent(i+1);
+            double a = proj->GetMean();
             if(a > maxamp){
                 maxamp = a;
             }
+            delete proj;
         }
 
         //delete projy;
@@ -364,17 +408,17 @@ void SvtPulseFitHistos::fitTGraphPulses(){
         int module = std::stoi(sw.substr(sw.find("m")+1,sw.size()-1));
 
         //amplitude seed
-        //TH1F* projy = (TH1F*)pulsehistos2d_[s]->ProjectionY((s+"tmp_projy").c_str(), 11,11);
-        //double maxamp = projy->GetMean();
-        double maxamp;
+        double maxamp=0;
         for (int i = 0; i < pulsehistos2d_[s]->GetNbinsX(); i++) {
-            double a = pulsehistos2d_[s]->GetBinContent(i+1);
+            TH1F* proj = (TH1F*)pulsehistos2d_[s]->ProjectionY(((std::string)pulsehistos2d_[s]->GetName()+"_proj").c_str(), i+1, i+1);
+            //double a = pulsehisto2d->GetBinContent(i+1);
+            double a = proj->GetMean();
             if(a > maxamp){
                 maxamp = a;
             }
+            delete proj;
         }
 
-        //double maxamp = tgraph->GetMaximum();
         std::cout << "TGRAPH GET MAXIMUM: " << maxamp << std::endl;
         //fix baseline using csel = 0 events
         double baseline = baselines_[s]->GetMean();

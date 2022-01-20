@@ -26,6 +26,7 @@ void SvtCalPulseEvioProcessor::configure(const ParameterSet& parameters) {
         //histCfgFilename_  = parameters.getString("histCfg");
         processEvio_      = parameters.getInteger("processEvio");
         fitPulses_       = parameters.getInteger("fitPulses");
+        select_calgroup_       = parameters.getInteger("calgroup");
     }
     catch (std::runtime_error& error)
     {
@@ -131,6 +132,9 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
         svtPulseFitHistos = new SvtPulseFitHistos("raw_hits", mmapper_);
         svtPulseFitHistos->passFitTupleOut(rawhitfits_tup_);
         svtPulseFitHistos->initHistos();
+
+        if(select_calgroup_ != -1)
+            svtPulseFitHistos->setSelectCalgroup(select_calgroup_);
     }
 }
 

@@ -8,6 +8,8 @@ baseConfig.parser.add_argument("-c", "--chNumCfg", type=str, dest="chNumCfg", ac
 baseConfig.parser.add_argument("-N", "--histNames", type=str, dest="histNames", action='store',
                   help="Configuration for histogram naming convention.", 
                   metavar="histNames", default="fw")
+baseConfig.parser.add_argument("-g", "--calgroup", type=int, dest="calgroup", action='store',
+                  help="Select calgroup (1-8) for 2019 daq data", metavar="calgroup", default=-1)
 
 options = baseConfig.parser.parse_args()
 
@@ -43,6 +45,7 @@ evio.parameters["chNumCfg"] = options.chNumCfg
 evio.parameters["histNames"] = options.histNames
 evio.parameters["processEvio"] = 0
 evio.parameters["fitPulses"] = 1
+evio.parameters["calgroup"] = options.calgroup
 #evio.parameters["histCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/svt/Svt2DBlHw.json'
 
 # Sequence which the processors will run.
