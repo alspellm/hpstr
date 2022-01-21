@@ -44,7 +44,8 @@ evio.parameters["trigConf"] = "hps_v12_1.cnf"
 evio.parameters["chNumCfg"] = options.chNumCfg
 evio.parameters["histNames"] = options.histNames
 evio.parameters["processEvio"] = 0
-evio.parameters["fitPulses"] = 1
+evio.parameters["buildPulseHistos"] = 1
+evio.parameters["fitPulses"] = 0
 evio.parameters["calgroup"] = options.calgroup
 #evio.parameters["histCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/svt/Svt2DBlHw.json'
 

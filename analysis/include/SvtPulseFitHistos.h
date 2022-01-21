@@ -34,11 +34,15 @@ class SvtPulseFitHistos : public HistoManager{
         void setOutFile(TFile* outFile){ outFile_ = outFile;};
         void initHistos();
         void jlab2019CalPulseScan(TTree* rawhitsTree);
-        void adjustClock25nsTo24ns();
-        void fitTGraphPulses();
+        void cnv25nsHistoTo24nsTGraph();
+        void cnv25nsHistoTo25nsTGraph();
+        void fitTGraphPulses(std::map<std::string,TGraphErrors*> tgraphs);
         void passFitTupleOut(FlatTupleMaker* rawhitfits_tup){rawhitfits_tup_ = rawhitfits_tup;};
         void fit2DHistoPulses();
-        void setSelectCalgroup(int calgroup){select_calgroup_ = calgroup;};
+        void setSelectCalgroup(int calgroup){select_calgroup_ = calgroup; std::cout << select_calgroup_ << std::endl;};
+        void buildTGraphsFromHistos();
+        void readPulseHistosFromFile(TFile* infile);
+        void fitPulses();
     
 
     private:
@@ -63,7 +67,8 @@ class SvtPulseFitHistos : public HistoManager{
         std::map<std::string,TH1F*> histos1d_;
 
         //Pulse histograms
-        std::map<std::string,TGraphErrors*> tgrapherrs_;
+        std::map<std::string,TGraphErrors*> tgrapherrs24_;
+        std::map<std::string,TGraphErrors*> tgrapherrs25_;
         std::map<std::string,TH2F*>pulsehistos2d_;
         std::map<std::string,TH1F*>baselines_;
 

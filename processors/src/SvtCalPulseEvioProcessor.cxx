@@ -25,6 +25,7 @@ void SvtCalPulseEvioProcessor::configure(const ParameterSet& parameters) {
         histNames_  = parameters.getString("histNames");
         //histCfgFilename_  = parameters.getString("histCfg");
         processEvio_      = parameters.getInteger("processEvio");
+        buildPulseHistos_      = parameters.getInteger("buildPulseHistos");
         fitPulses_       = parameters.getInteger("fitPulses");
         select_calgroup_       = parameters.getInteger("calgroup");
     }
@@ -128,12 +129,14 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
     rawhitfits_tup_->addVariable("nanfit");
 
     //Init histos
-    if(fitPulses_){
+    if(fitPulses_ || buildPulseHistos_){
         svtPulseFitHistos = new SvtPulseFitHistos("raw_hits", mmapper_);
         svtPulseFitHistos->passFitTupleOut(rawhitfits_tup_);
         svtPulseFitHistos->initHistos();
 
+        std::cout << "FUUUUUUUUUUUUUUUUUUUUUUUUUUUUUCK" << std::endl;
         if(select_calgroup_ != -1)
+            std::cout << "SETTING CALGROUP " << select_calgroup_ << std::endl;
             svtPulseFitHistos->setSelectCalgroup(select_calgroup_);
     }
 }
@@ -235,13 +238,13 @@ void SvtCalPulseEvioProcessor::finalize() {
         outFile_->Write();
     }
 
-    if (processEvio_ && fitPulses_){
+    if (processEvio_ && buildPulseHistos_){
         outFile_->cd();
         std::cout << "READING PROCESSED EVIO TTREE TO FIT PULSES" << std::endl;
         rawhitTree = (TTree*)outFile_->Get("rawsvthits");
     }
 
-    else if (fitPulses_ && !processEvio_){
+    else if (buildPulseHistos_ && !processEvio_){
         TFile* readF = new TFile(inFilename_.c_str(),"READ");
         readF->cd();
         std::cout << "READING TTREE FROM INPUT FILE TO FIT PULSES" << std::endl;
@@ -249,9 +252,29 @@ void SvtCalPulseEvioProcessor::finalize() {
         std::cout << "Tree Read" << std::endl;
     }
 
-    if(fitPulses_){
-        std::cout << "FITTING CALIBRATION SCAN PULSES" << std::endl;
+    if(buildPulseHistos_ && !fitPulses_){
+        std::cout << "Building SCAN PULSES" << std::endl;
         svtPulseFitHistos->jlab2019CalPulseScan(rawhitTree);
+        svtPulseFitHistos->saveHistos(outFile_);
+    }
+
+    else if(buildPulseHistos_ && fitPulses_){
+        std::cout << "BUILD AND FIT PULSES" << std::endl;
+        svtPulseFitHistos->jlab2019CalPulseScan(rawhitTree);
+        svtPulseFitHistos->buildTGraphsFromHistos();
+        svtPulseFitHistos->fitPulses();
+
+        svtPulseFitHistos->saveHistos(outFile_);
+        rawhitfits_tup_->writeTree();
+    }
+    else if(!buildPulseHistos_ && fitPulses_){
+        std::cout << "FIT PULSES FROM FILE" << std::endl;
+        TFile* readF = new TFile(inFilename_.c_str(),"READ");
+        std::cout << "Read in file: " << inFilename_ << std::endl;
+        svtPulseFitHistos->readPulseHistosFromFile(readF);
+        svtPulseFitHistos->buildTGraphsFromHistos();
+        svtPulseFitHistos->fitPulses();
+
         svtPulseFitHistos->saveHistos(outFile_);
         rawhitfits_tup_->writeTree();
     }
