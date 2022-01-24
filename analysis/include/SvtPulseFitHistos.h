@@ -34,6 +34,7 @@ class SvtPulseFitHistos : public HistoManager{
         void setOutFile(TFile* outFile){ outFile_ = outFile;};
         void initHistos();
         void jlab2019CalPulseScan(TTree* rawhitsTree);
+        void jlab2021CalPulseScan(TTree* rawhitsTree);
         void cnv25nsHistoTo24nsTGraph();
         void cnv25nsHistoTo25nsTGraph();
         void fitTGraphPulses(std::map<std::string,TGraphErrors*> tgraphs);
