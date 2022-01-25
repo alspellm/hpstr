@@ -67,6 +67,7 @@ class SvtCalPulseEvioProcessor : public Processor {
         int processEvio_{1};
         int fitPulses_{1};
         int buildPulseHistos_{1};
+        int year_;
 
         //evio interface 
         HPSEvioReader * etool{nullptr};

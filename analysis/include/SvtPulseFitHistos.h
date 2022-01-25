@@ -22,7 +22,7 @@
 class SvtPulseFitHistos : public HistoManager{
 
     public:
-        SvtPulseFitHistos(const std::string& inputName, ModuleMapper* mmapper_);
+        SvtPulseFitHistos(const std::string& inputName, ModuleMapper* mmapper_, int year);
         ~SvtPulseFitHistos();
 
         double GetHitTime(int sample_number, int cdel);
@@ -44,12 +44,15 @@ class SvtPulseFitHistos : public HistoManager{
         void buildTGraphsFromHistos();
         void readPulseHistosFromFile(TFile* infile);
         void fitPulses();
+        void checkPulseQuality(TGraphErrors* tgraph, bool &badPulse);
+        void buildPulsesFromTree(TTree* rawhitsTree);
     
 
     private:
 
         int Event_number=0;
         int debug_ = 1;
+        int year_{2019};
 
         TH1F* svtCondHisto{nullptr};  
         
@@ -72,6 +75,7 @@ class SvtPulseFitHistos : public HistoManager{
         std::map<std::string,TGraphErrors*> tgrapherrs25_;
         std::map<std::string,TH2F*>pulsehistos2d_;
         std::map<std::string,TH1F*>baselines_;
+        std::map<std::string,double>readbaselines_;
 
         TFile* outFile_{nullptr};
         int nan_channels_ = 0;

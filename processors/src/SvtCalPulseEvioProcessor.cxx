@@ -28,6 +28,7 @@ void SvtCalPulseEvioProcessor::configure(const ParameterSet& parameters) {
         buildPulseHistos_      = parameters.getInteger("buildPulseHistos");
         fitPulses_       = parameters.getInteger("fitPulses");
         select_calgroup_       = parameters.getInteger("calgroup");
+        year_            = parameters.getInteger("year");
     }
     catch (std::runtime_error& error)
     {
@@ -127,14 +128,14 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
     rawhitfits_tup_->addVariable("amperr");
     rawhitfits_tup_->addVariable("integralNorm");
     rawhitfits_tup_->addVariable("nanfit");
+    rawhitfits_tup_->addVariable("badPulse");
 
     //Init histos
     if(fitPulses_ || buildPulseHistos_){
-        svtPulseFitHistos = new SvtPulseFitHistos("raw_hits", mmapper_);
+        svtPulseFitHistos = new SvtPulseFitHistos("raw_hits", mmapper_, year_);
         svtPulseFitHistos->passFitTupleOut(rawhitfits_tup_);
         svtPulseFitHistos->initHistos();
 
-        std::cout << "FUUUUUUUUUUUUUUUUUUUUUUUUUUUUUCK" << std::endl;
         if(select_calgroup_ != -1)
             std::cout << "SETTING CALGROUP " << select_calgroup_ << std::endl;
             svtPulseFitHistos->setSelectCalgroup(select_calgroup_);
@@ -254,13 +255,15 @@ void SvtCalPulseEvioProcessor::finalize() {
 
     if(buildPulseHistos_ && !fitPulses_){
         std::cout << "Building SCAN PULSES" << std::endl;
-        svtPulseFitHistos->jlab2019CalPulseScan(rawhitTree);
+        svtPulseFitHistos->buildPulsesFromTree(rawhitTree);
+        //svtPulseFitHistos->jlab2019CalPulseScan(rawhitTree);
         svtPulseFitHistos->saveHistos(outFile_);
     }
 
     else if(buildPulseHistos_ && fitPulses_){
         std::cout << "BUILD AND FIT PULSES" << std::endl;
-        svtPulseFitHistos->jlab2019CalPulseScan(rawhitTree);
+        //svtPulseFitHistos->jlab2019CalPulseScan(rawhitTree);
+        svtPulseFitHistos->buildPulsesFromTree(rawhitTree);
         svtPulseFitHistos->buildTGraphsFromHistos();
         svtPulseFitHistos->fitPulses();
 

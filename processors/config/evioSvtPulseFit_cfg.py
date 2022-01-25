@@ -47,6 +47,7 @@ evio.parameters["processEvio"] = 0
 evio.parameters["buildPulseHistos"] = 0
 evio.parameters["fitPulses"] = 1
 evio.parameters["calgroup"] = options.calgroup
+evio.parameters["year"] = options.year
 #evio.parameters["histCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/svt/Svt2DBlHw.json'
 
 # Sequence which the processors will run.
