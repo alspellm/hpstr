@@ -367,6 +367,9 @@ void SvtPulseFitHistos::checkPulseQuality(TGraphErrors* tgraph, bool &badPulse){
 
         if(badErr > 5)
             badPulse = true;
+        
+        if(tgraph->GetPointY(11) < 500 + tgraph->GetPointY(0))
+            badPulse = true;
     }
     else{
         int npoints = tgraph->GetN();
@@ -375,6 +378,8 @@ void SvtPulseFitHistos::checkPulseQuality(TGraphErrors* tgraph, bool &badPulse){
                badPulse = true; 
             }
         }
+        if(tgraph->GetPointY(3) < 500.0 + tgraph->GetPointY(0))
+            badPulse = true;
         return;
     }
 }
@@ -641,7 +646,7 @@ void SvtPulseFitHistos::fitTGraphPulses(std::map<std::string,TGraphErrors*> tgra
             //Non-slim sensor random fit param seeds
             else {
                 rtau1 = r1->Gaus(53.,1);
-                rtau2 = r1->Gaus(12.,1);
+                rtau2 = r1->Gaus(11.,1);
                 //rt0 = r1->Uniform(-10.,-1.);
                 rt0 = r1->Gaus(20.,1);
                 ramp = r1->Gaus(maxamp,1);
