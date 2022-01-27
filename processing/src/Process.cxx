@@ -13,7 +13,38 @@
 
 Process::Process() {}
 
+
 //TODO Fix this better
+
+//where the following process uses the HPSEvioReaderProcessor file to read an evio file and turn it into a root file among other things
+
+void Process::runOnHPSEvioReader(){
+
+    try {
+        int cfile = 0;
+        for (auto ifile : input_files_) {
+            std::cout << "Processing file " << ifile << std::endl;
+
+            for (auto module : sequence_) {
+                module->initialize(ifile, output_files_[cfile]);
+                module->process();
+                module->finalize();
+            }
+            //Pass to next file
+            ++cfile;
+
+        } //ifile
+    } catch (std::exception& e) {
+        std::cerr<<"Error:"<<e.what()<<std::endl;
+    }
+
+}
+
+
+
+
+
+
 
 void Process::runOnHisto() {
     try {
