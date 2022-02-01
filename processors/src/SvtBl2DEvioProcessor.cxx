@@ -40,6 +40,9 @@ void SvtBl2DEvioProcessor::configure(const ParameterSet& parameters) {
 }
 
 void SvtBl2DEvioProcessor::initialize(std::string inFilename, std::string outFilename) {
+    std::cout << "HIST NAMES " << histNames_ << std::endl;
+    std::cout << "CH NAMES " << chNumCfg_ << std::endl;
+
     std::cout << "SvtBl2DEvioProcessor::initialize" << std::endl;
     inFilename_ = inFilename;
     outF_ = new TFile(outFilename.c_str(),"RECREATE");
@@ -101,7 +104,10 @@ void SvtBl2DEvioProcessor::initialize(std::string inFilename, std::string outFil
     std::cout << "[SvtBl2DEvioProcessor] Load JSON" << std::endl;
     svtCondHistos->loadHistoConfig(histCfgFilename_);
     if (debug_ > 0) std::cout << "[SvtBl2DAnaProcessor] Define 2DHistos" << std::endl;
-    if (histNames_ == "fw") svtCondHistos->Svt2DBlHistos::DefineHistosByHw();
+    if (histNames_ == "fw") {
+        std::cout << "USING FW NAMES" << std::endl;
+        svtCondHistos->Svt2DBlHistos::DefineHistosByHw();
+    }
     else svtCondHistos->Svt2DBlHistos::DefineHistos();
     if (debug_ > 0) std::cout << "[SvtBl2DAnaProcessor] Defined 2DHistos" << std::endl;
 
@@ -183,7 +189,10 @@ bool SvtBl2DEvioProcessor::process() {
                 rawHit->setADCs(adcs);
                 rawSvtHits_.push_back(rawHit);
             }
-            if (histNames_ == "fw") svtCondHistos->FillHistogramsByHw(&rawSvtHits_,1.);
+            if (histNames_ == "fw"){
+                std::cout << "histo names = " << histNames_ << std::endl;
+                svtCondHistos->FillHistogramsByHw(&rawSvtHits_,1.);
+            }
             else svtCondHistos->FillHistograms(&rawSvtHits_,1.);
         }
 

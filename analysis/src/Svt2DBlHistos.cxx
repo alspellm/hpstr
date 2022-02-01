@@ -101,6 +101,7 @@ void Svt2DBlHistos::FillHistograms(std::vector<RawSvtHit*> *rawSvtHits_,float we
 
 void Svt2DBlHistos::FillHistogramsByHw(std::vector<RawSvtHit*> *rawSvtHits_,float weight) {
 
+    std::cout << "Filling histograms by hardware names " << std::endl;
     int nhits = rawSvtHits_->size();
     std::vector<std::string> hybridStrings={};
     std::string histokey;

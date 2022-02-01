@@ -51,7 +51,7 @@ class BlFitHistos : public HistoManager{
         std::map<std::string,std::map<int,int>> svtIDMap;
         std::map<std::string,std::map<std::string,std::vector<int>>> threshMap_;
         ModuleMapper * mmapper_;
-        bool debug_{false};
+        bool debug_{true};
 };
 
 #endif
