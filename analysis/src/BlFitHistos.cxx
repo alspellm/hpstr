@@ -177,7 +177,7 @@ void BlFitHistos::iterativeGausFit(TH1D* hist, double min, double max, double si
     int i = 0;
     double itermax = max;
     double itermin = min;
-    while (std::abs(fitSig - newFitSig) > 0.0005 || std::abs(fitMean - newFitMean) > 0.0005) {
+    while (std::abs(fitSig - newFitSig) > 0.0005 || std::abs(fitMean - newFitMean) > 0.00005) {
         max = itermax;
         min = itermin;
 
@@ -332,7 +332,7 @@ void BlFitHistos::fit2DHistoChannelBaselines(std::map<std::string,TH2F*> histos2
             fitmin = minx;
             fitmax = maxx;
             backwardsIterChi2Fit(projy_h, fitmin, fitmax);
-            //iterativeGausFit(projy_h, fitmin, fitmax, 1, minx, threshold);
+            iterativeGausFit(projy_h, fitmin, fitmax, 1, minx, threshold);
 
             TF1 *fit = new TF1("fit", "gaus", fitmin, fitmax);
             projy_h->Fit("fit","ORQN","");
