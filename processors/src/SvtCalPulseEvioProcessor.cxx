@@ -103,32 +103,35 @@ void SvtCalPulseEvioProcessor::initialize(std::string inFilename, std::string ou
 
         if(debug_>1) etool->PrintBank(5);
     }
+
     rawhitsTree_ = new TTree("rawsvthits","rawsvthits");
     rawhitsTree_->Branch("event",&eventnumber_);
     rawhitsTree_->Branch("rawsvthits",&rawSvtHits_);
 
     //Define tuple to store channel pulse fit results
-    rawhitfits_tup_ = new FlatTupleMaker("fits");
-    rawhitfits_tup_->setOutFile(outFile_);
-    rawhitfits_tup_->addString("hwTag");
-    rawhitfits_tup_->addVariable("svtid");
-    rawhitfits_tup_->addVariable("channel");
-    rawhitfits_tup_->addVariable("layer");
-    rawhitfits_tup_->addVariable("module");
-    rawhitfits_tup_->addVariable("t0");
-    rawhitfits_tup_->addVariable("tau1");
-    rawhitfits_tup_->addVariable("tau2");
-    rawhitfits_tup_->addVariable("amp");
-    rawhitfits_tup_->addVariable("baseline");
-    rawhitfits_tup_->addVariable("chi2");
-    rawhitfits_tup_->addVariable("ndf");
-    rawhitfits_tup_->addVariable("t0err");
-    rawhitfits_tup_->addVariable("tau1err");
-    rawhitfits_tup_->addVariable("tau2err");
-    rawhitfits_tup_->addVariable("amperr");
-    rawhitfits_tup_->addVariable("integralNorm");
-    rawhitfits_tup_->addVariable("nanfit");
-    rawhitfits_tup_->addVariable("badPulse");
+    if(fitPulses_){
+        rawhitfits_tup_ = new FlatTupleMaker("fits");
+        rawhitfits_tup_->setOutFile(outFile_);
+        rawhitfits_tup_->addString("hwTag");
+        rawhitfits_tup_->addVariable("svtid");
+        rawhitfits_tup_->addVariable("channel");
+        rawhitfits_tup_->addVariable("layer");
+        rawhitfits_tup_->addVariable("module");
+        rawhitfits_tup_->addVariable("t0");
+        rawhitfits_tup_->addVariable("tau1");
+        rawhitfits_tup_->addVariable("tau2");
+        rawhitfits_tup_->addVariable("amp");
+        rawhitfits_tup_->addVariable("baseline");
+        rawhitfits_tup_->addVariable("chi2");
+        rawhitfits_tup_->addVariable("ndf");
+        rawhitfits_tup_->addVariable("t0err");
+        rawhitfits_tup_->addVariable("tau1err");
+        rawhitfits_tup_->addVariable("tau2err");
+        rawhitfits_tup_->addVariable("amperr");
+        rawhitfits_tup_->addVariable("integralNorm");
+        rawhitfits_tup_->addVariable("nanfit");
+        rawhitfits_tup_->addVariable("badPulse");
+    }
 
     //Init histos
     if(fitPulses_ || buildPulseHistos_){
@@ -287,7 +290,6 @@ void SvtCalPulseEvioProcessor::finalize() {
     svtPulseFitHistos = nullptr;
     delete mmapper_;
     mmapper_ = nullptr;
-
 }
 
 DECLARE_PROCESSOR(SvtCalPulseEvioProcessor); 

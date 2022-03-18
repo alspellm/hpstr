@@ -41,12 +41,20 @@ double SvtPulseFitHistos::GetHitTime(int sample_number, int cdel) {
 }
 
 void SvtPulseFitHistos::definePulseHistos(std::string name) {
+
+    /*
     //Pulse Histos are binned under the assumption of a 25ns clock (true for UCSC testboard data)
     //If using JLab DAQ pulse data, the clock is 24ns, and the time bins need to be adjusted...this is done
     //by the method SvtPulseFitHistos::cnv25nsHistoTo24nsTGraph
     std::cout << "Define pulse histo " << name << std::endl;
     TH2F* prof = new TH2F(name.c_str(),name.c_str(), 49,-1.5625,151.5625,10000,0,10000);
     pulsehistos2d_[name] = prof;
+    */
+
+    //Binned for the 24ns JLab Clock with 3 ns APV25 internal delay 
+    TH2F* prof = new TH2F(name.c_str(),name.c_str(), 51,-1.5,151.5,10000,0,10000);
+    pulsehistos2d_[name] = prof;
+
 
     //store channel baselines in histogram
     TH1F* baseline = new TH1F((name+"_baseline").c_str(),name.c_str(),10000,0,10000);
@@ -246,12 +254,20 @@ void SvtPulseFitHistos::jlab2019CalPulseScan(TTree* rawhitsTree) {
                     adcs.push_back(rawSvtHit->getADCs()[ii]);
                     histos2d_["adcs"]->Fill(ii,rawSvtHit->getADCs()[ii]);
 
-                    double time = 3.125*(8-csel) + 25.0*ii;
+                    double time = getHitTime(24.0,csel,ii);
+                    //double time = 3.125*(8-csel) + 25.0*ii;
                     pulsehistos2d_[name]->Fill(time,rawSvtHit->getADCs()[ii]);
                 }
             }
         }
     }
+}
+
+double SvtPulseFitHistos::getHitTime(double clockCycle, double csel, int sampleN){
+    //clockCycle is in ns. 24ns for JLab
+    double delay_step = clockCycle/8.0;
+    double time = delay_step*(8-csel) + clockCycle*sampleN;
+    return time;
 }
 
 void SvtPulseFitHistos::readPulseHistosFromFile(TFile* infile){
@@ -300,24 +316,22 @@ void SvtPulseFitHistos::readPulseHistosFromFile(TFile* infile){
 }
 
 void SvtPulseFitHistos::buildTGraphsFromHistos(){
-    cnv25nsHistoTo24nsTGraph();
-    //cnv25nsHistoTo25nsTGraph();
+    //cnv25nsHistoTo24nsTGraph();
+    cnv25nsHistoTo25nsTGraph();
 }
 
 void SvtPulseFitHistos::fitPulses(){
-    fitTGraphPulses(tgrapherrs24_);
-    //fitTGraphPulses(tgrapherrs25_);
+    //fitTGraphPulses(tgrapherrs24_);
+    fitTGraphPulses(tgrapherrs25_);
     //fit2DHistoPulses();
 }
 
 
 
 void SvtPulseFitHistos::cnv25nsHistoTo25nsTGraph(){
-    //Transform 2d histos to TGraph errors with clock adjusted from 25ns to 24 ns
+    //Transform 2d histos to TGraph errors with clock adjusted from 25ns to 25 ns
     int iter = 0;
     for (it2d it = pulsehistos2d_.begin(); it!=pulsehistos2d_.end(); ++it) {
-        if(iter > 10)
-            break;
         std::string name = it->first;
 
         //int svtid = std::stoi(name.substr(name.find("svtid_")+6,name.size()-1));

@@ -46,6 +46,7 @@ class SvtPulseFitHistos : public HistoManager{
         void fitPulses();
         void checkPulseQuality(TGraphErrors* tgraph, bool &badPulse);
         void buildPulsesFromTree(TTree* rawhitsTree);
+        double getHitTime(double clockCycle, double csel, int sampleN);
     
 
     private:
