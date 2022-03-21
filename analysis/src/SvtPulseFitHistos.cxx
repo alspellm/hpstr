@@ -765,10 +765,17 @@ void SvtPulseFitHistos::fitTGraphPulses(std::map<std::string,TGraphErrors*> tgra
             iter++;
         }
 
+        std::cout << "svtid " << svtid << "after iteration" <<  std::endl;
+        std::cout << "t0err: " << bestt0err << " | tau1err: " << besttau1err << " | tau2err: " << besttau2err << " | amperr: " << bestamperr << std::endl;
+
         //check final fit for NAN results
         if (TMath::IsNaN(bestt0err) || TMath::IsNaN(besttau1err) || TMath::IsNaN(besttau2err) || TMath::IsNaN(bestamperr)){
             nanfit = true;
             std::cout << "Final fit has NAN errors" << std::endl;
+            bestt0err = -99999;
+            besttau1err = -99999;
+            besttau2err = -99999;
+            bestamperr = -99999;
         }
         else{
             nanfit = false;
@@ -778,6 +785,8 @@ void SvtPulseFitHistos::fitTGraphPulses(std::map<std::string,TGraphErrors*> tgra
         //Check pulse to make sure its not a "bad pulse"
         checkPulseQuality(tgraph, badPulse);
 
+        std::cout << "svtid " << svtid << " setting tuple" <<  std::endl;
+        std::cout << "t0err: " << bestt0err << " | tau1err: " << besttau1err << " | tau2err: " << besttau2err << " | amperr: " << bestamperr << std::endl;
         //add fit parameter results to tuple for export
         rawhitfits_tup_->setVariableValue("hwTag", hwTag);
         rawhitfits_tup_->setVariableValue("channel", channel);
@@ -802,12 +811,20 @@ void SvtPulseFitHistos::fitTGraphPulses(std::map<std::string,TGraphErrors*> tgra
         rawhitfits_tup_->fill();
 
         //Refit with the best parameters to save TGraph Fit
-        fitfunc->SetParameter(1,besttau1);
-        fitfunc->SetParameter(2,besttau2);
-        fitfunc->SetParameter(0,bestt0);
-        fitfunc->SetParameter(3,bestamp);
+        fitfunc->FixParameter(1,besttau1);
+        fitfunc->FixParameter(2,besttau2);
+        fitfunc->FixParameter(0,bestt0);
+        fitfunc->FixParameter(3,bestamp);
         fitfunc->FixParameter(4,baseline);
         tgraph->Fit(fitfunc, "q");
+
+        double t0err = fitfunc->GetParError(0);
+        double tau1err = fitfunc->GetParError(1);
+        double tau2err = fitfunc->GetParError(2);
+        double amperr = fitfunc->GetParError(3);
+
+        std::cout << "svtid " << svtid << "post tuple fit" <<  std::endl;
+        std::cout << "t0err: " << t0err << " | tau1err: " << tau1err << " | tau2err: " << tau2err << " | amperr: " << amperr << std::endl;
 
         /*
         //Get final fit parameters
