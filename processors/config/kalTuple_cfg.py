@@ -137,7 +137,8 @@ mcpart.parameters["mcPartCollRoot"] = 'MCParticle'
 if (not options.isData):
     p.sequence = [header, vtx, vtxgbl, cvtxgbl, ecal, track, trackgbl, mcpart]
 else:
-    p.sequence = [header, svthits, rawsvt, vtx, ecal, track]
+    #p.sequence = [header, svthits, rawsvt, vtx, ecal, track]
+    p.sequence = [header, rawsvt, vtx, ecal, track]
 
 if (options.nevents > -1 ):
     p.max_events = options.nevents

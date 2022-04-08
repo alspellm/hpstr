@@ -34,17 +34,17 @@ vtxana = HpstrConf.Processor('vtxana', 'VertexAnaProcessor')
 vtxana.parameters["debug"] = 0
 vtxana.parameters["anaName"] = "vtxana"
 vtxana.parameters["tsColl"]  = "TSBank"
-#vtxana.parameters["trkColl"] = "GBLTracks"
-#vtxana.parameters["hitColl"] = "RotatedHelicalOnTrackHits"
-#vtxana.parameters["vtxColl"] = "UnconstrainedV0Vertices"
-vtxana.parameters["trkColl"] = "KalmanFullTracks"
-vtxana.parameters["hitColl"] = "SiClustersOnTrack"
-vtxana.parameters["vtxColl"] = "UnconstrainedV0Vertices_KF"
+vtxana.parameters["trkColl"] = "GBLTracks"
+vtxana.parameters["hitColl"] = "RotatedHelicalOnTrackHits"
+vtxana.parameters["vtxColl"] = "UnconstrainedV0Vertices"
+#vtxana.parameters["trkColl"] = "KalmanFullTracks"
+#vtxana.parameters["hitColl"] = "SiClustersOnTrack"
+#vtxana.parameters["vtxColl"] = "UnconstrainedV0Vertices_KF"
 vtxana.parameters["mcColl"]  = "MCParticle"
 vtxana.parameters["analysis"]  = "vertex"
-vtxana.parameters["vtxSelectionjson"] = os.environ['HPSTR_BASE']+'/analysis/selections/vertexSelection_2019.json'
-vtxana.parameters["mcHistoCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/mc/basicMC.json'
-vtxana.parameters["histoCfg"] = os.environ['HPSTR_BASE']+"/analysis/plotconfigs/tracking/vtxAnalysis_2019.json"
+vtxana.parameters["vtxSelectionjson"] = os.environ['HPSTR_BASE']+'/analysis/selections/vertexSelection_simps_control.json'
+vtxana.parameters["mcHistoCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/mc/basicMC_simps.json'
+vtxana.parameters["histoCfg"] = os.environ['HPSTR_BASE']+"/analysis/plotconfigs/tracking/vtxAnalysis_simps.json"
 vtxana.parameters["beamE"] = base.beamE[str(options.year)]
 vtxana.parameters["isData"] = options.isData
 CalTimeOffset=-999
@@ -65,7 +65,7 @@ vtxana.parameters["CalTimeOffset"]=CalTimeOffset
 #Region definitions
 
 RegionPath=os.environ['HPSTR_BASE']+"/analysis/selections/"
-vtxana.parameters["regionDefinitions"] = [RegionPath+'Tight_2019.json', RegionPath+'Tight_pTop_2019.json', RegionPath+'Tight_pBot_2019.json']
+vtxana.parameters["regionDefinitions"] = [RegionPath+'Tight_simpCR.json']
 
 # Sequence which the processors will run.
 p.sequence = [vtxana]

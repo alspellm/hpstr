@@ -1,5 +1,6 @@
 import HpstrConf
 import baseConfig as base
+from baseConfig import bfield
 
 options = base.parser.parse_args()
 
@@ -66,7 +67,7 @@ track.parameters["trkRelCollLcio"] = 'TrackDataRelations'
 track.parameters["trkhitCollRoot"] = 'RotatedHelicalOnTrackHits'
 track.parameters["hitFitsCollLcio"] = 'SVTFittedRawTrackerHits'
 track.parameters["rawhitCollRoot"] = '' #'SVTRawHitsOnTrack'
-#track.parameters["bfield"]         = bfield[str(options.year)]
+track.parameters["bfield"]         = bfield[str(options.year)]
 
 
 #ECalData

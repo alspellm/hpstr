@@ -614,6 +614,7 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
                 {
                     TrackerHit* hit = hits_->at(i);
                     trueHitIDs[hit->getID()] = hit->getMCPartIDs();
+
                 }
                 //std::cout << "There are " << ele_trk_hits->GetEntries() << " hits on this track" << std::endl;
                 //Count the number of hits per part on the track
@@ -682,7 +683,7 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
                         }
 
                         if(mcParts_->at(i)->getID() != maxID) continue;
-                        if(momPDG == 625) isRadEle = 1;
+                        if(momPDG == 622) isRadEle = 1;
                         if(momPDG == 623) isRecEle = 1;
                     }
                 }

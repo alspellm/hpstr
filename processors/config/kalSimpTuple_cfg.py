@@ -145,7 +145,7 @@ mcpart.parameters["mcPartCollRoot"] = 'MCParticle'
 # Sequence which the processors will run.
 if (not options.isData):
     #p.sequence = [header, vtx, vtxgbl, cvtxgbl, ecal, track, trackgbl, mcpart]
-    p.sequence = [header, vtxgbl, cvtxgbl, ecal, trackgbl, mcpart]
+    p.sequence = [header, svthits, vtxgbl, cvtxgbl, ecal, trackgbl, mcpart]
 else:
     p.sequence = [header, vtx, ecal, track]
     #p.sequence = [header, vtx, vtxgbl, cvtxgbl, ecal, track, trackgbl]
