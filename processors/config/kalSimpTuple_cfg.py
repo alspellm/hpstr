@@ -69,16 +69,16 @@ track.parameters["kinkRelCollLcio"] = ''
 track.parameters["trkRelCollLcio"] = 'KFTrackDataRelations'
 track.parameters["trkhitCollRoot"] = 'SiClustersOnTrack'
 track.parameters["hitFitsCollLcio"] = 'SVTFittedRawTrackerHits'
-track.parameters["rawhitCollRoot"] = ''
+track.parameters["rawhitCollRoot"] = 'SVTRawTrackerHits'
 
 #Only for detail studies
 #LT uncomment
-track.parameters["rawhitCollRoot"] = ''#'SCTRawHitsOnTrack_KF'
+#track.parameters["rawhitCollRoot"] = ''#'SCTRawHitsOnTrack_KF'
 
 #LT uncommented
-#if (not options.isData):
-#    track.parameters["truthTrackCollLcio"] = 'KalmanFullTracksToTruthTrackRelations'
-#    track.parameters["truthTrackCollRoot"] = 'Truth_KFTracks'
+if (not options.isData):
+    track.parameters["truthTrackCollLcio"] = 'KalmanFullTracksToTruthTrackRelations'
+    track.parameters["truthTrackCollRoot"] = 'Truth_KFTracks'
 
 #LT check if we need the b field or not -- version of HPS java
 # for Jess's files need to give it b-field
@@ -144,7 +144,8 @@ mcpart.parameters["mcPartCollRoot"] = 'MCParticle'
 
 # Sequence which the processors will run.
 if (not options.isData):
-    p.sequence = [header, vtx, vtxgbl, cvtxgbl, ecal, track, trackgbl, mcpart]
+    #p.sequence = [header, vtx, vtxgbl, cvtxgbl, ecal, track, trackgbl, mcpart]
+    p.sequence = [header, vtx, svthits,rawsvt, ecal, track, mcpart]
 else:
     p.sequence = [header, vtx, ecal, track]
     #p.sequence = [header, vtx, vtxgbl, cvtxgbl, ecal, track, trackgbl]

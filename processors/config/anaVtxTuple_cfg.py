@@ -38,7 +38,8 @@ vtxana.parameters["tsColl"]  = "TSBank"
 #vtxana.parameters["hitColl"] = "RotatedHelicalOnTrackHits"
 #vtxana.parameters["vtxColl"] = "UnconstrainedV0Vertices"
 vtxana.parameters["trkColl"] = "KalmanFullTracks"
-vtxana.parameters["hitColl"] = "SiClustersOnTrack"
+#vtxana.parameters["hitColl"] = "SiClustersOnTrack"
+vtxana.parameters["hitColl"] = "RotatedHelicalTrackHits"
 vtxana.parameters["vtxColl"] = "UnconstrainedV0Vertices_KF"
 vtxana.parameters["mcColl"]  = "MCParticle"
 vtxana.parameters["analysis"]  = "vertex"
@@ -66,8 +67,8 @@ vtxana.parameters["CalTimeOffset"]=CalTimeOffset
 #Region definitions
 
 RegionPath=os.environ['HPSTR_BASE']+"/analysis/selections/"
-vtxana.parameters["regionDefinitions"] = [RegionPath+'Tight_2019.json', RegionPath+'Tight_pTop_2019.json', RegionPath+'Tight_pBot_2019.json']
-
+#vtxana.parameters["regionDefinitions"] = [RegionPath+'Tight_2019.json', RegionPath+'Tight_pTop_2019.json', RegionPath+'Tight_pBot_2019.json']
+vtxana.parameters["regionDefinitions"] = [RegionPath+'Tight_2019.json', RegionPath+'radMatchTight_2019_simpSig.json']
 # Sequence which the processors will run.
 p.sequence = [vtxana]
 

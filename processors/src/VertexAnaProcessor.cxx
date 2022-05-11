@@ -611,20 +611,28 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
                 //Build map of hits and the associated MC part ids for later
                 TRefArray* ele_trk_hits = ele_trk_gbl->getSvtHits();
                 std::map<int, std::vector<int> > trueHitIDs;
+                std::cout << "hits size: " << hits_->size() << std::endl;
                 for(int i = 0; i < hits_->size(); i++)
                 {
                     TrackerHit* hit = hits_->at(i);
                     trueHitIDs[hit->getID()] = hit->getMCPartIDs();
+                    std::cout << "hit->getID: " << hit->getID() << std::endl;
+                    std::cout << "hit mcpsize: " << hit->getMCPartIDs().size() << std::endl;
+                    for(int j = 0; j<hit->getMCPartIDs().size();j++){
+                        std::cout << "hit->getMCPartIDs(): " << hit->getMCPartIDs().at(j) << std::endl;
+                    }
                 }
-                //std::cout << "There are " << ele_trk_hits->GetEntries() << " hits on this track" << std::endl;
+                std::cout << "There are " << ele_trk_hits->GetEntries() << " hits on this track" << std::endl;
                 //Count the number of hits per part on the track
                 std::map<int, int> nHits4part;
                 for(int i = 0; i < ele_trk_hits->GetEntries(); i++)
                 {
                     TrackerHit* eleHit = (TrackerHit*)ele_trk_hits->At(i);
+                    std::cout << "eleHit->getID(): " << eleHit->getID() << std::endl;
                     for(int idI = 0; idI < trueHitIDs[eleHit->getID()].size(); idI++ )
                     {
                         int partID = trueHitIDs[eleHit->getID()].at(idI);
+                        std::cout << "partID: " << partID << std::endl;
                         if ( nHits4part.find(partID) == nHits4part.end() )
                         {
                             // not found
@@ -649,6 +657,7 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
                         maxID = it->first;
                     }
                 }
+                std::cout << "maxNHits: " << maxNHits << std::endl;
 
                 //Find the correct mc part and grab mother id
                 int isRadEle = -999;
