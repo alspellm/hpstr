@@ -42,9 +42,13 @@ recoana_kf.parameters["trkColl"] = "KalmanFullTracks"
 recoana_kf.parameters["tsColl"] = "TSData"
 recoana_kf.parameters["vtxColl"] = "UnconstrainedV0Vertices_KF"
 recoana_kf.parameters["mcColl"]  = "MCParticle"
-recoana_kf.parameters["hitColl"] = "SiClustersOnTrack"
-recoana_kf.parameters["vtxSelectionjson"] = os.environ['HPSTR_BASE']+'/analysis/selections/vertexSelection_8hit.json'
-recoana_kf.parameters["histoCfg"] = os.environ['HPSTR_BASE']+"/analysis/plotconfigs/tracking/simpAnalysis_2016.json"
+#recoana_kf.parameters["hitColl"] = "SiClustersOnTrack"
+recoana_kf.parameters["hitColl"] = "RotatedHelicalTrackHits"
+recoana_kf.parameters["vtxSelectionjson"] = os.environ['HPSTR_BASE']+'/analysis/selections/vertexSelection_2019.json'
+recoana_kf.parameters["mcHistoCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/mc/basicMC.json'
+recoana_kf.parameters["histoCfg"] = os.environ['HPSTR_BASE']+"/analysis/plotconfigs/tracking/vtxAnalysis_2019.json"
+#recoana_kf.parameters["vtxSelectionjson"] = os.environ['HPSTR_BASE']+'/analysis/selections/vertexSelection_8hit.json'
+#recoana_kf.parameters["histoCfg"] = os.environ['HPSTR_BASE']+"/analysis/plotconfigs/tracking/simpAnalysis_2016.json"
 recoana_kf.parameters["mcHistoCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/mc/basicMC.json'
 recoana_kf.parameters["beamE"] = base.beamE[str(options.year)]
 recoana_kf.parameters["isData"] = options.isData
@@ -67,8 +71,8 @@ recoana_kf.parameters["CalTimeOffset"]=CalTimeOffset
 #Region definitions
 
 RegionPath=os.environ['HPSTR_BASE']+"/analysis/selections/"
-recoana_kf.parameters["regionDefinitions"] = [RegionPath+'simpTight.json',
-                                              RegionPath+'simpTightL1L1.json']
+recoana_kf.parameters["regionDefinitions"] = [RegionPath+'Tight_2019.json',
+                                              RegionPath+'radMatchTight_2019_simpSig.json']
                                               #RegionPath+'simpTightL1L1NoSharedL0.json']
 
 #RecoHitAna
@@ -95,15 +99,15 @@ mcana.parameters["histCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/mc
 
 # Sequence which the processors will run.
 #p.sequence = [recoana_kf,recoana_gbl]
-if (options.tracking == "KF"):
-    print("Run KalmanFullTracks analysis")
-    p.sequence = [recoana_kf] #,mcana]
-elif (options.tracking == "GBL"):
-    print("Run GBL analysis")
-    p.sequence = [recoana_gbl]#,mcana]
-else :
-    print ("ERROR::Need to specify which tracks KF or GBL")
-    exit(1)
+#if (options.tracking == "KF"):
+#    print("Run KalmanFullTracks analysis")
+p.sequence = [recoana_kf] #,mcana]
+#elif (options.tracking == "GBL"):
+#    print("Run GBL analysis")
+    #p.sequence = [recoana_gbl]#,mcana]
+#else :
+#    print ("ERROR::Need to specify which tracks KF or GBL")
+#    exit(1)
 
 if (options.nevents > 0):
     p.max_events = options.nevents
@@ -111,4 +115,4 @@ if (options.nevents > 0):
 p.input_files=infile
 p.output_files = [outfile]
 
-p.printProcess()
+#p.printProcess()

@@ -59,6 +59,11 @@ rawsvt.parameters["hitCollRoot"]    = 'SVTRawTrackerHits'
 svthits.parameters["debug"] = 0
 svthits.parameters["hitCollLcio"]    = 'RotatedHelicalTrackHits'
 svthits.parameters["hitCollRoot"]    = 'RotatedHelicalTrackHits'
+svthits.parameters["mcPartRelLcio"] = 'RotatedHelicalTrackMCRelations'
+
+#svthits.parameters["hitCollLcio"]    = 'SVTRawTrackerHits'
+#svthits.parameters["hitCollRoot"]    = 'SVTRawTrackerHits'
+#svthits.parameters["mcPartRelLcio"] = 'SVTTrueHitRelations'
 
 
 #Tracking
@@ -67,7 +72,8 @@ track.parameters["trkCollLcio"] = 'KalmanFullTracks'
 track.parameters["trkCollRoot"] = 'KalmanFullTracks'
 track.parameters["kinkRelCollLcio"] = ''
 track.parameters["trkRelCollLcio"] = 'KFTrackDataRelations'
-track.parameters["trkhitCollRoot"] = 'SiClustersOnTrack'
+#track.parameters["trkhitCollRoot"] = 'SiClustersOnTrack'
+track.parameters["trkhitCollRoot"] = 'RotatedHelicalTrackHits'  #Check if this must match svt name
 track.parameters["hitFitsCollLcio"] = 'SVTFittedRawTrackerHits'
 track.parameters["rawhitCollRoot"] = 'SVTRawTrackerHits'
 

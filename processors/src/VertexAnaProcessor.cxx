@@ -617,6 +617,7 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
                     TrackerHit* hit = hits_->at(i);
                     trueHitIDs[hit->getID()] = hit->getMCPartIDs();
                     std::cout << "hit->getID: " << hit->getID() << std::endl;
+                    std::cout << "hit->getLayer(): " << hit->getLayer() << std::endl;
                     std::cout << "hit mcpsize: " << hit->getMCPartIDs().size() << std::endl;
                     for(int j = 0; j<hit->getMCPartIDs().size();j++){
                         std::cout << "hit->getMCPartIDs(): " << hit->getMCPartIDs().at(j) << std::endl;
@@ -629,6 +630,7 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
                 {
                     TrackerHit* eleHit = (TrackerHit*)ele_trk_hits->At(i);
                     std::cout << "eleHit->getID(): " << eleHit->getID() << std::endl;
+                    std::cout << "eleHit->getLayer(): " << eleHit->getLayer() << std::endl;
                     for(int idI = 0; idI < trueHitIDs[eleHit->getID()].size(); idI++ )
                     {
                         int partID = trueHitIDs[eleHit->getID()].at(idI);
