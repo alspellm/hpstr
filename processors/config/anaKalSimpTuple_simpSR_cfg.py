@@ -66,8 +66,8 @@ recoana_kf.parameters["CalTimeOffset"]=CalTimeOffset
 #Region definitions
 
 RegionPath=os.environ['HPSTR_BASE']+"/analysis/selections/"
-recoana_kf.parameters["regionDefinitions"] = [RegionPath+'Tight_2019_simpCR.json',
-                                              RegionPath+'radMatchTight_2019_simpCR.json']
+recoana_kf.parameters["regionDefinitions"] = [RegionPath+'Tight_2019_simpSR.json',
+                                              RegionPath+'radMatchTight_2019_simpSR.json']
 #RecoHitAna
 recoana_gbl.parameters = recoana_kf.parameters.copy()
 recoana_gbl.parameters["anaName"] = "vtxana_gbl"

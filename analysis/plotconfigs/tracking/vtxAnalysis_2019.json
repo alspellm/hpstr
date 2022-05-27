@@ -155,7 +155,7 @@
         "ytitle" : "Tracks"
     },
     "ele_p_h" : {
-        "bins" : 100,
+        "bins" : 5000,
         "minX" : 0,
         "maxX" : 5,
         "xtitle" : "p_{e^{-}} [GeV]",
@@ -210,7 +210,7 @@
         "ytitle" : "trk tan(#lambda)"
     },
     "ele_d0_vs_p_hh" : {
-        "binsX"  : 100,
+        "binsX"  : 5000,
         "minX"   : 0,
         "maxX"   : 5,
         "binsY"  : 200,
@@ -240,7 +240,7 @@
         "ytitle" : "trk d0 [mm]"
     },
     "ele_z0_vs_p_hh" : {
-        "binsX"  : 100,
+        "binsX"  : 5000,
         "minX"   : 0,
         "maxX"   : 5,
         "binsY"  : 200,
@@ -270,7 +270,7 @@
         "ytitle" : "trk z0 [mm]"
     },
     "ele_phi0_vs_p_hh" : {
-        "binsX"  : 100,
+        "binsX"  : 5000,
         "minX"   : 0,
         "maxX"   : 5,
         "binsY"  : 100,
@@ -394,7 +394,7 @@
         "ytitle" : "Tracks"
     },
     "pos_p_h" : {
-        "bins" : 100,
+        "bins" : 5000,
         "minX" : 0,
         "maxX" : 5,
         "xtitle" : "p_{e^{+}} [GeV]",
@@ -435,7 +435,7 @@
         "ytitle" : "trk tan(#lambda)"
     },
     "pos_phi0_vs_p_hh" : {
-        "binsX"  : 100,
+        "binsX"  : 5000,
         "minX"   : 0,
         "maxX"   : 5,
         "binsY"  : 100,
@@ -445,7 +445,7 @@
         "ytitle" : "trk #phi_{0}"
     },
     "pos_d0_vs_p_hh" : {
-        "binsX"  : 100,
+        "binsX"  : 5000,
         "minX"   : 0,
         "maxX"   : 5,
         "binsY"  : 200,
@@ -475,7 +475,7 @@
         "ytitle" : "trk d0 [mm]"
     },
     "pos_z0_vs_p_hh" : {
-        "binsX"  : 100,
+        "binsX"  : 5000,
         "minX"   : 0,
         "maxX"   : 5,
         "binsY"  : 200,
@@ -651,7 +651,7 @@
         "ytitle" : "Vertices"
     },
     "vtx_p_h" : {
-        "bins" : 100,
+        "bins" : 5000,
         "minX" : 0,
         "maxX" : 5,
         "xtitle" : "vtx p [GeV]",
@@ -668,7 +668,7 @@
         "ytitle" : "z_{vtx} [mm]"
     },
     "vtx_p_svt_z_hh" : {
-        "binsX"  : 200,
+        "binsX"  : 5000,
         "minX"   : 0.0,
         "maxX"   : 5,
         "binsY"  : 400,
@@ -738,21 +738,21 @@
         "ytitle" : "#sigmay_{vtx} [mm]"
     },
     "Esum_h" : {
-        "bins" : 200,
+        "bins" : 5000,
         "minX" : 0,
         "maxX" : 5,
         "xtitle" : "Particle E_{e^{-}} + E_{e^{+}} [GeV]",
         "ytitle" : "events"
     },
     "EsumClus_h" : {
-        "bins" : 200,
+        "bins" : 5000,
         "minX" : 0,
         "maxX" : 5,
         "xtitle" : "E_{e^{-}} Cluster + E_{e^{+}} Cluster [GeV]",
         "ytitle" : "events"
     },
     "EClus_hh" : {
-        "binsX"  : 200,
+        "binsX"  : 5000,
         "minX"   : 0.0,
         "maxX"   : 5,
         "binsY"  : 200,
@@ -762,9 +762,9 @@
         "ytitle" : "e^{+} Cluster E [GeV]"
     },
     "InvM_eleP_hh" : {
-        "binsX"  : 100,
+        "binsX"  : 5000,
         "minX"   : 0.0,
-        "maxX"   : 4,
+        "maxX"   : 5,
         "binsY"  : 200,
         "minY"   : 0,
         "maxY"   : 0.4,
@@ -772,9 +772,9 @@
         "ytitle" : "vtx mass [GeV]"
     },
     "InvM_posP_hh" : {
-        "binsX"  : 100,
+        "binsX"  : 5000,
         "minX"   : 0.0,
-        "maxX"   : 4,
+        "maxX"   : 5,
         "binsY"  : 200,
         "minY"   : 0,
         "maxY"   : 0.4,
@@ -792,9 +792,9 @@
         "ytitle" : "e^{+} E/p"
     },
     "Psum_h" : {
-        "bins" :  200,
+        "bins" :  5000,
         "minX" :  0,
-        "maxX" :  5.5,
+        "maxX" :  5,
         "xtitle" : "p_{e^{-}} + p_{e^{+}} [GeV]",
         "ytitle" : "events"
     },
@@ -904,14 +904,14 @@
         "ytitle" : " Events "
     },
     "vtx_Psum_h" : {
-        "bins" :  100 ,
+        "bins" :  5000 ,
         "minX" :  0 ,
-        "maxX" :  5.5 ,
+        "maxX" :  5 ,
         "xtitle" : " vtx p_{sum} [GeV] ",
         "ytitle" : " Vertices "
     },
     "vtx_Esum_h" : {
-        "bins" :  100 ,
+        "bins" :  5000 ,
         "minX" :  0 ,
         "maxX" :  5.0 ,
         "xtitle" : " vtx E_{sum} [GeV] ",
@@ -948,9 +948,9 @@
         "ytitle" : " vtx Z pos [mm] "
     },
     "Pmiss_h" : {
-        "bins" :  100 ,
+        "bins" :  5000 ,
         "minX" :  0 ,
-        "maxX" :  2 ,
+        "maxX" :  5 ,
         "xtitle" : " p^{miss} [GeV] ",
         "ytitle" : " Events "
     }
