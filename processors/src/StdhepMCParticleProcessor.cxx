@@ -56,11 +56,17 @@ bool StdhepMCParticleProcessor::process() {
     try {
      
         while( maxEvent_ < 0  || count < maxEvent_ ){
+
+            if (mc_particles_.size() > 0){
+                for (std::vector<MCParticle*>::iterator it = mc_particles_.begin(); it != mc_particles_.end(); ++it){
+                    delete *it;
+                }
+                mc_particles_.clear();
+            }
              
             std::auto_ptr<IMPL::LCEventImpl> evt( new IMPL::LCEventImpl() ) ;
             evt->setRunNumber(0) ;
             evt->setEventNumber(count) ;
-             
             // read the next stdhep event and add an MCParticle collection to the event
             rdr.updateNextEvent(evt.get(),mcPartCollStdhep_.c_str()) ;
 
@@ -118,9 +124,11 @@ bool StdhepMCParticleProcessor::process() {
                     particle->setEndPoint(lc_particle->getEndpoint());
 
                     mc_particles_.push_back(particle);
+
                 }
 
                 tree_->Fill();
+
             }
             catch (EVENT::DataNotAvailableException e)
             {

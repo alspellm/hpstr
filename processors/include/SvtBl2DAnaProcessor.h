@@ -41,6 +41,7 @@ class SvtBl2DAnaProcessor : public Processor {
 
         //Initialize ModuleMapper
         ModuleMapper * mmapper_;
+        int year_ = 2019;
 
         //configuration parameters
         std::string histCfgFilename_;

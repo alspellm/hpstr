@@ -36,6 +36,7 @@ svtblana.parameters["rawSvtHitsColl"] = "SVTRawTrackerHits"
 svtblana.parameters["histCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/svt/Svt2DBl.json'
 svtblana.parameters["triggerBankColl"] = "TSBank"
 svtblana.parameters["triggerBankCfg"] = os.environ['HPSTR_BASE']+'/analysis/selections/triggerSelection.json'
+svtblana.parameters["year"] = options.year
 
 if (options.nevents > -1):
     p.max_events = options.nevents

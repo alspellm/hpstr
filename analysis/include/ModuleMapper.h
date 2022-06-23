@@ -44,7 +44,7 @@ class ModuleMapper {
   }
 
   //Build global svt id map for all FebHybrid combinations
-  std::map<std::string, std::map<int,int>> buildChannelSvtIDMap();
+  std::map<std::string, std::map<int,int>> buildChannelSvtIDMap(int year);
 
   //Return global svt id for channel by providing local channel number and F<n>H<m> of channel
   int getSvtIDFromHWChannel(int channel, std::string hwTag, std::map<std::string,std::map<int,int>> svtid_map);  

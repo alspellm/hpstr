@@ -4,7 +4,6 @@
 #include <map>
 
 SvtBl2DAnaProcessor::SvtBl2DAnaProcessor(const std::string& name, Process& process) : Processor(name,process){
-    mmapper_ = new ModuleMapper();
 }
 
 SvtBl2DAnaProcessor::~SvtBl2DAnaProcessor(){ 
@@ -20,12 +19,14 @@ void SvtBl2DAnaProcessor::configure(const ParameterSet& parameters) {
         histCfgFilename_ = parameters.getString("histCfg");
         triggerBankColl_   = parameters.getString("triggerBankColl"); 
         triggerFilename_   = parameters.getString("triggerBankCfg"); 
+        year_              = parameters.getInteger("year");
     }
     catch (std::runtime_error& error)
     {
         std::cout << error.what() << std::endl;
     }
     std::cout << "TRIGGER FILE NAME: " << triggerFilename_ << std::endl;
+    mmapper_ = new ModuleMapper(year_);
 }
 
 void SvtBl2DAnaProcessor::initialize(TTree* tree) {
@@ -105,8 +106,8 @@ bool SvtBl2DAnaProcessor::process(IEvent* ievent) {
     
     bool triggerFound = false;
     for (auto trigger : triggers_.items()){
-        std::cout << "check for trigger " << trigger.key() << std::endl;
-        std::cout << "trigger value " << prescaledtriggerMap_[trigger.key()] << std::endl;
+        //std::cout << "check for trigger " << trigger.key() << std::endl;
+        //std::cout << "trigger value " << prescaledtriggerMap_[trigger.key()] << std::endl;
         if ( (prescaledtriggerMap_[trigger.key()] > 0) || (exttriggerMap_[trigger.key()]) > 0 ){
             triggerFound = true;
         }
