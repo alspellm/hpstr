@@ -1,0 +1,18 @@
+{
+    "chi2unc_lt" : {
+        "cut"  : 10.0,
+        "id"   : 0,
+        "info" : "#chi^{2}_{unc}<10"
+    },
+    "volPos_top"  : {
+        "cut"  : 0.0,
+        "id"   : 1,
+        "info" : "e^{+} in Top"
+    },
+    "nVtxs_eq" : {
+        "cut"  : 1,
+        "id"   : 2,
+        "info" : "N_{vtx}=1"
+    }
+
+}
