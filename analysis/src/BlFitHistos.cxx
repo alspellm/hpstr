@@ -5,9 +5,9 @@
 double fitmin;
 double fitmax;
 
-BlFitHistos::BlFitHistos() {
+BlFitHistos::BlFitHistos(int year) {
     //ModuleMapper used to translate between hw and sw names
-    mmapper_ = new ModuleMapper();
+    mmapper_ = new ModuleMapper(year);
 
     //Global svtIDMap built in ModuleMapper. Required to output baselines in database format
     svtIDMap = mmapper_->buildChannelSvtIDMap();

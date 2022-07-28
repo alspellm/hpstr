@@ -25,7 +25,7 @@
 class BlFitHistos : public HistoManager{
 
     public:
-        BlFitHistos();
+        BlFitHistos(int year);
         ~BlFitHistos();
 
         std::map<std::string,TH1F*> get1dHistos() {

@@ -5,7 +5,7 @@ import baseConfig as base
 from baseConfig import bfield
 
 base.parser.add_argument("-w", "--tracking", type=str, dest="tracking",
-    help="Which tracking to use to make plots", metavar="tracking", default="KF")
+    help="Which tracking to use to make plots", metavar="tracking", default="BOTH")
 base.parser.add_argument("-s", "--truthHits", type=int, dest="truthHits",
         help="Get svt truth hits: 1=yes", metavar="truthHits", default=1)
 base.parser.add_argument("-r", "--rawHits", type=int, dest="rawHits",
@@ -35,10 +35,11 @@ header  = HpstrConf.Processor('header', 'EventProcessor')
 track   = HpstrConf.Processor('track', 'TrackingProcessor')
 trackgbl = HpstrConf.Processor('trackgbl', 'TrackingProcessor')
 trackrefitgbl = HpstrConf.Processor('trackrefitgbl', 'TrackingProcessor')
-svthits = HpstrConf.Processor('svthits', 'Tracker2DHitProcessor')  
-svthitsgbl = HpstrConf.Processor('svthits', 'Tracker3DHitProcessor') 
+svthits = HpstrConf.Processor('svthitskf', 'Tracker2DHitProcessor')  
+svthitsgbl = HpstrConf.Processor('svthitsgbl', 'Tracker3DHitProcessor') 
 rawsvt  = HpstrConf.Processor('rawsvt', 'SvtRawDataProcessor')
-ecal    = HpstrConf.Processor('ecal', 'ECalDataProcessor')
+ecal_gbl    = HpstrConf.Processor('ecalgbl', 'ECalDataProcessor')
+ecal_kf    = HpstrConf.Processor('ecalkf', 'ECalDataProcessor')
 vtx     = HpstrConf.Processor('vtx', 'VertexProcessor')
 vtxgbl   = HpstrConf.Processor('vtxgbl', 'VertexProcessor')
 cvtxgbl   = HpstrConf.Processor('cvtxgbl', 'VertexProcessor')
@@ -119,11 +120,17 @@ trackgbl.parameters["rawhitCollRoot"] = ''#'SVTRawHitsOnTrack'
 trackgbl.parameters["bfield"] = bfield[str(options.year)]
 
 #ECalData
-ecal.parameters["debug"] = 0
-ecal.parameters["hitCollLcio"] = 'EcalCalHits'
-ecal.parameters["hitCollRoot"] = ''#'RecoEcalHits'
-ecal.parameters["clusCollLcio"] = "EcalClustersCorr"
-ecal.parameters["clusCollRoot"] = "RecoEcalClusters"
+ecal_gbl.parameters["debug"] = 0
+ecal_gbl.parameters["hitCollLcio"] = 'EcalCalHits'
+ecal_gbl.parameters["hitCollRoot"] = 'RecoEcalHits'
+ecal_gbl.parameters["clusCollLcio"] = "EcalClustersCorr_GBL"
+ecal_gbl.parameters["clusCollRoot"] = "RecoEcalClusters_GBL"
+
+ecal_kf.parameters["debug"] = 0
+ecal_kf.parameters["hitCollLcio"] = 'EcalCalHits'
+ecal_kf.parameters["hitCollRoot"] = 'RecoEcalHits'
+ecal_kf.parameters["clusCollLcio"] = "EcalClustersCorr_KF"
+ecal_kf.parameters["clusCollRoot"] = "RecoEcalClusters_KF"
 
 #Vertex
 vtx.parameters["debug"] = 0
@@ -153,17 +160,17 @@ mcpart.parameters["mcPartCollLcio"] = 'MCParticle'
 mcpart.parameters["mcPartCollRoot"] = 'MCParticle'
 
 if(options.tracking == "KF"):
-    sequence = [header, vtx, ecal, track]                          
+    sequence = [header, vtx, ecal_kf, track]                          
     #Get KF svt truth hits
     if(options.truthHits > 0):
         sequence.append(svthits)
 elif(options.tracking == "GBL"):
-    sequence = [header, vtxgbl, ecal, trackgbl]                          
+    sequence = [header, vtxgbl, ecal_gbl, trackgbl]                          
     #Get GBL svt truth hits
     if(options.truthHits > 0):
         sequence.append(svthitsgbl)
 elif(options.tracking == "BOTH"):
-    sequence = [header, vtxgbl, ecal, trackgbl, vtx, ecal, track]                          
+    sequence = [header, vtxgbl, ecal_gbl, trackgbl, vtx, ecal_kf, track]                          
     #Get KF and GBL svt truth hits
     if(options.truthHits > 0):
         sequence.append(svthits)

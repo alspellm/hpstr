@@ -36,6 +36,7 @@ void MCAnaHistos::Define2DHistos() {
 }
 
 void MCAnaHistos::FillMCParticles(std::vector<MCParticle*> *mcParts, std::string analysis, float weight ) {
+    std::map<int,MCParticle*> apMap;
     int nParts = mcParts->size();
     Fill1DHisto("numMCparts_h", (float)nParts, weight);
     int nMuons = 0;
@@ -80,8 +81,8 @@ void MCAnaHistos::FillMCParticles(std::vector<MCParticle*> *mcParts, std::string
         {
             Fill1DHisto("mc624Mass_h", massMeV, weight);
             Fill1DHisto("mc624Z_h", zPos, weight);
-            Fill1DHisto("mc625Energy_h", energy, weight);
-            Fill1DHisto("mc625P_h", momentum, weight);
+            Fill1DHisto("mc624Energy_h", energy, weight);
+            Fill1DHisto("mc624P_h", momentum, weight);
     }
 
 
@@ -97,8 +98,21 @@ void MCAnaHistos::FillMCParticles(std::vector<MCParticle*> *mcParts, std::string
         bool partOfInt = false;
         //	std::cout<<analysis<<std::endl;
         if (analysis == "simps"){
-            if (fabs(pdg) == 11 && momPdg == 622)
+            
+            if(pdg == 622)
+                apMap[622] = part;
+            if(pdg == 625)
+                apMap[625] = part;
+            if(pdg == 624)
+                apMap[624] = part;
+
+            if (fabs(pdg) == 11 && momPdg == 622){
                 partOfInt = true;
+                if(pdg == 11)
+                    apMap[11] = part;
+                else if(pdg == -11)
+                    apMap[-11] = part;
+            }
         }else{
             if ((momPdg == 623 || momPdg == 622) && (fabs(pdg) == 11))
                 partOfInt = true;
@@ -141,6 +155,51 @@ void MCAnaHistos::FillMCParticles(std::vector<MCParticle*> *mcParts, std::string
 
         Fill1DHisto("MCpartsEnergy_h", energy, weight);
         Fill1DHisto("MCpartsEnergyLow_h", energy*1000.0, weight);// Scaled to MeV
+    }
+
+    if(analysis == "simps"){
+        MCParticle* ap = apMap.at(622);
+        MCParticle* vd = apMap.at(625);
+        MCParticle* pid = apMap.at(624);
+        MCParticle* vd_ele = apMap.at(11);
+        MCParticle* vd_pos = apMap.at(-11);
+
+        double ap_energy = ap->getEnergy();
+        std::vector<double> apP = ap->getMomentum();
+        TLorentzVector ap4P(apP.at(0), apP.at(1), apP.at(2), ap_energy);
+        ap4P.RotateY(-0.0305);
+        double ap_momentum = ap4P.P();
+
+        double vd_energy = vd->getEnergy();
+        std::vector<double> vdP = vd->getMomentum();
+        TLorentzVector vd4P(vdP.at(0), vdP.at(1), vdP.at(2), vd_energy);
+        vd4P.RotateY(-0.0305);
+        double vd_momentum = vd4P.P();
+
+        double pid_energy = pid->getEnergy();
+        std::vector<double> pidP = pid->getMomentum();
+        TLorentzVector pid4P(pidP.at(0), pidP.at(1), pidP.at(2), pid_energy);
+        pid4P.RotateY(-0.0305);
+        double pid_momentum = pid4P.P();
+
+        double vd_ele_energy = vd_ele->getEnergy();
+        std::vector<double> vd_eleP = vd_ele->getMomentum();
+        TLorentzVector vd_ele4P(vd_eleP.at(0), vd_eleP.at(1), vd_eleP.at(2), vd_ele_energy);
+        vd_ele4P.RotateY(-0.0305);
+        double vd_ele_momentum = vd_ele4P.P();
+
+        double vd_pos_energy = vd_pos->getEnergy();
+        std::vector<double> vd_posP = vd_pos->getMomentum();
+        TLorentzVector vd_pos4P(vd_posP.at(0), vd_posP.at(1), vd_posP.at(2), vd_pos_energy);
+        vd_pos4P.RotateY(-0.0305);
+        double vd_pos_momentum = vd_pos4P.P();
+
+        Fill2DHisto("vdpid_ap_P_hh",vd_momentum+pid_momentum,ap_momentum, weight);
+        Fill2DHisto("vd_pid_P_hh",vd_momentum,pid_momentum, weight);
+        Fill2DHisto("vd_ele_pos_P_hh",vd_ele_momentum,vd_pos_momentum, weight);
+        Fill2DHisto("ele_pos_ap_P_hh",vd_ele_momentum+vd_pos_momentum,ap_momentum, weight);
+        Fill2DHisto("vd_ap_P_hh",vd_momentum,ap_momentum,weight);
+        Fill2DHisto("pid_ap_P_hh",pid_momentum,ap_momentum,weight);
     }
 
     //TLorentzVector res = ele + pos;

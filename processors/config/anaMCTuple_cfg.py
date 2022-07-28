@@ -49,7 +49,7 @@ mcana.parameters["partColl"] = "MCParticle"
 mcana.parameters["trkrHitColl"] = "TrackerHits"
 mcana.parameters["ecalHitColl"] = "EcalHits"
 mcana.parameters["analysis"] = analysis
-mcana.parameters["histCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/mc/basicMC.json'
+mcana.parameters["histCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/mc/basicMC_simps.json'
 
 # Sequence which the processors will run.
 p.sequence = [mcana]

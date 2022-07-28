@@ -6,6 +6,8 @@ import baseConfig as base
 
 base.parser.add_argument("-w", "--tracking", type=str, dest="tracking",
                   help="Which tracking to use to make plots", metavar="tracking", default="KF")
+base.parser.add_argument("-R", "--region", type=str, dest="region",
+                  help="Select Signal (SR) or Control (CR) region", metavar="region", default="CR")
 options = base.parser.parse_args()
 
 
