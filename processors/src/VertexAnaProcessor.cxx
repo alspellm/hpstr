@@ -7,6 +7,8 @@
 #include "VertexAnaProcessor.h"
 #include <iostream>
 #include <map>
+#include <math.h> 
+#include "TRandom.h"
 
 VertexAnaProcessor::VertexAnaProcessor(const std::string& name, Process& process) : Processor(name,process) {
 
@@ -29,6 +31,8 @@ void VertexAnaProcessor::configure(const ParameterSet& parameters) {
         ecalColl_ = parameters.getString("ecalColl",ecalColl_);
         mcColl_  = parameters.getString("mcColl",mcColl_);
         isRadPDG_ = parameters.getInteger("isRadPDG",isRadPDG_);
+        smearMCTrackTime_ = parameters.getInteger("smearMCTrackTime",smearMCTrackTime_);
+        std::cout << "smearMCTrackTime: " << smearMCTrackTime_ << std::endl;
 
         selectionCfg_   = parameters.getString("vtxSelectionjson",selectionCfg_);
         histoCfg_ = parameters.getString("histoCfg",histoCfg_);
@@ -235,8 +239,15 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
             }
         }
         else {
+
             ele_trk = (Track*)ele->getTrack().Clone();
             pos_trk = (Track*)pos->getTrack().Clone();
+        }
+
+        //smear MC Track time
+        if(!isData_ && smearMCTrackTime_){
+            smearMCTrackTime(ele_trk);
+            smearMCTrackTime(pos_trk);
         }
 
         //Add the momenta to the tracks - do not do that
@@ -283,6 +294,10 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
         double botClusTime = 0.0;
         if(ele->getCluster().getPosition().at(1) < 0.0) botClusTime = ele->getCluster().getTime();
         else botClusTime = pos->getCluster().getTime();
+
+        //Track Cluster matcher plots
+        _vtx_histos->Fill1DHisto("ele_track_clus_dt_h",fabs(ele_trk->getTrackTime() - corr_eleClusterTime), weight);
+        _vtx_histos->Fill1DHisto("pos_track_clus_dt_h",fabs(pos_trk->getTrackTime() - corr_posClusterTime), weight);
 
         //Bottom Cluster Time
         if (!vtxSelector->passCutLt("botCluTime_lt", botClusTime, weight))
@@ -359,13 +374,13 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
         }
 
         //Pos nHits
-        int pos2dHits = pos_trk->getTrackerHitCount();
-        if (!pos_trk->isKalmanTrack())
+         int pos2dHits = pos_trk->getTrackerHitCount();
+         if (!pos_trk->isKalmanTrack())
             pos2dHits*=2;
 
-        if (!vtxSelector->passCutGt("posN2Dhits_gt",pos2dHits,weight))  {
+         if (!vtxSelector->passCutGt("posN2Dhits_gt",pos2dHits,weight))  {
             continue;
-        }
+         }
 
         //Less than 4 shared hits for ele/pos track
         if (!vtxSelector->passCutLt("eleNshared_lt",ele_trk->getNShared(),weight)) {
@@ -453,13 +468,16 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
             CalCluster eleClus = ele->getCluster();
             CalCluster posClus = pos->getCluster();
 
-            //vtx Z position
-            if (!_reg_vtx_selectors[region]->passCutGt("uncVtxZ_gt",vtx->getZ(),weight))
-                continue;
+            if(analysis_ != "nminus1_plots"){
+                //vtx Z position
+                if (!_reg_vtx_selectors[region]->passCutGt("uncVtxZ_gt",vtx->getZ(),weight))
+                    continue;
 
-            //Chi2
-            if (!_reg_vtx_selectors[region]->passCutLt("chi2unc_lt",vtx->getChi2(),weight))
-                continue;
+                //Chi2
+                if (!_reg_vtx_selectors[region]->passCutLt("chi2unc_lt",vtx->getChi2(),weight))
+                    continue;
+            }
+
 
             double ele_E = ele->getEnergy();
             double pos_E = pos->getEnergy();
@@ -468,6 +486,7 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
 
             Track ele_trk = ele->getTrack();
             Track pos_trk = pos->getTrack();
+
 
             //Get the shared info - TODO change and improve
 
@@ -488,6 +507,12 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
 
                 ele_trk_gbl = (Track*) ele_trk.Clone();
                 pos_trk_gbl = (Track*) pos_trk.Clone();
+            }
+
+            //smear MC Track time
+            if(!isData_ && smearMCTrackTime_){
+                smearMCTrackTime(ele_trk_gbl);
+                smearMCTrackTime(pos_trk_gbl);
             }
 
             //Add the momenta to the tracks
@@ -525,6 +550,139 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
             if (debug_) {
                 std::cout<<"Check on pos_Track"<<std::endl;
                 std::cout<<"Innermost:"<<foundL1pos<<" Second Innermost:"<<foundL2pos<<std::endl;
+            }
+
+            if(analysis_ == "nminus1_plots"){
+
+                if (isData_) {
+                    if (!_reg_vtx_selectors[region]->passCutEq("Pair1_eq",(int)evth_->isPair1Trigger(),weight))
+                        break;
+                }
+
+                if (!_reg_vtx_selectors[region]->passCutLt("eleTrkCluMatch_lt",ele->getGoodnessOfPID(),weight))
+                    continue;
+
+                //Pos Track-cluster match
+                if (!_reg_vtx_selectors[region]->passCutLt("posTrkCluMatch_lt",pos->getGoodnessOfPID(),weight))
+                    continue;
+
+                //Require Positron Cluster exists
+                if (!_reg_vtx_selectors[region]->passCutGt("posClusE_gt",posClus.getEnergy(),weight))
+                    continue;
+
+                //Require Positron Cluster does NOT exists
+                if (!_reg_vtx_selectors[region]->passCutLt("posClusE_lt",posClus.getEnergy(),weight))
+                    continue;
+
+
+                double corr_eleClusterTime = ele->getCluster().getTime() - timeOffset_;
+                double corr_posClusterTime = pos->getCluster().getTime() - timeOffset_;
+
+                double botClusTime = 0.0;
+                if(ele->getCluster().getPosition().at(1) < 0.0) botClusTime = ele->getCluster().getTime();
+                else botClusTime = pos->getCluster().getTime();
+
+                //Track Cluster matcher plots
+                _vtx_histos->Fill1DHisto("ele_track_clus_dt_h",fabs(ele_trk_gbl->getTrackTime() - corr_eleClusterTime), weight);
+                _vtx_histos->Fill1DHisto("pos_track_clus_dt_h",fabs(pos_trk_gbl->getTrackTime() - corr_posClusterTime), weight);
+
+                //Bottom Cluster Time
+                if (!_reg_vtx_selectors[region]->passCutLt("botCluTime_lt", botClusTime, weight))
+                    continue;
+
+                if (!_reg_vtx_selectors[region]->passCutGt("botCluTime_gt", botClusTime, weight))
+                    continue;
+
+                //Ele Pos Cluster Time Difference
+                if (!_reg_vtx_selectors[region]->passCutLt("eleposCluTimeDiff_lt",fabs(corr_eleClusterTime - corr_posClusterTime),weight))
+                    continue;
+
+                //Ele Track-Cluster Time Difference
+                if (!_reg_vtx_selectors[region]->passCutLt("eleTrkCluTimeDiff_lt",fabs(ele_trk_gbl->getTrackTime() - corr_eleClusterTime),weight))
+                    continue;
+
+                //Pos Track-Cluster Time Difference
+                if (!_reg_vtx_selectors[region]->passCutLt("posTrkCluTimeDiff_lt",fabs(pos_trk_gbl->getTrackTime() - corr_posClusterTime),weight))
+                    continue;
+
+                TVector3 ele_mom;
+                ele_mom.SetX(ele_trk_gbl->getMomentum()[0]);
+                ele_mom.SetY(ele_trk_gbl->getMomentum()[1]);
+                ele_mom.SetZ(ele_trk_gbl->getMomentum()[2]);
+
+
+                TVector3 pos_mom;
+                pos_mom.SetX(pos_trk_gbl->getMomentum()[0]);
+                pos_mom.SetY(pos_trk_gbl->getMomentum()[1]);
+                pos_mom.SetZ(pos_trk_gbl->getMomentum()[2]);
+
+
+                //Beam Electron cut
+                //if (!_reg_vtx_selectors[region]->passCutLt("eleMom_lt",ele_mom.Mag(),weight))
+                //    continue;
+
+                //Ele Track Quality - Chi2
+                if (!_reg_vtx_selectors[region]->passCutLt("eleTrkChi2_lt",ele_trk_gbl->getChi2(),weight))
+                    continue;
+
+                //Pos Track Quality - Chi2
+                if (!_reg_vtx_selectors[region]->passCutLt("posTrkChi2_lt",pos_trk_gbl->getChi2(),weight))
+                    continue;
+
+                //Ele Track Quality - Chi2Ndf
+                if (!_reg_vtx_selectors[region]->passCutLt("eleTrkChi2Ndf_lt",ele_trk_gbl->getChi2Ndf(),weight))
+                    continue;
+
+                //Pos Track Quality - Chi2Ndf
+                if (!_reg_vtx_selectors[region]->passCutLt("posTrkChi2Ndf_lt",pos_trk_gbl->getChi2Ndf(),weight))
+                    continue;
+
+                //Ele min momentum cut
+                if (!_reg_vtx_selectors[region]->passCutGt("eleMom_gt",ele_mom.Mag(),weight))
+                    continue;
+
+                //Pos min momentum cut
+                if (!_reg_vtx_selectors[region]->passCutGt("posMom_gt",pos_mom.Mag(),weight))
+                    continue;
+
+                //Ele nHits
+                int ele2dHits = ele_trk_gbl->getTrackerHitCount();
+                if (!ele_trk_gbl->isKalmanTrack())
+                    ele2dHits*=2;
+
+                if (!_reg_vtx_selectors[region]->passCutGt("eleN2Dhits_gt",ele2dHits,weight))  {
+                    continue;
+                }
+
+                //Pos nHits
+                 int pos2dHits = pos_trk_gbl->getTrackerHitCount();
+                 if (!pos_trk_gbl->isKalmanTrack())
+                    pos2dHits*=2;
+
+                 if (!_reg_vtx_selectors[region]->passCutGt("posN2Dhits_gt",pos2dHits,weight))  {
+                    continue;
+                 }
+
+                //Less than 4 shared hits for ele/pos track
+                if (!_reg_vtx_selectors[region]->passCutLt("eleNshared_lt",ele_trk_gbl->getNShared(),weight)) {
+                    continue;
+                }
+
+                if (!_reg_vtx_selectors[region]->passCutLt("posNshared_lt",pos_trk_gbl->getNShared(),weight)) {
+                    continue;
+                }
+
+                //Min vtx momentum
+                if (!_reg_vtx_selectors[region]->passCutGt("minVtxMom_gt",(ele_mom+pos_mom).Mag(),weight))
+                    continue;
+
+                //vtx Z position
+                if (!_reg_vtx_selectors[region]->passCutGt("uncVtxZ_gt",vtx->getZ(),weight))
+                    continue;
+
+                //Chi2
+                if (!_reg_vtx_selectors[region]->passCutLt("chi2unc_lt",vtx->getChi2(),weight))
+                    continue;
             }
 
             //L1 requirement
@@ -816,6 +974,19 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
 
 
     return true;
+}
+
+void VertexAnaProcessor::smearMCTrackTime(Track* track){
+
+    //smear track time in MC
+    double mc_tres = 0.62;
+    double data_tres = 2.1;
+    double smear_tres = sqrt( (data_tres*data_tres) - (mc_tres*mc_tres) );
+    TRandom* rand = new TRandom();
+    rand->SetSeed();
+    double rand_smear = rand->Gaus(0,smear_tres);
+    double track_time = track->getTrackTime();
+    track->setTrackTime(track_time + rand_smear);
 }
 
 void VertexAnaProcessor::finalize() {

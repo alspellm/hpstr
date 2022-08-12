@@ -6,6 +6,20 @@
         "xtitle" : "#Delta_{t}(e^{-},e^{+})_{clus} [ns]",
         "ytitle" : "Events"
     },
+    "ele_track_clus_dt_h": {
+        "bins" : 200,
+        "minX" : -100, 
+        "maxX" : 100,
+        "xtitle" : "e^{-} Track Cluster #Delta_{t} [ns]",
+        "ytitle" : "Events"
+    },
+    "pos_track_clus_dt_h": {
+        "bins" : 200,
+        "minX" : -100, 
+        "maxX" : 100,
+        "xtitle" : "e^{+} Track Cluster #Delta_{t} [ns]",
+        "ytitle" : "Events"
+    },
     "n_tracks_noVtxs_h" : {
         "bins" : 10,
         "minX" : 0,

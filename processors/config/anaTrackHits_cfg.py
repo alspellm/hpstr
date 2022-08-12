@@ -3,6 +3,8 @@ import os
 import sys
 import baseConfig as base
 
+base.parser.add_argument("-w", "--tracking", type=str, dest="tracking",
+            help="Which tracking to use to make plots", metavar="tracking", default="KF")
 options = base.parser.parse_args()
 
 # Use the input file to set the output file name
@@ -29,8 +31,13 @@ anaTrks = HpstrConf.Processor('anaTrks', 'TrackHitAnaProcessor')
 #   Processor Configuration   #
 ###############################
 anaTrks.parameters["debug"] = 0
-#anaTrks.parameters["trkCollName"] = 'KalmanFullTracks'
-anaTrks.parameters["trkCollName"] = 'GBLTracks'
+if options.tracking == 'KF':
+    anaTrks.parameters["trkCollName"] = 'KalmanFullTracks'
+elif options.tracking == 'GBL':
+    anaTrks.parameters["trkCollName"] = 'GBLTracks'
+else:
+    print("TRACKING OPTION %s DOES NOT EXIST"%(options.tracking))
+
 anaTrks.parameters["histCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/tracking/trackHit.json'
 anaTrks.parameters["selectionjson"] = os.environ['HPSTR_BASE']+'/analysis/selections/trackHit/trackHitAna.json'
 

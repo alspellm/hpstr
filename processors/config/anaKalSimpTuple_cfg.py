@@ -47,7 +47,7 @@ recoana_kf.parameters["vtxColl"] = "UnconstrainedV0Vertices_KF"
 recoana_kf.parameters["mcColl"]  = "MCParticle"
 recoana_kf.parameters["hitColl"] = "SiClusters"
 recoana_kf.parameters["ecalColl"] = "RecoEcalClusters_KF"
-recoana_kf.parameters["vtxSelectionjson"] = os.environ['HPSTR_BASE']+'/analysis/selections/vertexSelection.json'
+recoana_kf.parameters["vtxSelectionjson"] = os.environ['HPSTR_BASE']+'/analysis/selections/vertexSelection_loose.json'
 recoana_kf.parameters["histoCfg"] = os.environ['HPSTR_BASE']+"/analysis/plotconfigs/tracking/vtxAnalysis.json"
 recoana_kf.parameters["mcHistoCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/mc/basicMC.json'
 #####
@@ -164,7 +164,7 @@ recoana_gbl.parameters["hitColl"] = "RotatedHelicalTrackHits"
 recoana_gbl.parameters["trkColl"] = "GBLTracks"
 recoana_gbl.parameters["mcColl"]  = "MCParticle"
 recoana_gbl.parameters["ecalColl"] = "RecoEcalClusters_GBL"
-recoana_gbl.parameters["vtxSelectionjson"] = os.environ['HPSTR_BASE']+'/analysis/selections/vertexSelection.json'
+recoana_gbl.parameters["vtxSelectionjson"] = os.environ['HPSTR_BASE']+'/analysis/selections/vertexSelection_loose.json'
 recoana_gbl.parameters["histoCfg"] = os.environ['HPSTR_BASE']+"/analysis/plotconfigs/tracking/vtxAnalysis.json"
 recoana_gbl.parameters["mcHistoCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/mc/basicMC.json'
 #####

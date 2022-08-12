@@ -4,19 +4,24 @@
         "id"   : 0,
         "info" : "N Hits >= 10"
     },
-    "chi2ndf_lt"  : {
-        "cut"  : 20.0,
+    "p_lt"  : {
+        "cut"  : 3.0,
         "id"   : 1,
-        "info" : "#chi^{2}/ndf <= 20.0"
+        "info" : "p < 3.0"
     },
     "p_gt"  : {
-        "cut"  : 1.1,
+        "cut"  : 0.5,
         "id"   : 2,
-        "info" : "p > 1.1"
+        "info" : "p > 0.5"
     },
-    "p_lt"  : {
-        "cut"  : 3.7,
+    "Pair1_eq"  : {
+        "cut"  : 1,
         "id"   : 3,
-        "info" : "p < 3.7"
+        "info" : "Pair1 Trigger"
+    },
+    "chi2ndf_lt"  : {
+        "cut"  : 20.0,
+        "id"   : 4,
+        "info" : "#chi^{2}/ndf <= 20.0"
     }
 }

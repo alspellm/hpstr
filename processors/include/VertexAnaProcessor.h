@@ -54,6 +54,8 @@ class VertexAnaProcessor : public Processor {
 
         virtual void configure(const ParameterSet& parameters);
 
+        virtual void smearMCTrackTime(Track* track);
+
     private:
 
         std::shared_ptr<BaseSelector> vtxSelector;
@@ -85,6 +87,7 @@ class VertexAnaProcessor : public Processor {
         std::string ecalColl_{"RecoEcalClusters"};
         std::string mcColl_{"MCParticle"};
         int isRadPDG_{622};
+        int smearMCTrackTime_{0};
         TTree* tree_{nullptr};
 
         std::shared_ptr<TrackHistos> _vtx_histos;

@@ -12,12 +12,20 @@ void TrackHistos::DefineTrkHitHistos(){
     trkTypes.push_back("botEle");
     trkTypes.push_back("topPos");
     trkTypes.push_back("botPos");
+    /*for(int i = 10; i < 13; i++){
+        trkTypes.push_back("topEle_nhits_"+std::to_string(i));
+        trkTypes.push_back("botEle_nhits_"+std::to_string(i));
+        trkTypes.push_back("topPos_nhits_"+std::to_string(i));
+        trkTypes.push_back("botPos_nhits_"+std::to_string(i));
+    }
+    */
     std::string h_name = "";
     for (auto trkType : trkTypes)
     {
         for (auto hist : _h_configs.items()) {
 
             h_name = m_name+"_"+trkType+"_"+hist.key();
+            std::cout << "Defining histo " << h_name << std::endl;
 
             //Get the extension of the name to decide the histogram to create
             //i.e. _h = TH1D, _hh = TH2D, _ge = TGraphErrors, _p = TProfile ...
@@ -180,10 +188,21 @@ void TrackHistos::Fill2DTrack(Track* track, float weight, const std::string& trk
 
 
     if (track) {
-
+        int n2dhits = !track->isKalmanTrack() ? track->getTrackerHitCount() * 2 : track->getTrackerHitCount();
+        double momentum = track->getP();
+        double trackTime = track->getTrackTime();
+        double tanlambda = track->getTanLambda();
         double d0 = track->getD0();
         double z0 = track->getZ0();
+
+        //nhit histograms
+        Fill2DHisto(trkname+"p_nhits_hh",n2dhits,momentum,weight);
+        Fill2DHisto(trkname+"tanLambda_nhits_hh",n2dhits,tanlambda,weight);
+        Fill2DHisto(trkname+"time_nhits_hh",n2dhits,trackTime,weight);
+        Fill2DHisto(trkname+"z0_nhits_hh",n2dhits,z0,weight);
+
         Fill2DHisto(trkname+"tanlambda_vs_phi0_hh",track->getPhi(),track->getTanLambda(), weight);
+        Fill2DHisto(trkname+"tanlambda_vs_p_hh",momentum,track->getTanLambda(), weight);
         Fill2DHisto(trkname+"d0_vs_p_hh",track->getP(),d0,weight);
         Fill2DHisto(trkname+"d0_vs_phi0_hh",track->getPhi(),d0,weight);
         Fill2DHisto(trkname+"d0_vs_tanlambda_hh",track->getTanLambda(),d0,weight);
