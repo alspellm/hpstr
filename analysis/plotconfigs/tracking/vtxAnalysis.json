@@ -1,7 +1,141 @@
 {
-    "ele_pos_clusTimeDiff_h": {
-        "bins" : 200,
+    "pos_p_v_hitlayers_hh": {
+        "binsX" : 12,
+        "minX" : -0.5, 
+        "maxX" : 11.5,
+        "xtitle" : "hit layer",
+        "binsY" : 350,
+        "minY" : 0.0, 
+        "maxY" : 3.5,
+        "ytitle" : "e^{+} trk P [GeV]"
+    },
+    "pos_phi_v_hitlayers_hh": {
+        "binsX" : 12,
+        "minX" : -0.5, 
+        "maxX" : 11.5,
+        "xtitle" : "hit layer",
+        "binsY" : 100,
+        "minY" : -0.4, 
+        "maxY" : 0.4,
+        "ytitle" : "e^{+} trk(#phi_{0})"
+    },
+    "pos_tanlambda_v_hitlayers_hh": {
+        "binsX" : 12,
+        "minX" : -0.5, 
+        "maxX" : 11.5,
+        "xtitle" : "hit layer",
+        "binsY" : 200,
+        "minY" : -0.2, 
+        "maxY" : 0.2,
+        "ytitle" : "e^{+} trk(#lambda)"
+    },
+    "ele_p_v_hitlayers_hh": {
+        "binsX" : 12,
+        "minX" : -0.5, 
+        "maxX" : 11.5,
+        "xtitle" : "hit layer",
+        "binsY" : 350,
+        "minY" : 0.0, 
+        "maxY" : 3.5,
+        "ytitle" : "e^{-} trk P [GeV]"
+    },
+    "ele_phi_v_hitlayers_hh": {
+        "binsX" : 12,
+        "minX" : -0.5, 
+        "maxX" : 11.5,
+        "xtitle" : "hit layer",
+        "binsY" : 100,
+        "minY" : -0.4, 
+        "maxY" : 0.4,
+        "ytitle" : "e^{-} trk(#phi_{0})"
+    },
+    "ele_tanlambda_v_hitlayers_hh": {
+        "binsX" : 12,
+        "minX" : -0.5, 
+        "maxX" : 11.5,
+        "xtitle" : "hit layer",
+        "binsY" : 200,
+        "minY" : -0.2, 
+        "maxY" : 0.2,
+        "ytitle" : "e^{-} trk(#lambda)"
+    },
+    "pos_v_ele_track_p_hh": {
+        "binsX" : 350,
         "minX" : 0, 
+        "maxX" : 3.5,
+        "xtitle" : "e^{-} Track P [GeV]",
+        "binsY" : 350,
+        "minY" : 0, 
+        "maxY" : 3.5,
+        "ytitle" : "e^{+} Track P [GeV]"
+    },
+    "ele_clusT_v_ele_trackT_hh": {
+        "binsX" : 200,
+        "minX" : -100, 
+        "maxX" : 100,
+        "xtitle" : "e^{-} Track time [ns]",
+        "binsY" : 200,
+        "minY" : -100, 
+        "maxY" : 100,
+        "ytitle" : "e^{-} Cluster time [ns]"
+    },
+    "pos_clusT_v_pos_trackT_hh": {
+        "binsX" : 200,
+        "minX" : -100, 
+        "maxX" : 100,
+        "xtitle" : "e^{+} Track time [ns]",
+        "binsY" : 200,
+        "minY" : -100, 
+        "maxY" : 100,
+        "ytitle" : "e^{+} Cluster time [ns]"
+    },
+    "ele_pos_clusTimeDiff_v_pSum_hh": {
+        "binsX" : 350,
+        "minX" : 0, 
+        "maxX" : 3.5,
+        "xtitle" : "pSum",
+        "binsY" : 320,
+        "minY" : -16, 
+        "maxY" : 16,
+        "ytitle" : "#Delta_{t}(e^{-},e^{+})_{clus} [ns]"
+    },
+    "ele_track_clus_dt_v_p_hh": {
+        "binsX" : 350,
+        "minX" : 0, 
+        "maxX" : 3.5,
+        "xtitle" : "p_e^{-}",
+        "binsY" : 200,
+        "minY" : -100, 
+        "maxY" : 100,
+        "ytitle" : "e^{-} Track Cluster #Delta_{t} [ns]"
+    },
+    "pos_track_clus_dt_v_p_hh": {
+        "binsX" : 350,
+        "minX" : 0, 
+        "maxX" : 3.5,
+        "xtitle" : "p_e^{+}",
+        "binsY" : 200,
+        "minY" : -100, 
+        "maxY" : 100,
+        "ytitle" : "e^{+} Track Cluster #Delta_{t} [ns]"
+    },
+    "ele_hitlayers_h": {
+        "bins" : 12,
+        "minX" : -0.5,
+        "maxX": 11.5,
+        "xtitle" : "hit layer",
+        "ytitle" : "nHits on Track"
+    },
+    "pos_hitlayers_h": {
+        "bins" : 12,
+        "minX" : -0.5,
+        "maxX": 11.5,
+        "xtitle" : "hit layer",
+        "ytitle" : "nHits on Track"
+    },
+    "ele_pos_clusTimeDiff_h": {
+        "bins" : 320,
+        "minX" : -16, 
         "maxX" : 16,
         "xtitle" : "#Delta_{t}(e^{-},e^{+})_{clus} [ns]",
         "ytitle" : "Events"

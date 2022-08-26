@@ -25,6 +25,25 @@
 #include "Event.h"
 #include "TrackHistos.h"
 #include "EventHeader.h"
+#include "Particle.h"
+#include "CalCluster.h"
+#include "HpsEvent.h"
+#include "Collections.h"
+#include "EventHeader.h"
+#include "TSData.h"
+#include "Vertex.h"
+#include "Track.h"
+#include "TrackerHit.h"
+#include "MCParticle.h"
+#include "Particle.h"
+#include "Processor.h"
+#include "BaseSelector.h"
+#include "TrackHistos.h"
+#include "MCAnaHistos.h"
+#include "FlatTupleMaker.h"
+#include "AnaHelpers.h"
+
+
 
 // Forward declarations
 class TTree; 
@@ -92,6 +111,12 @@ class DebugProcessor : public Processor {
         std::vector<std::string> regionSelections_;
         int isData_ = 1;
 
+        //ecal
+        TBranch* becal_{nullptr};
+        std::vector<CalCluster*> * ecal_{};
+        std::string ecalColl_{"RecoEcalClusters"};
+        double timeOffset_{-999};
+
         // Containers to hold histogrammer info
         std::string histCfgFilename_;
         std::string truthHistCfgFilename_;
@@ -100,6 +125,7 @@ class DebugProcessor : public Processor {
         bool doTruth_{false};
         int debug_{0};
         
+         std::shared_ptr<AnaHelpers> _ah;
 
 
 

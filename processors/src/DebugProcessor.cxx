@@ -1,8 +1,6 @@
 #include "DebugProcessor.h"
 #include <iomanip>
 #include "utilities.h"
-#include "Particle.h"
-#include "CalCluster.h"
 
 DebugProcessor::DebugProcessor(const std::string& name, Process& process)
     : Processor(name, process) { 
@@ -19,10 +17,12 @@ void DebugProcessor::configure(const ParameterSet& parameters) {
         debug_                = parameters.getInteger("debug",debug_);
         trkCollName_          = parameters.getString("trkCollName",trkCollName_);
         vtxCollName_          = parameters.getString("vtxCollName",vtxCollName_);
+        ecalColl_             = parameters.getString("ecalColl",ecalColl_);
         histCfgFilename_      = parameters.getString("histCfg",histCfgFilename_);
         doTruth_              = (bool) parameters.getInteger("doTruth",doTruth_);
         truthHistCfgFilename_ = parameters.getString("truthHistCfg",truthHistCfgFilename_);
         selectionCfg_         = parameters.getString("selectionjson",selectionCfg_); 
+        timeOffset_           = parameters.getDouble("CalTimeOffset",timeOffset_);
         isData_               = parameters.getInteger("isData",isData_);
 
         //region definitions
@@ -47,7 +47,10 @@ void DebugProcessor::initialize(TTree* tree) {
     tree->SetBranchAddress("EventHeader", &evth_ , &bevth_);
     tree->SetBranchAddress(trkCollName_.c_str(), &tracks_, &btracks_);
     tree->SetBranchAddress(vtxCollName_.c_str(), &vtxs_ , &bvtxs_);
+    tree->SetBranchAddress(ecalColl_.c_str(), &ecal_  , &becal_);
     
+    _ah = std::make_shared<AnaHelpers>();
+
     if (!selectionCfg_.empty()) {
         trkSelector_ = std::make_shared<BaseSelector>(name_+"_trkSelector",selectionCfg_);
         trkSelector_->setDebug(debug_);
@@ -64,12 +67,89 @@ void DebugProcessor::initialize(TTree* tree) {
         
         //tree->SetBranchAddress(truthCollName_.c_str(),&truth_tracks_,&btruth_tracks_);
     }
-
 }
 
 bool DebugProcessor::process(IEvent* ievent) {
 
     double weight = 1.;
+
+    for ( int i_ecal = 0; i_ecal < ecal_->size(); i_ecal++ ) {
+
+        //Check data event for Trigger
+        if (isData_) {
+            if (trkSelector_ && !trkSelector_->passCutEq("Pair1_eq",(int)evth_->isPair1Trigger(),weight))
+                continue;
+        }
+
+        CalCluster* cluster = ecal_->at(i_ecal);
+        double clusterEnergy = cluster->getEnergy();
+        double clusterTime = cluster->getTime() - timeOffset_;
+
+        trkHistos_->Fill1DHisto("cluster_energy_h",clusterEnergy);
+        trkHistos_->Fill1DHisto("cluster_time_h",clusterTime);
+    }
+    
+    //Loop over vertices
+    for(int i_vtx = 0; i_vtx < vtxs_->size(); i_vtx++) {
+        Vertex* vtx = vtxs_->at(i_vtx);
+
+        Particle* ele = nullptr;
+        Particle* pos = nullptr;
+
+        _ah->GetParticlesFromVtx(vtx,ele,pos);
+        CalCluster eleClus = ele->getCluster();
+        CalCluster posClus = pos->getCluster();
+        double eleClusterEnergy = eleClus.getEnergy();
+        double posClusterEnergy = posClus.getEnergy();
+
+        //Compute analysis variables here.
+        //
+        double ele_E = ele->getEnergy();
+        double pos_E = pos->getEnergy();
+
+        Track ele_trk = ele->getTrack();
+        Track pos_trk = pos->getTrack();
+
+        //Get the shared info - TODO change and improve
+
+        Track* ele_trk_gbl = nullptr;
+        Track* pos_trk_gbl = nullptr;
+
+        if (!trkCollName_.empty()) {
+            bool foundTracks = _ah->MatchToGBLTracks(ele_trk.getID(),pos_trk.getID(),
+                    ele_trk_gbl, pos_trk_gbl, *tracks_);
+
+            if (!foundTracks) {
+                if (debug_)
+                    std::cout<<"VertexAnaProcessor::ERROR couldn't find ele/pos in the "<<trkCollName_ <<"collection"<<std::endl;
+                continue;
+            }
+        }
+        else {
+
+            ele_trk_gbl = (Track*) ele_trk.Clone();
+            pos_trk_gbl = (Track*) pos_trk.Clone();
+        }
+        TVector3 recEleP(ele->getMomentum()[0],ele->getMomentum()[1],ele->getMomentum()[2]);
+        TLorentzVector p_ele;
+        p_ele.SetPxPyPzE(ele_trk_gbl->getMomentum()[0],ele_trk_gbl->getMomentum()[1],ele_trk_gbl->getMomentum()[2], ele_E);
+        TLorentzVector p_pos;
+        p_pos.SetPxPyPzE(pos_trk_gbl->getMomentum()[0],pos_trk_gbl->getMomentum()[1],pos_trk_gbl->getMomentum()[2], pos_E);
+
+
+        double corr_eleClusterTime = ele->getCluster().getTime() - timeOffset_;
+        double corr_posClusterTime = pos->getCluster().getTime() - timeOffset_;
+
+        double botClusTime = 0.0;
+        if(ele->getCluster().getPosition().at(1) < 0.0) botClusTime = ele->getCluster().getTime();
+        else botClusTime = pos->getCluster().getTime();
+
+
+
+    }
+
+
+
     // Loop over all the LCIO Tracks and add them to the HPS event.
     int n_sel_tracks = 0;
     for (int itrack = 0; itrack < tracks_->size(); ++itrack) {

@@ -1,4 +1,18 @@
 {
+    "cluster_energy_h":{
+        "bins" : 350,
+        "minX"  : 0,
+        "maxX"  : 3.5,
+        "xtitle" : "ecal cluster energy [GeV]",
+        "ytitle" : "Entires"
+    },
+    "cluster_time_h":{
+        "bins" : 160,
+        "minX"  : -80,
+        "maxX"  : 80,
+        "xtitle" : "ecal cluster time (ns)",
+        "ytitle" : "Entires"
+    },
     "n_tracks_nhits_hh" : {
         "binsX"   : 15,
         "minX"   : 0,
