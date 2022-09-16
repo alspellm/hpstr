@@ -91,6 +91,12 @@ bool DebugProcessor::process(IEvent* ievent) {
     
     //Loop over vertices
     for(int i_vtx = 0; i_vtx < vtxs_->size(); i_vtx++) {
+
+        if (isData_) {
+            if (trkSelector_ && !trkSelector_->passCutEq("Pair1_eq",(int)evth_->isPair1Trigger(),weight))
+                continue;
+        }
+
         Vertex* vtx = vtxs_->at(i_vtx);
 
         Particle* ele = nullptr;
@@ -136,6 +142,11 @@ bool DebugProcessor::process(IEvent* ievent) {
         TLorentzVector p_pos;
         p_pos.SetPxPyPzE(pos_trk_gbl->getMomentum()[0],pos_trk_gbl->getMomentum()[1],pos_trk_gbl->getMomentum()[2], pos_E);
 
+        double ele_trk_time = ele_trk_gbl->getTrackTime();
+        double pos_trk_time = pos_trk_gbl->getTrackTime();
+        trkHistos_->Fill1DHisto("ele_trk_time_h", ele_trk_time, weight);
+        trkHistos_->Fill1DHisto("pos_trk_time_h", pos_trk_time, weight);
+
 
         double corr_eleClusterTime = ele->getCluster().getTime() - timeOffset_;
         double corr_posClusterTime = pos->getCluster().getTime() - timeOffset_;
@@ -144,12 +155,57 @@ bool DebugProcessor::process(IEvent* ievent) {
         if(ele->getCluster().getPosition().at(1) < 0.0) botClusTime = ele->getCluster().getTime();
         else botClusTime = pos->getCluster().getTime();
 
+        trkHistos_->Fill1DHisto("corr_eleClusterTime_h",corr_eleClusterTime, weight);
+        trkHistos_->Fill1DHisto("corr_posClusterTime_h",corr_posClusterTime,weight);
 
+        trkHistos_->Fill1DHisto("ele_trk_clust_dt_h", ele_trk_time-corr_eleClusterTime, weight);
+        trkHistos_->Fill1DHisto("pos_trk_clust_dt_h", pos_trk_time-corr_posClusterTime, weight);
+        /*
+        std::cout << "trk time: " << ele_trk_time << std::endl;
+        std::cout << "cluster time: " << ele->getCluster().getTime() << std::endl;
+        std::cout << "time offset: " << timeOffset_ << std::endl;
+        std::cout << "corrected clus time: " << corr_eleClusterTime << std::endl;
+        std::cout << "track clus time diff: " << ele_trk_time-corr_eleClusterTime << std::endl;
+        */
+
+
+        //Loop over track hits
+        for(int ihit =0; ihit < ele_trk_gbl->getSvtHits()->GetEntries(); ihit++){
+            TrackerHit* hit = (TrackerHit*) ele_trk_gbl->getSvtHits()->At(ihit);
+            double hittime = hit->getTime();
+            int layer = hit->getLayer();
+            trkHistos_->Fill1DHisto("ele_trk_hit_time_h", hittime, weight);
+            trkHistos_->Fill2DHisto("ele_trk_hit_time_v_layer_hh", layer, hittime, weight);
+
+            std::cout << "LENGTH " << hit->getRawHits()->GetEntries() << std::endl;
+            for(int iraw=0; iraw < hit->getRawHits()->GetEntries(); iraw++){
+                RawSvtHit* rawhit = (RawSvtHit*) hit->getRawHits()->At(iraw);
+                std::cout << "have rawhit" << std::endl;
+                if(rawhit != NULL){
+                    int sensor = rawhit->getSensor();
+                    std::cout << "SENSOR: " << sensor << std::endl;
+                }
+            }
+
+        }
+        for(int ihit =0; ihit < pos_trk_gbl->getSvtHits()->GetEntries(); ihit++){
+            TrackerHit* hit = (TrackerHit*) pos_trk_gbl->getSvtHits()->At(ihit);
+            double hittime = hit->getTime();
+            int layer = hit->getLayer();
+            trkHistos_->Fill1DHisto("pos_trk_hit_time_h", hittime, weight);
+            trkHistos_->Fill2DHisto("pos_trk_hit_time_v_layer_hh", layer, hittime, weight);
+        }
+
+
+        double weight = 0.0;
+        //trkHistos_->Fill1DTrack(ele_trk_gbl,weight,"ele_");       
+        //trkHistos_->Fill1DTrack(pos_trk_gbl,weight,"pos_");       
+        //trkHistos_->Fill2DTrack(ele_trk_gbl,weight,"ele_");       
+        //trkHistos_->Fill2DTrack(pos_trk_gbl,weight,"pos_");       
 
     }
 
-
-
+    /*
     // Loop over all the LCIO Tracks and add them to the HPS event.
     int n_sel_tracks = 0;
     for (int itrack = 0; itrack < tracks_->size(); ++itrack) {
@@ -167,14 +223,12 @@ bool DebugProcessor::process(IEvent* ievent) {
         bool isPos = false;
         if (charge > 0 )
             isPos = true;
-        /*
         for ( int i_vtx = 0; i_vtx <  vtxs_->size(); i_vtx++ ) {
             Vertex* vtx = vtxs_->at(i_vtx);
             Particle* ele = nullptr;
             Track* ele_trk = nullptr;
             Particle* pos = nullptr;
             Track* pos_trk = nullptr;
-        }*/
 
         //Debug tracking plots
 
@@ -247,8 +301,9 @@ bool DebugProcessor::process(IEvent* ievent) {
         
         n_sel_tracks++;
     }//Loop on tracks
+*/
 
-    trkHistos_->Fill1DHisto("n_tracks_h",n_sel_tracks);
+    //trkHistos_->Fill1DHisto("n_tracks_h",n_sel_tracks);
 
     return true;
 }

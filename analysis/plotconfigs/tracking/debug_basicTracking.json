@@ -1,4 +1,80 @@
 {
+    "ele_trk_clust_dt_h":{
+        "bins" : 1000,
+        "minX" : -50,
+        "maxX" : 50,
+        "xtitle" : "ele trk cluster dt [ns]",
+        "ytitle" : "Entries"
+    },
+    "pos_trk_clust_dt_h":{
+        "bins" : 1000,
+        "minX" : -50,
+        "maxX" : 50,
+        "xtitle" : "pos trk cluster dt [ns]",
+        "ytitle" : "Entries"
+    },
+    "ele_trk_time_h":{
+        "bins" : 1000,
+        "minX" : -50,
+        "maxX" : 50,
+        "xtitle" : "ele trk time [ns]",
+        "ytitle" : "Entries"
+    },
+    "pos_trk_time_h":{
+        "bins" : 1000,
+        "minX" : -50,
+        "maxX" : 50,
+        "xtitle" : "pos trk time [ns]",
+        "ytitle" : "Entries"
+    },
+    "ele_trk_hit_time_v_layer_hh":{
+        "binsX" : 12,
+        "minX" : -0.5,
+        "maxX" : 11.5,
+        "xtitle" : "hit layer",
+        "binsY" : 1000,
+        "minY" : -50,
+        "maxY" : 50,
+        "ytitle" : "ele trk hit time [ns]"
+    },
+    "pos_trk_hit_time_v_layer_hh":{
+        "binsX" : 12,
+        "minX" : -0.5,
+        "maxX" : 11.5,
+        "xtitle" : "hit layer",
+        "binsY" : 1000,
+        "minY" : -50,
+        "maxY" : 50,
+        "ytitle" : "pos trk hit time [ns]"
+    },
+    "ele_trk_hit_time_h":{
+        "bins" : 1000,
+        "minX" : -50,
+        "maxX" : 50,
+        "xtitle" : "ele trk hit time [ns]",
+        "ytitle" : "Entries"
+    },
+    "pos_trk_hit_time_h":{
+        "bins" : 1000,
+        "minX" : -50,
+        "maxX" : 50,
+        "xtitle" : "pos trk hit time [ns]",
+        "ytitle" : "Entries"
+    },
+    "corr_posClusterTime_h":{
+        "bins" : 1000,
+        "minX" : -50,
+        "maxX" : 50,
+        "xtitle" : "ecal ele  corr cluster time [ns]",
+        "ytitle" : "Entries"
+    },
+    "corr_eleClusterTime_h":{
+        "bins" : 1000,
+        "minX" : -50,
+        "maxX" : 50,
+        "xtitle" : "ecal pos corr cluster time [ns]",
+        "ytitle" : "Entries"
+    },
     "cluster_energy_h":{
         "bins" : 350,
         "minX"  : 0,

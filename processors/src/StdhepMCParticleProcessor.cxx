@@ -57,7 +57,7 @@ bool StdhepMCParticleProcessor::process() {
      
         while( maxEvent_ < 0  || count < maxEvent_ ){
 
-            if (mc_particles_.size() > 0){
+           if (mc_particles_.size() > 0){
                 for (std::vector<MCParticle*>::iterator it = mc_particles_.begin(); it != mc_particles_.end(); ++it){
                     delete *it;
                 }

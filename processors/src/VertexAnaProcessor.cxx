@@ -345,6 +345,15 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
             if (!_reg_vtx_selectors[region]->passCutLt("posTrkTime_lt",fabs(pos_trk_gbl->getTrackTime()),weight))
                 continue;
 
+            //Less than 4 shared hits for ele/pos track
+            if (!_reg_vtx_selectors[region]->passCutLt("eleNshared_lt",ele_trk_gbl->getNShared(),weight)) {
+                continue;
+            }
+
+            if (!_reg_vtx_selectors[region]->passCutLt("posNshared_lt",pos_trk_gbl->getNShared(),weight)) {
+                continue;
+            }
+
             if (!_reg_vtx_selectors[region]->passCutLt("eleTrkCluMatch_lt",ele->getGoodnessOfPID(),weight))
                 continue;
 
@@ -364,6 +373,14 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
             if (!_reg_vtx_selectors[region]->passCutLt("posTrkCluTimeDiff_lt",fabs(pos_trk_gbl->getTrackTime() - corr_posClusterTime),weight))
                 continue;
 
+            //Beam Electron cut
+            if (!_reg_vtx_selectors[region]->passCutLt("eleMom_lt",ele_mom.Mag(),weight))
+                continue;
+
+            //PSum low cut
+            if (!_reg_vtx_selectors[region]->passCutLt("pSum_lt",(p_ele.P()+p_pos.P()),weight))
+                continue;
+
             //Ele Track Quality - Chi2
             if (!_reg_vtx_selectors[region]->passCutLt("eleTrkChi2_lt",ele_trk_gbl->getChi2(),weight))
                 continue;
@@ -380,9 +397,6 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
             if (!_reg_vtx_selectors[region]->passCutLt("posTrkChi2Ndf_lt",pos_trk_gbl->getChi2Ndf(),weight))
                 continue;
 
-            //Beam Electron cut
-            if (!_reg_vtx_selectors[region]->passCutLt("eleMom_lt",ele_mom.Mag(),weight))
-                continue;
 
             //Ele min momentum cut
             if (!_reg_vtx_selectors[region]->passCutGt("eleMom_gt",ele_mom.Mag(),weight))
@@ -420,10 +434,6 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
 
             //Chi2
             if (!_reg_vtx_selectors[region]->passCutLt("chi2unc_lt",vtx->getChi2(),weight))
-                continue;
-
-            //PSum low cut
-            if (!_reg_vtx_selectors[region]->passCutLt("pSum_lt",(p_ele.P()+p_pos.P()),weight))
                 continue;
 
             //PSum high cut
@@ -473,14 +483,6 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
             if (!_reg_vtx_selectors[region]->passCutGt("botCluTime_gt", botClusTime, weight))
                 continue;
 
-            //Less than 4 shared hits for ele/pos track
-            if (!_reg_vtx_selectors[region]->passCutLt("eleNshared_lt",ele_trk_gbl->getNShared(),weight)) {
-                continue;
-            }
-
-            if (!_reg_vtx_selectors[region]->passCutLt("posNshared_lt",pos_trk_gbl->getNShared(),weight)) {
-                continue;
-            }
 
             //ESum low cut
             if (!_reg_vtx_selectors[region]->passCutLt("eSum_lt",(ele_E+pos_E),weight))

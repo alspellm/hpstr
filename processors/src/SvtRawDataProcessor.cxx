@@ -86,6 +86,7 @@ bool SvtRawDataProcessor::process(IEvent* ievent) {
 
         // Add a raw tracker hit to the event
         RawSvtHit* rawHit = new RawSvtHit();
+        std::cout << decoder["sensor"];
 
         rawHit->setSystem(decoder["system"]);
         rawHit->setBarrel(decoder["barrel"]);
