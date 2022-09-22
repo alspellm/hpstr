@@ -35,8 +35,7 @@ class SvtPulseFitHistos : public HistoManager{
         void initHistos();
         void jlab2019CalPulseScan(TTree* rawhitsTree);
         void jlab2021CalPulseScan(TTree* rawhitsTree);
-        void cnv25nsHistoTo24nsTGraph();
-        void cnv25nsHistoTo25nsTGraph();
+        void convertHistToTGraph();
         void fitTGraphPulses(std::map<std::string,TGraphErrors*> tgraphs);
         void passFitTupleOut(FlatTupleMaker* rawhitfits_tup){rawhitfits_tup_ = rawhitfits_tup;};
         void fit2DHistoPulses();
@@ -72,8 +71,7 @@ class SvtPulseFitHistos : public HistoManager{
         std::map<std::string,TH1F*> histos1d_;
 
         //Pulse histograms
-        std::map<std::string,TGraphErrors*> tgrapherrs24_;
-        std::map<std::string,TGraphErrors*> tgrapherrs25_;
+        std::map<std::string,TGraphErrors*> tGraphErrors_;
         std::map<std::string,TH2F*>pulsehistos2d_;
         std::map<std::string,TH1F*>baselines_;
         std::map<std::string,double>readbaselines_;

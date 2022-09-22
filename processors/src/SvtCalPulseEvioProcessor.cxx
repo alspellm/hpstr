@@ -259,13 +259,11 @@ void SvtCalPulseEvioProcessor::finalize() {
     if(buildPulseHistos_ && !fitPulses_){
         std::cout << "Building SCAN PULSES" << std::endl;
         svtPulseFitHistos->buildPulsesFromTree(rawhitTree);
-        //svtPulseFitHistos->jlab2019CalPulseScan(rawhitTree);
         svtPulseFitHistos->saveHistos(outFile_);
     }
 
     else if(buildPulseHistos_ && fitPulses_){
         std::cout << "BUILD AND FIT PULSES" << std::endl;
-        //svtPulseFitHistos->jlab2019CalPulseScan(rawhitTree);
         svtPulseFitHistos->buildPulsesFromTree(rawhitTree);
         svtPulseFitHistos->buildTGraphsFromHistos();
         svtPulseFitHistos->fitPulses();
