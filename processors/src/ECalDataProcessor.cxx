@@ -142,7 +142,8 @@ bool ECalDataProcessor::process(IEvent* ievent) {
             int id1=(int)(10.0*lc_hit->getTime());
 
             if (hit_map.find(std::make_pair(id0,id1)) == hit_map.end()) {
-                throw std::runtime_error("[ EcalDataProcessor ]: Hit not found in map, but is in the cluster."); 
+                //throw std::runtime_error("[ EcalDataProcessor ]: Hit not found in map, but is in the cluster."); 
+                std::cout << "[ EcalDataProcessor ]: Event: " << event->getEventHeaderMutable().getEventNumber() << "Hit not found in map, but is in the cluster." << std::endl;
             } else {
                 // Get the hit and add it to the cluster
                 CalHit* cal_hit = hit_map[std::make_pair(id0,id1)];

@@ -9,7 +9,7 @@ base.parser.add_argument("-w", "--tracking", type=str, dest="tracking",
 base.parser.add_argument("-s", "--truthHits", type=int, dest="truthHits",
         help="Get svt truth hits: 1=yes", metavar="truthHits", default=1)
 base.parser.add_argument("-r", "--rawHits", type=int, dest="rawHits",
-        help="Keep raw svt hits: 1=yes", metavar="rawHits", default=-1)
+        help="Keep raw svt hits: 1=yes", metavar="rawHits", default=1)
 
 options = base.parser.parse_args()
 
@@ -83,11 +83,10 @@ track.parameters["kinkRelCollLcio"] = ''
 track.parameters["trkRelCollLcio"] = 'KFTrackDataRelations'
 track.parameters["trkhitCollRoot"] = 'SiClustersOnTrack'
 track.parameters["hitFitsCollLcio"] = 'SVTFittedRawTrackerHits'
-track.parameters["rawhitCollRoot"] = ''
 
 #Only for detail studies
 #LT uncomment
-track.parameters["rawhitCollRoot"] = ''#'SCTRawHitsOnTrack_KF'
+track.parameters["rawhitCollRoot"] = 'SVTRawHitsOnTrack_KF'
 
 #LT uncommented
 #if (not options.isData):
@@ -109,7 +108,7 @@ trackgbl.parameters["hitFitsCollLcio"] = 'SVTFittedRawTrackerHits'
 
 #Only for detail studies
 #LT uncomment
-trackgbl.parameters["rawhitCollRoot"] = ''#'SVTRawHitsOnTrack'
+trackgbl.parameters["rawhitCollRoot"] = 'SVTRawHitsOnTrack'
 
 #LT uncommented
 #if (not options.isData):
@@ -125,13 +124,14 @@ ecal_gbl.parameters["hitCollLcio"] = 'EcalCalHits'
 ecal_gbl.parameters["hitCollRoot"] = 'RecoEcalHits'
 #ecal_gbl.parameters["clusCollLcio"] = "EcalClustersCorr_GBL"
 ecal_gbl.parameters["clusCollLcio"] = "EcalClustersCorr"
-ecal_gbl.parameters["clusCollRoot"] = "RecoEcalClusters_GBL"
+ecal_gbl.parameters["clusCollRoot"] = "RecoEcalClusters"
 
 ecal_kf.parameters["debug"] = 0
 ecal_kf.parameters["hitCollLcio"] = 'EcalCalHits'
 ecal_kf.parameters["hitCollRoot"] = 'RecoEcalHits'
-ecal_kf.parameters["clusCollLcio"] = "EcalClustersCorr_KF"
-ecal_kf.parameters["clusCollRoot"] = "RecoEcalClusters_KF"
+#ecal_kf.parameters["clusCollLcio"] = "EcalClustersCorr_KF"
+ecal_kf.parameters["clusCollRoot"] = "RecoEcalClusters"
+ecal_kf.parameters["clusCollLcio"] = "EcalClustersCorr"
 
 #Vertex
 vtx.parameters["debug"] = 0

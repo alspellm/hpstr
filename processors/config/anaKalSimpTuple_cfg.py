@@ -47,7 +47,6 @@ recoana_kf.parameters["vtxColl"] = "UnconstrainedV0Vertices_KF"
 recoana_kf.parameters["mcColl"]  = "MCParticle"
 recoana_kf.parameters["hitColl"] = "SiClusters"
 recoana_kf.parameters["ecalColl"] = "RecoEcalClusters_KF"
-recoana_kf.parameters["vtxSelectionjson"] = os.environ['HPSTR_BASE']+'/analysis/selections/vertexSelection_loose.json'
 recoana_kf.parameters["histoCfg"] = os.environ['HPSTR_BASE']+"/analysis/plotconfigs/tracking/vtxAnalysis.json"
 recoana_kf.parameters["mcHistoCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/mc/basicMC.json'
 #####
@@ -70,90 +69,16 @@ else:
 recoana_kf.parameters["CalTimeOffset"]=CalTimeOffset
 #Region definitions
 
-RegionPath=os.environ['HPSTR_BASE']+"/analysis/selections/"
+RegionPath=os.environ['HPSTR_BASE']+"/analysis/selections/simp_analysis/"
 
-if options.splitVolume == False:
-
-    if options.region == 'BOTH':
-        recoana_kf.parameters["regionDefinitions"] = [RegionPath+'Tight.json',
-                                                      RegionPath+'radMatchTight.json',
-                                                      RegionPath+'Tight_noL1.json',
-                                                      RegionPath+'Tight_noPsum.json',
-                                                      RegionPath+'Tight_noL1noPsum.json',
-                                                      RegionPath+'Tight_SR.json',
-                                                      RegionPath+'radMatchTight_SR.json',
-                                                      RegionPath+'Tight_noL1_SR.json']
-
-    elif options.region == 'CR':
-        recoana_kf.parameters["regionDefinitions"] = [RegionPath+'Tight.json',
-                                                      RegionPath+'radMatchTight.json',
-                                                      RegionPath+'Tight_noL1.json',
-                                                      RegionPath+'Tight_noPsum.json',
-                                                      RegionPath+'Tight_noL1noPsum.json']
-
-    elif options.region == 'SR':
-        recoana_kf.parameters["regionDefinitions"] = [RegionPath+'Tight_SR.json',
-                                                      RegionPath+'radMatchTight_SR.json',
-                                                      RegionPath+'Tight_noL1_SR.json',
-                                                      RegionPath+'Tight_noPsum.json',
-                                                      RegionPath+'Tight_noL1noPsum.json']
-elif options.splitVolume == True:
-
-    if options.region == 'BOTH':
-        recoana_kf.parameters["regionDefinitions"] = [RegionPath+'Tight.json',
-                                                      RegionPath+'radMatchTight.json',
-                                                      RegionPath+'Tight_noL1.json',
-                                                      RegionPath+'Tight_noPsum.json',
-                                                      RegionPath+'Tight_noL1noPsum.json',
-                                                      RegionPath+'Tight_pTop.json',
-                                                      RegionPath+'Tight_pTop_noL1.json',
-                                                      RegionPath+'Tight_pTop_noPsum.json',
-                                                      RegionPath+'Tight_pTop_noL1noPsum.json',
-                                                      RegionPath+'Tight_pBot.json',
-                                                      RegionPath+'Tight_pBot_noL1.json',
-                                                      RegionPath+'Tight_pBot_noPsum.json',
-                                                      RegionPath+'Tight_pBot_noL1noPsum.json',
-                                                      RegionPath+'Tight_SR.json',
-                                                      RegionPath+'radMatchTight_SR.json',
-                                                      RegionPath+'Tight_noL1_SR.json',
-                                                      RegionPath+'Tight_pTop_SR.json',
-                                                      RegionPath+'Tight_pTop_noL1_SR.json',
-                                                      RegionPath+'Tight_pBot_SR.json',
-                                                      RegionPath+'Tight_pBot_noL1_SR.json']
-
-    if options.region == 'CR':
-        recoana_kf.parameters["regionDefinitions"] = [RegionPath+'Tight.json',
-                                                      RegionPath+'radMatchTight.json',
-                                                      RegionPath+'Tight_noL1.json',
-                                                      RegionPath+'Tight_noPsum.json',
-                                                      RegionPath+'Tight_noL1noPsum.json',
-                                                      RegionPath+'Tight_pTop.json',
-                                                      RegionPath+'Tight_pTop_noL1.json',
-                                                      RegionPath+'Tight_pTop_noPsum.json',
-                                                      RegionPath+'Tight_pTop_noL1noPsum.json',
-                                                      RegionPath+'Tight_pBot.json',
-                                                      RegionPath+'Tight_pBot_noL1.json',
-                                                      RegionPath+'Tight_pBot_noPsum.json',
-                                                      RegionPath+'Tight_pBot_noL1noPsum.json']
-
-    elif options.region == 'SR':
-        recoana_kf.parameters["regionDefinitions"] = [RegionPath+'Tight_SR.json',
-                                                      RegionPath+'radMatchTight_SR.json',
-                                                      RegionPath+'Tight_noL1_SR.json',
-                                                      RegionPath+'Tight_noPsum.json',
-                                                      RegionPath+'Tight_noL1noPsum.json',
-                                                      RegionPath+'Tight_pTop_SR.json',
-                                                      RegionPath+'Tight_pTop_noL1_SR.json',
-                                                      RegionPath+'Tight_pTop_noPsum.json',
-                                                      RegionPath+'Tight_pTop_noL1noPsum.json',
-                                                      RegionPath+'Tight_pBot_SR.json',
-                                                      RegionPath+'Tight_pBot_noL1_SR.json',
-                                                      RegionPath+'Tight_pBot_noPsum.json',
-                                                      RegionPath+'Tight_pBot_noL1noPsum.json']
-    else:
-        print("NO Split Volume Signal Region defined")
-else:
-    print("Split Volume Option")
+recoana_kf.parameters["regionDefinitions"] = [RegionPath+'vertexSelection_bumphunt.json',
+                                              RegionPath+'vertexSelection_bumphunt_MOUSEcuts.json',
+                                              RegionPath+'vertexSelection_bumphunt_tight.json',
+                                              RegionPath+'vertexSelection_bumphunt_tight_L1.json',
+                                              RegionPath+'vertexSelection.json',
+                                              RegionPath+'vertexSelection_tight.json',
+                                              RegionPath+'vertexSelection_tight_L1.json',
+                                              RegionPath+'vertexSelection_L1.json']
 
 #RecoHitAna
 recoana_gbl.parameters = recoana_kf.parameters.copy()
@@ -164,7 +89,6 @@ recoana_gbl.parameters["hitColl"] = "RotatedHelicalTrackHits"
 recoana_gbl.parameters["trkColl"] = "GBLTracks"
 recoana_gbl.parameters["mcColl"]  = "MCParticle"
 recoana_gbl.parameters["ecalColl"] = "RecoEcalClusters_GBL"
-recoana_gbl.parameters["vtxSelectionjson"] = os.environ['HPSTR_BASE']+'/analysis/selections/vertexSelection_loose.json'
 recoana_gbl.parameters["histoCfg"] = os.environ['HPSTR_BASE']+"/analysis/plotconfigs/tracking/vtxAnalysis.json"
 recoana_gbl.parameters["mcHistoCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/mc/basicMC.json'
 #####
@@ -174,54 +98,14 @@ recoana_gbl.parameters["analysis"] = options.analysis
 recoana_gbl.parameters["debug"] = 0
 recoana_gbl.parameters["CalTimeOffset"]=CalTimeOffset
 
-
-if options.splitVolume == False:
-    if options.region == 'CR':
-        recoana_gbl.parameters["regionDefinitions"] = [RegionPath+'Tight.json',
-                                                      RegionPath+'radMatchTight.json',
-                                                      RegionPath+'Tight_noL1.json',
-                                                      RegionPath+'Tight_noPsum.json',
-                                                      RegionPath+'Tight_noL1noPsum.json']
-    elif options.region == 'SR':
-        recoana_gbl.parameters["regionDefinitions"] = [RegionPath+'Tight_SR.json',
-                                                      RegionPath+'radMatchTight_SR.json',
-                                                      RegionPath+'Tight_noL1_SR.json',
-                                                      RegionPath+'Tight_noPsum.json',
-                                                      RegionPath+'Tight_noL1noPsum.json']
-elif options.splitVolume == True:
-    if options.region == 'CR':
-        recoana_gbl.parameters["regionDefinitions"] = [RegionPath+'Tight.json',
-                                                      RegionPath+'radMatchTight.json',
-                                                      RegionPath+'Tight_noL1.json',
-                                                      RegionPath+'Tight_noPsum.json',
-                                                      RegionPath+'Tight_noL1noPsum.json',
-                                                      RegionPath+'Tight_pTop.json',
-                                                      RegionPath+'Tight_pTop_noL1.json',
-                                                      RegionPath+'Tight_pTop_noPsum.json',
-                                                      RegionPath+'Tight_pTop_noL1noPsum.json',
-                                                      RegionPath+'Tight_pBot.json',
-                                                      RegionPath+'Tight_pBot_noL1.json',
-                                                      RegionPath+'Tight_pBot_noPsum.json',
-                                                      RegionPath+'Tight_pBot_noL1noPsum.json']
-
-    elif options.region == 'SR':
-        recoana_gbl.parameters["regionDefinitions"] = [RegionPath+'Tight_SR.json',
-                                                      RegionPath+'radMatchTight_SR.json',
-                                                      RegionPath+'Tight_noL1_SR.json',
-                                                      RegionPath+'Tight_noPsum.json',
-                                                      RegionPath+'Tight_noL1noPsum.json',
-                                                      RegionPath+'Tight_pTop_SR.json',
-                                                      RegionPath+'Tight_pTop_noL1_SR.json',
-                                                      RegionPath+'Tight_pTop_noPsum.json',
-                                                      RegionPath+'Tight_pTop_noL1noPsum.json',
-                                                      RegionPath+'Tight_pBot_SR.json',
-                                                      RegionPath+'Tight_pBot_noL1_SR.json',
-                                                      RegionPath+'Tight_pBot_noPsum.json',
-                                                      RegionPath+'Tight_pBot_noL1noPsum.json']
-    else:
-        print("NO Split Volume Signal Region defined")
-else:
-    print("Split Volume Option")
+recoana_gbl.parameters["regionDefinitions"] = [RegionPath+'vertexSelection_bumphunt.json',
+                                              RegionPath+'vertexSelection_bumphunt_MOUSEcuts.json',
+                                              RegionPath+'vertexSelection_bumphunt_tight.json',
+                                              RegionPath+'vertexSelection_bumphunt_tight_L1.json',
+                                              RegionPath+'vertexSelection.json',
+                                              RegionPath+'vertexSelection_tight.json',
+                                              RegionPath+'vertexSelection_tight_L1.json',
+                                              RegionPath+'vertexSelection_L1.json']
 
 #MCParticleAna
 mcana.parameters["debug"] = 0

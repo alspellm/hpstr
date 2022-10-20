@@ -8,10 +8,10 @@ void TrackHistos::BuildAxes(){}
 void TrackHistos::DefineTrkHitHistos(){
 
     std::vector<std::string> trkTypes;
-    trkTypes.push_back("topEle");
-    trkTypes.push_back("botEle");
-    trkTypes.push_back("topPos");
-    trkTypes.push_back("botPos");
+    //trkTypes.push_back("topEle");
+    //trkTypes.push_back("botEle");
+    //trkTypes.push_back("topPos");
+    //trkTypes.push_back("botPos");
     /*for(int i = 10; i < 13; i++){
         trkTypes.push_back("topEle_nhits_"+std::to_string(i));
         trkTypes.push_back("botEle_nhits_"+std::to_string(i));

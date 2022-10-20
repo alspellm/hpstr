@@ -1,12 +1,12 @@
 {
-    "ele_trk_clust_dt_h":{
+    "ele_clust_dt_h":{
         "bins" : 1000,
         "minX" : -50,
         "maxX" : 50,
         "xtitle" : "ele trk cluster dt [ns]",
         "ytitle" : "Entries"
     },
-    "pos_trk_clust_dt_h":{
+    "pos_clust_dt_h":{
         "bins" : 1000,
         "minX" : -50,
         "maxX" : 50,
@@ -253,49 +253,49 @@
         "ytitle" : "Tracks",
         "labels" : ["All Tracks","nShared = 0","SharedLy0","SharedLy1","SharedLy0AndLy1","SharedOthers"]
     },
-    "d0_h" : {
+    "trk_d0_h" : {
         "bins" : 200,
         "minX" : -10,
         "maxX" : 10,
         "xtitle" : "d_{0} [mm]",
         "ytitle" : "Tracks"
     },
-    "Phi_h" : {
+    "trk_Phi_h" : {
         "bins" : 100,
         "minX" : -0.5,
         "maxX" : 0.5,
         "xtitle" : "phi_{0}",
         "ytitle" : "Tracks"
     },
-    "Omega_h" : {
+    "trk_Omega_h" : {
         "bins" : 100,
         "minX" : -0.002,
         "maxX" : 0.002,
         "xtitle" : "#omega",
         "ytitle" : "Tracks"
     },
-    "invpT_h" : {
+    "trk_invpT_h" : {
         "bins" : 100,
         "minX" : -2.5,
         "maxX" : 2.5,
         "xtitle" : "q/pT [GeV^{-1}]",
         "ytitle" : "Tracks"
     },
-    "pT_h" : {
+    "trk_pT_h" : {
         "bins" : 100,
         "minX" : -3,
         "maxX" : 3,
         "xtitle" : "q*pT [GeV^{-1}]",
         "ytitle" : "Tracks"
     },
-    "p_h" : {
+    "trk_p_h" : {
         "bins" : 300,
         "minX" :0,
         "maxX" : 3,
         "xtitle" : "p [GeV]",
         "ytitle" : "Tracks"
     },
-    "TanLambda_h" : {
+    "trk_TanLambda_h" : {
         "bins" : 300,
         "minX" : -0.3,
         "maxX" : 0.3,
@@ -309,21 +309,21 @@
         "xtitle" : "z_0 [mm]",
         "ytitle" : "Tracks"
     },
-    "time_h" : {
+    "trk_time_h" : {
         "bins" : 200,
         "minX" : -10,
         "maxX" : 10,
         "xtitle" : "track time [ns]",
         "ytitle" : "Tracks"
     },
-    "chi2_h" : {
+    "trk_chi2_h" : {
         "bins" : 200,
         "minX" : 0,
         "maxX" : 100,
         "xtitle" : "track #chi^{2}",
         "ytitle" : "Tracks"
     },
-    "chi2ndf_h" : {
+    "trk_chi2ndf_h" : {
         "bins" : 200,
         "minX" : 0,
         "maxX" : 30,

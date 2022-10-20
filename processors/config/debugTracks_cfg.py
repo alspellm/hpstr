@@ -36,10 +36,11 @@ anaTrks = HpstrConf.Processor('anaTrks', 'DebugProcessor')
 ###############################
 anaTrks.parameters["debug"] = 0 
 anaTrks.parameters["isData"] = options.isData
-anaTrks.parameters["ecalColl"] = "RecoEcalClusters_GBL"
-#anaTrks.parameters["ecalColl"] = "RecoEcalClusters"
-anaTrks.parameters["histCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/tracking/debug_basicTracking.json'
-anaTrks.parameters["selectionjson"] = os.environ['HPSTR_BASE']+'/analysis/selections/trackHit/trackHitAna.json'
+#anaTrks.parameters["ecalColl"] = "RecoEcalClusters_KF"
+anaTrks.parameters["ecalColl"] = "RecoEcalClusters"
+#anaTrks.parameters["ecalColl"] = "RecoEcalClusters_GBL"
+anaTrks.parameters["histCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/tracking/debug_basicTracking_2.json'
+anaTrks.parameters["selectionjson"] = os.environ['HPSTR_BASE']+'/analysis/selections/trackHit/trackHitAna_simps.json'
 
 CalTimeOffset=-999
 
