@@ -72,6 +72,7 @@ void DebugProcessor::initialize(TTree* tree) {
 bool DebugProcessor::process(IEvent* ievent) {
 
     double weight = 1.;
+    trkHistos_->Fill1DHisto("events_h",1);
 
     for ( int i_ecal = 0; i_ecal < ecal_->size(); i_ecal++ ) {
 

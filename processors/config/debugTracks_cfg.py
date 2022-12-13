@@ -37,8 +37,6 @@ anaTrks = HpstrConf.Processor('anaTrks', 'DebugProcessor')
 anaTrks.parameters["debug"] = 0 
 anaTrks.parameters["isData"] = options.isData
 #anaTrks.parameters["ecalColl"] = "RecoEcalClusters_KF"
-anaTrks.parameters["ecalColl"] = "RecoEcalClusters"
-#anaTrks.parameters["ecalColl"] = "RecoEcalClusters_GBL"
 anaTrks.parameters["histCfg"] = os.environ['HPSTR_BASE']+'/analysis/plotconfigs/tracking/debug_basicTracking_2.json'
 anaTrks.parameters["selectionjson"] = os.environ['HPSTR_BASE']+'/analysis/selections/trackHit/trackHitAna_simps.json'
 
@@ -57,9 +55,11 @@ else:
 anaTrks.parameters["CalTimeOffset"]=CalTimeOffset
 
 if options.tracking == "KF":
+    anaTrks.parameters["ecalColl"] = "RecoEcalClusters"
     anaTrks.parameters["trkCollName"] = 'KalmanFullTracks'
     anaTrks.parameters["vtxCollName"] = 'UnconstrainedV0Vertices_KF'
 elif options.tracking == "GBL":
+    anaTrks.parameters["ecalColl"] = "RecoEcalClusters_GBL"
     anaTrks.parameters["trkCollName"] = 'GBLTracks'
     anaTrks.parameters["vtxCollName"] = 'UnconstrainedV0Vertices'
 else:

@@ -260,6 +260,14 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
         //if (!vtxSelector->passCutLt("eleposTanLambaProd_lt",ele_trk->getTanLambda() * pos_trk->getTanLambda(),weight))
         //  continue;
 
+        //Ele Track Time
+        if (!vtxSelector->passCutLt("eleTrkTime_lt",fabs(ele_trk->getTrackTime()),weight))
+            continue;
+
+        //Pos Track Time
+        if (!vtxSelector->passCutLt("posTrkTime_lt",fabs(pos_trk->getTrackTime()),weight))
+            continue;
+
         //Ele Track-cluster match
         if (!vtxSelector->passCutLt("eleTrkCluMatch_lt",ele->getGoodnessOfPID(),weight))
             continue;
@@ -321,9 +329,6 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
         pos_mom.SetZ(pos_trk->getMomentum()[2]);
 
 
-        //Beam Electron cut
-        if (!vtxSelector->passCutLt("eleMom_lt",ele_mom.Mag(),weight))
-            continue;
 
         //Ele Track Quality - Chi2
         if (!vtxSelector->passCutLt("eleTrkChi2_lt",ele_trk->getChi2(),weight))
@@ -339,6 +344,10 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
 
         //Pos Track Quality - Chi2Ndf
         if (!vtxSelector->passCutLt("posTrkChi2Ndf_lt",pos_trk->getChi2Ndf(),weight))
+            continue;
+
+        //Beam Electron cut
+        if (!vtxSelector->passCutLt("eleMom_lt",ele_mom.Mag(),weight))
             continue;
 
         //Ele min momentum cut
@@ -397,9 +406,14 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
                 pos_trk,
                 weight);
 
+        double ele_pos_dt = corr_eleClusterTime - corr_posClusterTime;
+        double psum = ele_mom.Mag()+pos_mom.Mag();
+
+        _vtx_histos->Fill1DTrack(ele_trk,weight, "ele_");
+        _vtx_histos->Fill1DTrack(pos_trk,weight, "pos_");
         _vtx_histos->Fill1DHisto("vtx_Psum_h", p_ele.P()+p_pos.P(), weight);
         _vtx_histos->Fill1DHisto("vtx_Esum_h", ele_E + pos_E, weight);
-        _vtx_histos->Fill1DHisto("ele_pos_clusTimeDiff_h", fabs(corr_eleClusterTime - corr_posClusterTime), weight);
+        _vtx_histos->Fill1DHisto("ele_pos_clusTimeDiff_h", (corr_eleClusterTime - corr_posClusterTime), weight);
         _vtx_histos->Fill2DHisto("ele_vtxZ_iso_hh", TMath::Min(ele_trk->getIsolation(0), ele_trk->getIsolation(1)), vtx->getZ(), weight);
         _vtx_histos->Fill2DHisto("pos_vtxZ_iso_hh", TMath::Min(pos_trk->getIsolation(0), pos_trk->getIsolation(1)), vtx->getZ(), weight);
         _vtx_histos->Fill2DHistograms(vtx,weight);
@@ -408,8 +422,39 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
         _vtx_histos->Fill1DHisto("mcMass622_h",apMass);
         _vtx_histos->Fill1DHisto("mcZ622_h",apZ);
 
-        passVtxPresel = true;
+        //New SIMP histos for developing loose preselection cuts
+        //2d histos
+        _vtx_histos->Fill2DHisto("ele_clusT_v_ele_trackT_hh", ele_trk->getTrackTime(), corr_eleClusterTime, weight);
+        _vtx_histos->Fill2DHisto("pos_clusT_v_pos_trackT_hh", pos_trk->getTrackTime(), corr_posClusterTime, weight);
+        _vtx_histos->Fill2DHisto("ele_track_time_v_P_hh", ele_trk->getP(), ele_trk->getTrackTime(), weight);
+        _vtx_histos->Fill2DHisto("pos_track_time_v_P_hh", pos_trk->getP(), pos_trk->getTrackTime(), weight);
+        _vtx_histos->Fill2DHisto("ele_pos_clusTimeDiff_v_pSum_hh",ele_mom.Mag()+pos_mom.Mag(), ele_pos_dt, weight);
+        _vtx_histos->Fill2DHisto("ele_cluster_energy_v_track_p_hh",ele_trk->getP(), eleClus.getEnergy(), weight);
+        _vtx_histos->Fill2DHisto("pos_cluster_energy_v_track_p_hh",pos_trk->getP(), posClus.getEnergy(), weight);
+        _vtx_histos->Fill2DHisto("ele_track_cluster_dt_v_EoverP_hh",eleClus.getEnergy()/ele_trk->getP(), ele_trk->getTrackTime() - corr_eleClusterTime, weight);
+        _vtx_histos->Fill2DHisto("pos_track_cluster_dt_v_EoverP_hh",posClus.getEnergy()/pos_trk->getP(), pos_trk->getTrackTime() - corr_posClusterTime, weight);
+        _vtx_histos->Fill2DHisto("ele_track_clus_dt_v_p_hh",ele_trk->getP(), ele_trk->getTrackTime() - corr_eleClusterTime, weight);
+        _vtx_histos->Fill2DHisto("pos_track_clus_dt_v_p_hh",pos_trk->getP(), pos_trk->getTrackTime() - corr_posClusterTime, weight);
+        //chi2 2d plots
+        _vtx_histos->Fill2DHisto("ele_track_chi2ndf_v_time_hh", ele_trk->getTrackTime(), ele_trk->getChi2Ndf(), weight);
+        _vtx_histos->Fill2DHisto("ele_track_chi2ndf_v_p_hh", ele_trk->getP(), ele_trk->getChi2Ndf(), weight);
+        _vtx_histos->Fill2DHisto("ele_track_chi2ndf_v_tanlambda_hh", ele_trk->getTanLambda(), ele_trk->getChi2Ndf(), weight);
+        _vtx_histos->Fill2DHisto("ele_track_chi2ndf_v_n2dhits_hh", ele2dHits, ele_trk->getChi2Ndf(), weight);
 
+        _vtx_histos->Fill2DHisto("pos_track_chi2ndf_v_time_hh", pos_trk->getTrackTime(), pos_trk->getChi2Ndf(), weight);
+        _vtx_histos->Fill2DHisto("pos_track_chi2ndf_v_p_hh", pos_trk->getP(), pos_trk->getChi2Ndf(), weight);
+        _vtx_histos->Fill2DHisto("pos_track_chi2ndf_v_tanlambda_hh", pos_trk->getTanLambda(), pos_trk->getChi2Ndf(), weight);
+        _vtx_histos->Fill2DHisto("pos_track_chi2ndf_v_n2dhits_hh", pos2dHits, pos_trk->getChi2Ndf(), weight);
+
+        _vtx_histos->Fill2DHisto("ele_track_p_v_tanlambda_hh", ele_trk->getTanLambda(), ele_trk->getP(), weight);
+        _vtx_histos->Fill2DHisto("pos_track_p_v_tanlambda_hh", pos_trk->getTanLambda(), pos_trk->getP(), weight);
+
+
+        //1d histos
+        _vtx_histos->Fill1DHisto("ele_track_clus_dt_h", ele_trk->getTrackTime() - corr_eleClusterTime, weight);
+        _vtx_histos->Fill1DHisto("pos_track_clus_dt_h", pos_trk->getTrackTime() - corr_posClusterTime, weight);
+
+        passVtxPresel = true;
 
         selected_vtxs.push_back(vtx);
         vtxSelector->clearSelector();
@@ -563,9 +608,6 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
             if (!_reg_vtx_selectors[region]->passCutLt("eleMom_lt",p_ele.P(),weight))
                 continue;
 
-            //Max P_pos
-            if (!_reg_vtx_selectors[region]->passCutLt("posMom_lt",p_pos.P(),weight))
-                continue;
 
             //Max vtx momentum
             if (!_reg_vtx_selectors[region]->passCutLt("maxVtxMom_lt",(p_ele+p_pos).P(),weight))
@@ -663,6 +705,10 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
                     for(int i = 0; i < mcParts_->size(); i++)
                     {
                         int momPDG = mcParts_->at(i)->getMomPDG();
+                        if(momPDG == 622){
+                            std::cout << "momPDG: " << momPDG << std::endl;
+                            std::cout << "isRadPDG:" << isRadPDG_ << std::endl;
+                        }
                         if(mcParts_->at(i)->getPDG() == 11 && momPDG == 622)
                         {
                             std::vector<double> lP = mcParts_->at(i)->getMomentum();
@@ -702,7 +748,6 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
             nGoodVtx++;
         } // preselected vertices
 
-
         //N selected vertices - this is quite a silly cut to make at the end. But okay. that's how we decided atm.
         if (!_reg_vtx_selectors[region]->passCutEq("nVtxs_eq", nGoodVtx, weight))
             continue;
@@ -720,6 +765,8 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
         CalCluster eleClus = ele->getCluster();
         CalCluster posClus = pos->getCluster();
 
+        double corr_eleClusterTime = ele->getCluster().getTime() - timeOffset_;
+        double corr_posClusterTime = pos->getCluster().getTime() - timeOffset_;
 
         double ele_E = ele->getEnergy();
         double pos_E = pos->getEnergy();
@@ -747,6 +794,34 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
             ele_trk_gbl = (Track*) ele_trk.Clone();
             pos_trk_gbl = (Track*) pos_trk.Clone();
         }
+
+        TVector3 ele_mom;
+        //ele_mom.SetX(ele->getMomentum()[0]);
+        //ele_mom.SetY(ele->getMomentum()[1]);
+        //ele_mom.SetZ(ele->getMomentum()[2]);
+        ele_mom.SetX(ele_trk_gbl->getMomentum()[0]);
+        ele_mom.SetY(ele_trk_gbl->getMomentum()[1]);
+        ele_mom.SetZ(ele_trk_gbl->getMomentum()[2]);
+
+
+        TVector3 pos_mom;
+        //pos_mom.SetX(pos->getMomentum()[0]);
+        //pos_mom.SetY(pos->getMomentum()[1]);
+        //pos_mom.SetZ(pos->getMomentum()[2]);
+        pos_mom.SetX(pos_trk_gbl->getMomentum()[0]);
+        pos_mom.SetY(pos_trk_gbl->getMomentum()[1]);
+        pos_mom.SetZ(pos_trk_gbl->getMomentum()[2]);
+
+        //Ele nHits
+        int ele2dHits = ele_trk_gbl->getTrackerHitCount();
+        if (!ele_trk_gbl->isKalmanTrack())
+            ele2dHits*=2;
+
+        //pos nHits
+        int pos2dHits = pos_trk_gbl->getTrackerHitCount();
+        if (!pos_trk_gbl->isKalmanTrack())
+            pos2dHits*=2;
+
         if(ts_ != nullptr)
         {
             _reg_vtx_histos[region]->Fill2DHisto("trig_count_hh", 
@@ -801,6 +876,42 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
             _reg_tuples[region]->setVariableValue("true_vtx_mass", apMass);
             _reg_vtx_histos[region]->Fill1DHisto("true_vtx_psum_h",truePsum,weight);
         }
+
+        double ele_pos_dt = corr_eleClusterTime - corr_posClusterTime;
+        double psum = ele_mom.Mag()+pos_mom.Mag();
+
+        //New SIMP histos for developing loose preselection cuts
+        //2d histos
+        _reg_vtx_histos[region]->Fill2DHisto("ele_clusT_v_ele_trackT_hh", ele_trk_gbl->getTrackTime(), corr_eleClusterTime, weight);
+        _reg_vtx_histos[region]->Fill2DHisto("pos_clusT_v_pos_trackT_hh", pos_trk_gbl->getTrackTime(), corr_posClusterTime, weight);
+        _reg_vtx_histos[region]->Fill2DHisto("ele_track_time_v_P_hh", ele_trk_gbl->getP(), ele_trk_gbl->getTrackTime(), weight);
+        _reg_vtx_histos[region]->Fill2DHisto("pos_track_time_v_P_hh", pos_trk_gbl->getP(), pos_trk_gbl->getTrackTime(), weight);
+        _reg_vtx_histos[region]->Fill2DHisto("ele_pos_clusTimeDiff_v_pSum_hh",ele_mom.Mag()+pos_mom.Mag(), ele_pos_dt, weight);
+        _reg_vtx_histos[region]->Fill2DHisto("ele_cluster_energy_v_track_p_hh",ele_trk_gbl->getP(), eleClus.getEnergy(), weight);
+        _reg_vtx_histos[region]->Fill2DHisto("pos_cluster_energy_v_track_p_hh",pos_trk_gbl->getP(), posClus.getEnergy(), weight);
+        _reg_vtx_histos[region]->Fill2DHisto("ele_track_cluster_dt_v_EoverP_hh",eleClus.getEnergy()/ele_trk_gbl->getP(), ele_trk_gbl->getTrackTime() - corr_eleClusterTime, weight);
+        _reg_vtx_histos[region]->Fill2DHisto("pos_track_cluster_dt_v_EoverP_hh",posClus.getEnergy()/pos_trk_gbl->getP(), pos_trk_gbl->getTrackTime() - corr_posClusterTime, weight);
+        _reg_vtx_histos[region]->Fill2DHisto("ele_track_clus_dt_v_p_hh",ele_trk_gbl->getP(), ele_trk_gbl->getTrackTime() - corr_eleClusterTime, weight);
+        _reg_vtx_histos[region]->Fill2DHisto("pos_track_clus_dt_v_p_hh",pos_trk_gbl->getP(), pos_trk_gbl->getTrackTime() - corr_posClusterTime, weight);
+        //chi2 2d plots
+        _reg_vtx_histos[region]->Fill2DHisto("ele_track_chi2ndf_v_time_hh", ele_trk_gbl->getTrackTime(), ele_trk_gbl->getChi2Ndf(), weight);
+        _reg_vtx_histos[region]->Fill2DHisto("ele_track_chi2ndf_v_p_hh", ele_trk_gbl->getP(), ele_trk_gbl->getChi2Ndf(), weight);
+        _reg_vtx_histos[region]->Fill2DHisto("ele_track_chi2ndf_v_tanlambda_hh", ele_trk_gbl->getTanLambda(), ele_trk_gbl->getChi2Ndf(), weight);
+        _reg_vtx_histos[region]->Fill2DHisto("ele_track_chi2ndf_v_n2dhits_hh", ele2dHits, ele_trk_gbl->getChi2Ndf(), weight);
+
+        _reg_vtx_histos[region]->Fill2DHisto("pos_track_chi2ndf_v_time_hh", pos_trk_gbl->getTrackTime(), pos_trk_gbl->getChi2Ndf(), weight);
+        _reg_vtx_histos[region]->Fill2DHisto("pos_track_chi2ndf_v_p_hh", pos_trk_gbl->getP(), pos_trk_gbl->getChi2Ndf(), weight);
+        _reg_vtx_histos[region]->Fill2DHisto("pos_track_chi2ndf_v_tanlambda_hh", pos_trk_gbl->getTanLambda(), pos_trk_gbl->getChi2Ndf(), weight);
+        _reg_vtx_histos[region]->Fill2DHisto("pos_track_chi2ndf_v_n2dhits_hh", pos2dHits, pos_trk_gbl->getChi2Ndf(), weight);
+
+        _reg_vtx_histos[region]->Fill2DHisto("ele_track_p_v_tanlambda_hh", ele_trk_gbl->getTanLambda(), ele_trk_gbl->getP(), weight);
+        _reg_vtx_histos[region]->Fill2DHisto("pos_track_p_v_tanlambda_hh", pos_trk_gbl->getTanLambda(), pos_trk_gbl->getP(), weight);
+
+
+        //1d histos
+        _reg_vtx_histos[region]->Fill1DHisto("ele_track_clus_dt_h", ele_trk_gbl->getTrackTime() - corr_eleClusterTime, weight);
+        _reg_vtx_histos[region]->Fill1DHisto("pos_track_clus_dt_h", pos_trk_gbl->getTrackTime() - corr_posClusterTime, weight);
+
 
         //TODO put this in the Vertex!
         TVector3 vtxPosSvt;

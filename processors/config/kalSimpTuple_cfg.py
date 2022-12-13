@@ -5,7 +5,7 @@ import baseConfig as base
 from baseConfig import bfield
 
 base.parser.add_argument("-w", "--tracking", type=str, dest="tracking",
-    help="Which tracking to use to make plots", metavar="tracking", default="BOTH")
+    help="Which tracking to use to make plots", metavar="tracking", default="KF")
 base.parser.add_argument("-s", "--truthHits", type=int, dest="truthHits",
         help="Get svt truth hits: 1=yes", metavar="truthHits", default=1)
 base.parser.add_argument("-r", "--rawHits", type=int, dest="rawHits",
@@ -122,14 +122,12 @@ trackgbl.parameters["bfield"] = bfield[str(options.year)]
 ecal_gbl.parameters["debug"] = 0
 ecal_gbl.parameters["hitCollLcio"] = 'EcalCalHits'
 ecal_gbl.parameters["hitCollRoot"] = 'RecoEcalHits'
-#ecal_gbl.parameters["clusCollLcio"] = "EcalClustersCorr_GBL"
 ecal_gbl.parameters["clusCollLcio"] = "EcalClustersCorr"
 ecal_gbl.parameters["clusCollRoot"] = "RecoEcalClusters"
 
 ecal_kf.parameters["debug"] = 0
 ecal_kf.parameters["hitCollLcio"] = 'EcalCalHits'
 ecal_kf.parameters["hitCollRoot"] = 'RecoEcalHits'
-#ecal_kf.parameters["clusCollLcio"] = "EcalClustersCorr_KF"
 ecal_kf.parameters["clusCollRoot"] = "RecoEcalClusters"
 ecal_kf.parameters["clusCollLcio"] = "EcalClustersCorr"
 
