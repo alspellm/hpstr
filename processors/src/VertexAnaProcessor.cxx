@@ -29,6 +29,7 @@ void VertexAnaProcessor::configure(const ParameterSet& parameters) {
         ecalColl_ = parameters.getString("ecalColl",ecalColl_);
         mcColl_  = parameters.getString("mcColl",mcColl_);
         isRadPDG_ = parameters.getInteger("isRadPDG",isRadPDG_);
+        makeFlatTuple_ = parameters.getInteger("makeFlatTuple",makeFlatTuple_);
 
         selectionCfg_   = parameters.getString("vtxSelectionjson",selectionCfg_);
         histoCfg_ = parameters.getString("histoCfg",histoCfg_);
@@ -91,15 +92,49 @@ void VertexAnaProcessor::initialize(TTree* tree) {
         _reg_mc_vtx_histos[regname]->loadHistoConfig(mcHistoCfg_);
         _reg_mc_vtx_histos[regname]->DefineHistos();
 
+          //Build a flat tuple for vertex and track params
+        if (makeFlatTuple_){
+            _reg_tuples[regname] = std::make_shared<FlatTupleMaker>(anaName_+"_"+regname+"_tree");
 
+            //vtx vars
+            _reg_tuples[regname]->addVariable("unc_vtx_mass");
+            _reg_tuples[regname]->addVariable("unc_vtx_z");
+            _reg_tuples[regname]->addVariable("unc_vtx_chi2");
+            _reg_tuples[regname]->addVariable("unc_vtx_psum");
+            _reg_tuples[regname]->addVariable("unc_vtx_x");
+            _reg_tuples[regname]->addVariable("unc_vtx_y");
 
-        _reg_tuples[regname] = std::make_shared<FlatTupleMaker>(anaName_+"_"+regname+"_tree");
-        _reg_tuples[regname]->addVariable("unc_vtx_mass");
-        _reg_tuples[regname]->addVariable("unc_vtx_z");
-        if(!isData_)
-        {
-            _reg_tuples[regname]->addVariable("true_vtx_z");
-            _reg_tuples[regname]->addVariable("true_vtx_mass");
+            //track vars
+            _reg_tuples[regname]->addVariable("unc_vtx_ele_track_p");
+            _reg_tuples[regname]->addVariable("unc_vtx_ele_track_t");
+            _reg_tuples[regname]->addVariable("unc_vtx_ele_track_d0");
+            _reg_tuples[regname]->addVariable("unc_vtx_ele_track_phi0");
+            _reg_tuples[regname]->addVariable("unc_vtx_ele_track_omega");
+            _reg_tuples[regname]->addVariable("unc_vtx_ele_track_tanLambda");
+            _reg_tuples[regname]->addVariable("unc_vtx_ele_track_z0");
+            _reg_tuples[regname]->addVariable("unc_vtx_ele_track_chi2ndf");
+
+            _reg_tuples[regname]->addVariable("unc_vtx_pos_track_p");
+            _reg_tuples[regname]->addVariable("unc_vtx_pos_track_t");
+            _reg_tuples[regname]->addVariable("unc_vtx_pos_track_d0");
+            _reg_tuples[regname]->addVariable("unc_vtx_pos_track_phi0");
+            _reg_tuples[regname]->addVariable("unc_vtx_pos_track_omega");
+            _reg_tuples[regname]->addVariable("unc_vtx_pos_track_tanLambda");
+            _reg_tuples[regname]->addVariable("unc_vtx_pos_track_z0");
+            _reg_tuples[regname]->addVariable("unc_vtx_pos_track_chi2ndf");
+
+            //clust vars
+            _reg_tuples[regname]->addVariable("unc_vtx_ele_clust_E");
+            _reg_tuples[regname]->addVariable("unc_vtx_ele_clust_t");
+
+            _reg_tuples[regname]->addVariable("unc_vtx_pos_clust_E");
+            _reg_tuples[regname]->addVariable("unc_vtx_pos_clust_t");
+
+            if(!isData_)
+            {
+                _reg_tuples[regname]->addVariable("true_vtx_z");
+                _reg_tuples[regname]->addVariable("true_vtx_mass");
+            }
         }
 
         _regions.push_back(regname);
@@ -872,8 +907,6 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
         {
             _reg_vtx_histos[region]->Fill2DHisto("vtx_Esum_vs_true_Esum_hh",eleClus.getEnergy()+posClus.getEnergy(), trueEsum, weight);
             _reg_vtx_histos[region]->Fill2DHisto("vtx_Psum_vs_true_Psum_hh",p_ele.P()+p_pos.P(), truePsum, weight);
-            _reg_tuples[region]->setVariableValue("true_vtx_z", apZ);
-            _reg_tuples[region]->setVariableValue("true_vtx_mass", apMass);
             _reg_vtx_histos[region]->Fill1DHisto("true_vtx_psum_h",truePsum,weight);
         }
 
@@ -920,11 +953,52 @@ bool VertexAnaProcessor::process(IEvent* ievent) {
         vtxPosSvt.SetZ(vtx->getZ());
         vtxPosSvt.RotateY(-0.0305);
 
-        _reg_tuples[region]->setVariableValue("unc_vtx_z"   , vtxPosSvt.Z());
-        _reg_tuples[region]->fill();
+        //Just for the selected vertex
+        if (makeFlatTuple_){
+            if(!isData_){
+                _reg_tuples[region]->setVariableValue("true_vtx_z", apZ);
+                _reg_tuples[region]->setVariableValue("true_vtx_mass", apMass);
+
+            }
+
+            _reg_tuples[region]->setVariableValue("unc_vtx_mass", vtx->getInvMass());
+            _reg_tuples[region]->setVariableValue("unc_vtx_z"   , vtxPosSvt.Z());
+            _reg_tuples[region]->setVariableValue("unc_vtx_chi2", vtx->getChi2());
+            _reg_tuples[region]->setVariableValue("unc_vtx_psum", p_ele.P()+p_pos.P());
+            _reg_tuples[region]->setVariableValue("unc_vtx_x", vtx->getX());
+            _reg_tuples[region]->setVariableValue("unc_vtx_y", vtx->getY());
+
+            //track vars
+            _reg_tuples[region]->setVariableValue("unc_vtx_ele_track_p", ele_trk_gbl->getP());
+            _reg_tuples[region]->setVariableValue("unc_vtx_ele_track_t", ele_trk_gbl->getTrackTime());
+            _reg_tuples[region]->setVariableValue("unc_vtx_ele_track_d0", ele_trk_gbl->getD0());
+            _reg_tuples[region]->setVariableValue("unc_vtx_ele_track_phi0", ele_trk_gbl->getPhi());
+            _reg_tuples[region]->setVariableValue("unc_vtx_ele_track_omega", ele_trk_gbl->getOmega());
+            _reg_tuples[region]->setVariableValue("unc_vtx_ele_track_tanLambda", ele_trk_gbl->getTanLambda());
+            _reg_tuples[region]->setVariableValue("unc_vtx_ele_track_z0", ele_trk_gbl->getZ0());
+            _reg_tuples[region]->setVariableValue("unc_vtx_ele_track_chi2ndf", ele_trk_gbl->getChi2Ndf());
+
+            _reg_tuples[region]->setVariableValue("unc_vtx_pos_track_p", pos_trk_gbl->getP());
+            _reg_tuples[region]->setVariableValue("unc_vtx_pos_track_t", pos_trk_gbl->getTrackTime());
+            _reg_tuples[region]->setVariableValue("unc_vtx_pos_track_d0", pos_trk_gbl->getD0());
+            _reg_tuples[region]->setVariableValue("unc_vtx_pos_track_phi0", pos_trk_gbl->getPhi());
+            _reg_tuples[region]->setVariableValue("unc_vtx_pos_track_omega", pos_trk_gbl->getOmega());
+            _reg_tuples[region]->setVariableValue("unc_vtx_pos_track_tanLambda", pos_trk_gbl->getTanLambda());
+            _reg_tuples[region]->setVariableValue("unc_vtx_pos_track_z0", pos_trk_gbl->getZ0());
+            _reg_tuples[region]->setVariableValue("unc_vtx_pos_track_chi2ndf", pos_trk_gbl->getChi2Ndf());
+
+
+            //clust vars
+            _reg_tuples[region]->setVariableValue("unc_vtx_ele_clust_E", eleClus.getEnergy());
+            _reg_tuples[region]->setVariableValue("unc_vtx_ele_clust_corr_t",corr_eleClusterTime);
+
+            _reg_tuples[region]->setVariableValue("unc_vtx_pos_clust_E", posClus.getEnergy());
+            _reg_tuples[region]->setVariableValue("unc_vtx_pos_clust_corr_t",corr_posClusterTime);
+
+            _reg_tuples[region]->fill();
+        }
+
     }// regions
-
-
 
     return true;
 }
@@ -949,7 +1023,9 @@ void VertexAnaProcessor::finalize() {
         outF_->cd(dirName.c_str());
         _reg_vtx_selectors[it->first]->getCutFlowHisto()->Write();
         //Save tuples
-        _reg_tuples[it->first]->writeTree();
+        if (makeFlatTuple_)
+            _reg_tuples[it->first]->writeTree();
+
     }
 
     for (reg_mc_it it = _reg_mc_vtx_histos.begin(); it!=_reg_mc_vtx_histos.end(); ++it) {
