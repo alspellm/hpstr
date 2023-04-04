@@ -232,17 +232,17 @@ $(function() {
 <div class="line"><a name="l00165"></a><span class="lineno">  165</span>&#160;<span class="keywordflow">if</span> (options.tracking == <span class="stringliteral">&quot;KF&quot;</span>):</div>
 <div class="line"><a name="l00166"></a><span class="lineno"><a class="line" href="namespaceconfig_1_1kalSimpTuple__cfg.html#a103aa6226a1d0953b14c1ac78b072b4e">  166</a></span>&#160;    sequence = [header, vtx, ecal, track]</div>
 <div class="line"><a name="l00167"></a><span class="lineno">  167</span>&#160;    <span class="comment"># Get KF svt truth hits</span></div>
-<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <span class="keywordflow">if</span> (options.truthHits &gt; 0 <span class="keywordflow">and</span> <span class="keywordflow">not</span> options.isData):</div>
+<div class="line"><a name="l00168"></a><span class="lineno">  168</span>&#160;    <span class="keywordflow">if</span> (options.truthHits &gt; 0):</div>
 <div class="line"><a name="l00169"></a><span class="lineno">  169</span>&#160;        sequence.append(svthits)</div>
 <div class="line"><a name="l00170"></a><span class="lineno">  170</span>&#160;<span class="keywordflow">elif</span> (options.tracking == <span class="stringliteral">&quot;GBL&quot;</span>):</div>
 <div class="line"><a name="l00171"></a><span class="lineno">  171</span>&#160;    sequence = [header, vtxgbl, ecal, trackgbl]</div>
 <div class="line"><a name="l00172"></a><span class="lineno">  172</span>&#160;    <span class="comment"># Get GBL svt truth hits</span></div>
-<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    <span class="keywordflow">if</span> (options.truthHits &gt; 0 <span class="keywordflow">and</span> <span class="keywordflow">not</span> options.isData):</div>
+<div class="line"><a name="l00173"></a><span class="lineno">  173</span>&#160;    <span class="keywordflow">if</span> (options.truthHits &gt; 0):</div>
 <div class="line"><a name="l00174"></a><span class="lineno">  174</span>&#160;        sequence.append(svthitsgbl)</div>
 <div class="line"><a name="l00175"></a><span class="lineno">  175</span>&#160;<span class="keywordflow">elif</span> (options.tracking == <span class="stringliteral">&quot;BOTH&quot;</span>):</div>
 <div class="line"><a name="l00176"></a><span class="lineno">  176</span>&#160;    sequence = [header, vtxgbl, trackgbl, vtx, ecal, track]</div>
 <div class="line"><a name="l00177"></a><span class="lineno">  177</span>&#160;    <span class="comment"># Get KF and GBL svt truth hits</span></div>
-<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <span class="keywordflow">if</span> (options.truthHits &gt; 0 <span class="keywordflow">and</span> options.isData):</div>
+<div class="line"><a name="l00178"></a><span class="lineno">  178</span>&#160;    <span class="keywordflow">if</span> (options.truthHits &gt; 0):</div>
 <div class="line"><a name="l00179"></a><span class="lineno">  179</span>&#160;        sequence.append(svthits)</div>
 <div class="line"><a name="l00180"></a><span class="lineno">  180</span>&#160;        sequence.append(svthitsgbl)</div>
 <div class="line"><a name="l00181"></a><span class="lineno">  181</span>&#160;<span class="keywordflow">else</span>:</div>
