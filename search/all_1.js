@@ -41,12 +41,13 @@ var searchData=
   ['anatracktuple_5fcfg_2epy_64',['anaTrackTuple_cfg.py',['../anaTrackTuple__cfg_8py.html',1,'']]],
   ['anatrks_65',['anaTrks',['../namespaceconfig_1_1anaTrackTuple__cfg.html#a3ec8750c2366812be758fef2bf4f47f5',1,'config.anaTrackTuple_cfg.anaTrks()'],['../namespaceconfig_1_1anaTrackHits__cfg.html#a3ec8750c2366812be758fef2bf4f47f5',1,'config.anaTrackHits_cfg.anaTrks()']]],
   ['anavtxtuple_5fcfg_2epy_66',['anaVtxTuple_cfg.py',['../anaVtxTuple__cfg_8py.html',1,'']]],
-  ['apv25roxtalkanaprocessor_67',['Apv25RoXtalkAnaProcessor',['../classApv25RoXtalkAnaProcessor.html',1,'Apv25RoXtalkAnaProcessor'],['../classApv25RoXtalkAnaProcessor.html#ae07def2db88fcfa7956a1432c2368538',1,'Apv25RoXtalkAnaProcessor::Apv25RoXtalkAnaProcessor()']]],
-  ['apv25roxtalkanaprocessor_2ecxx_68',['Apv25RoXtalkAnaProcessor.cxx',['../Apv25RoXtalkAnaProcessor_8cxx.html',1,'']]],
-  ['apv25roxtalkanaprocessor_2eh_69',['Apv25RoXtalkAnaProcessor.h',['../Apv25RoXtalkAnaProcessor_8h.html',1,'']]],
-  ['apvana_70',['apvana',['../namespaceconfig_1_1anaApv25xTalk__cfg.html#a25c10fd131144994e5bd4f3f1875b1b5',1,'config::anaApv25xTalk_cfg']]],
-  ['apvchannelmap_5f_71',['apvChannelMap_',['../classModuleMapper.html#ae08d444bc1d7668a9079ebf30f3f3e62',1,'ModuleMapper']]],
-  ['args_72',['args',['../namespaceconfig_1_1vtxhProcess.html#a8187411843a6284ffb964ef3fb9fcab3',1,'config::vtxhProcess']]],
-  ['asymptotic_5flimit_5f_73',['asymptotic_limit_',['../classBhToysHistoProcessor.html#aecfe482d49262352e9a22b2bfadf8df7',1,'BhToysHistoProcessor::asymptotic_limit_()'],['../classBhMassResSystematicsProcessor.html#aecfe482d49262352e9a22b2bfadf8df7',1,'BhMassResSystematicsProcessor::asymptotic_limit_()'],['../classBumpHunter.html#aecfe482d49262352e9a22b2bfadf8df7',1,'BumpHunter::asymptotic_limit_()']]],
-  ['axes_74',['Axes',['../classHistoManager.html#a1e601159702368cdcfc37ca35ea08d0b',1,'HistoManager']]]
+  ['applycorrection_67',['applyCorrection',['../classTrack.html#af280c8b9c4b898587bd23877390c49e0',1,'Track']]],
+  ['apv25roxtalkanaprocessor_68',['Apv25RoXtalkAnaProcessor',['../classApv25RoXtalkAnaProcessor.html',1,'Apv25RoXtalkAnaProcessor'],['../classApv25RoXtalkAnaProcessor.html#ae07def2db88fcfa7956a1432c2368538',1,'Apv25RoXtalkAnaProcessor::Apv25RoXtalkAnaProcessor()']]],
+  ['apv25roxtalkanaprocessor_2ecxx_69',['Apv25RoXtalkAnaProcessor.cxx',['../Apv25RoXtalkAnaProcessor_8cxx.html',1,'']]],
+  ['apv25roxtalkanaprocessor_2eh_70',['Apv25RoXtalkAnaProcessor.h',['../Apv25RoXtalkAnaProcessor_8h.html',1,'']]],
+  ['apvana_71',['apvana',['../namespaceconfig_1_1anaApv25xTalk__cfg.html#a25c10fd131144994e5bd4f3f1875b1b5',1,'config::anaApv25xTalk_cfg']]],
+  ['apvchannelmap_5f_72',['apvChannelMap_',['../classModuleMapper.html#ae08d444bc1d7668a9079ebf30f3f3e62',1,'ModuleMapper']]],
+  ['args_73',['args',['../namespaceconfig_1_1vtxhProcess.html#a8187411843a6284ffb964ef3fb9fcab3',1,'config::vtxhProcess']]],
+  ['asymptotic_5flimit_5f_74',['asymptotic_limit_',['../classBhToysHistoProcessor.html#aecfe482d49262352e9a22b2bfadf8df7',1,'BhToysHistoProcessor::asymptotic_limit_()'],['../classBhMassResSystematicsProcessor.html#aecfe482d49262352e9a22b2bfadf8df7',1,'BhMassResSystematicsProcessor::asymptotic_limit_()'],['../classBumpHunter.html#aecfe482d49262352e9a22b2bfadf8df7',1,'BumpHunter::asymptotic_limit_()']]],
+  ['axes_75',['Axes',['../classHistoManager.html#a1e601159702368cdcfc37ca35ea08d0b',1,'HistoManager']]]
 ];
