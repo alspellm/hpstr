@@ -1,8 +1,8 @@
 var searchData=
 [
   ['gaussexptails_5ff_446',['GaussExpTails_f',['../namespaceHistogramHelpers.html#af5e7ea391529a3ec63decc5523bcd34a',1,'HistogramHelpers']]],
-  ['gaussian_447',['GAUSSIAN',['../classFitFunction.html#a65336e70d753bb21bb743a20613f4fd7afca8f51c9117fbb492a2184e9df9e412',1,'FitFunction']]],
-  ['gaussian_448',['Gaussian',['../classFunctionMath.html#af1efcb2fd3b549de775a2e3df1570f93',1,'FunctionMath']]],
+  ['gaussian_447',['Gaussian',['../classFunctionMath.html#af1efcb2fd3b549de775a2e3df1570f93',1,'FunctionMath']]],
+  ['gaussian_448',['GAUSSIAN',['../classFitFunction.html#a65336e70d753bb21bb743a20613f4fd7afca8f51c9117fbb492a2184e9df9e412',1,'FitFunction']]],
   ['gbl_449',['GBL',['../namespaceTRACKINFO.html#acec5c5ebb9b44e944def1ed14528d34ca64ac9f6cd35c35eabc36afa3dbcf6bf6',1,'TRACKINFO']]],
   ['gbl_5ftracks_450',['GBL_TRACKS',['../namespaceCollections.html#a3fe28416324ba7aea8e8eea751994f09',1,'Collections']]],
   ['gen_5f_451',['gen_',['../classMCParticle.html#a4bddd88583a5b76910aa2951c7b814b1',1,'MCParticle']]],
