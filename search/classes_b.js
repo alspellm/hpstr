@@ -1,10 +1,8 @@
 var searchData=
 [
-  ['stdhepmcparticleprocessor_1640',['StdhepMCParticleProcessor',['../classStdhepMCParticleProcessor.html',1,'']]],
-  ['svt2dblhistos_1641',['Svt2DBlHistos',['../classSvt2DBlHistos.html',1,'']]],
-  ['svtbl2danaprocessor_1642',['SvtBl2DAnaProcessor',['../classSvtBl2DAnaProcessor.html',1,'']]],
-  ['svtblfithistoprocessor_1643',['SvtBlFitHistoProcessor',['../classSvtBlFitHistoProcessor.html',1,'']]],
-  ['svtdataprocessor_1644',['SvtDataProcessor',['../classSvtDataProcessor.html',1,'']]],
-  ['svtrawdataanaprocessor_1645',['SvtRawDataAnaProcessor',['../classSvtRawDataAnaProcessor.html',1,'']]],
-  ['svtrawdataprocessor_1646',['SvtRawDataProcessor',['../classSvtRawDataProcessor.html',1,'']]]
+  ['rawsvthit_1850',['RawSvtHit',['../classRawSvtHit.html',1,'']]],
+  ['rawsvthithistos_1851',['RawSvtHitHistos',['../classRawSvtHitHistos.html',1,'']]],
+  ['recohitanahistos_1852',['RecoHitAnaHistos',['../classRecoHitAnaHistos.html',1,'']]],
+  ['recohitanaprocessor_1853',['RecoHitAnaProcessor',['../classRecoHitAnaProcessor.html',1,'']]],
+  ['refittedtracksprocessor_1854',['RefittedTracksProcessor',['../classRefittedTracksProcessor.html',1,'']]]
 ];
