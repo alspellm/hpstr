@@ -99,6 +99,9 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:af213299f294c6deada0650563e6898fc"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAnaHelpers.html#af213299f294c6deada0650563e6898fc">GetParticlesFromVtx</a> (<a class="el" href="classVertex.html">Vertex</a> *vtx, <a class="el" href="classParticle.html">Particle</a> *&amp;ele, <a class="el" href="classParticle.html">Particle</a> *&amp;pos)</td></tr>
 <tr class="memdesc:af213299f294c6deada0650563e6898fc"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the Particles From Vtx object.  <a href="classAnaHelpers.html#af213299f294c6deada0650563e6898fc">More...</a><br /></td></tr>
 <tr class="separator:af213299f294c6deada0650563e6898fc"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8086184fbbbe4146fd3fca8c23b25794"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAnaHelpers.html#a8086184fbbbe4146fd3fca8c23b25794">GetSameParticlesFromVtx</a> (<a class="el" href="classVertex.html">Vertex</a> *vtx, <a class="el" href="classParticle.html">Particle</a> *&amp;ele1, <a class="el" href="classParticle.html">Particle</a> *&amp;ele2)</td></tr>
+<tr class="memdesc:a8086184fbbbe4146fd3fca8c23b25794"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get the Particles From Vtx object.  <a href="classAnaHelpers.html#a8086184fbbbe4146fd3fca8c23b25794">More...</a><br /></td></tr>
+<tr class="separator:a8086184fbbbe4146fd3fca8c23b25794"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a93f5958d3eee3da25d4c96ee0ba27729"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classAnaHelpers.html#a93f5958d3eee3da25d4c96ee0ba27729">MatchToGBLTracks</a> (int ele_id, int pos_id, <a class="el" href="classTrack.html">Track</a> *&amp;ele_trk, <a class="el" href="classTrack.html">Track</a> *&amp;pos_trk, std::vector&lt; <a class="el" href="classTrack.html">Track</a> * &gt; &amp;trks)</td></tr>
 <tr class="memdesc:a93f5958d3eee3da25d4c96ee0ba27729"><td class="mdescLeft">&#160;</td><td class="mdescRight">brief description  <a href="classAnaHelpers.html#a93f5958d3eee3da25d4c96ee0ba27729">More...</a><br /></td></tr>
 <tr class="separator:a93f5958d3eee3da25d4c96ee0ba27729"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -143,7 +146,7 @@ Private Attributes</h2></td></tr>
       </table>
 </div><div class="memdoc">
 
-<p class="definition">Definition at line <a class="el" href="AnaHelpers_8cxx_source.html#l00125">125</a> of file <a class="el" href="AnaHelpers_8cxx_source.html">AnaHelpers.cxx</a>.</p>
+<p class="definition">Definition at line <a class="el" href="AnaHelpers_8cxx_source.html#l00157">157</a> of file <a class="el" href="AnaHelpers_8cxx_source.html">AnaHelpers.cxx</a>.</p>
 
 </div>
 </div>
@@ -231,7 +234,56 @@ Private Attributes</h2></td></tr>
 <dd>
 false </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="AnaHelpers_8cxx_source.html#l00092">92</a> of file <a class="el" href="AnaHelpers_8cxx_source.html">AnaHelpers.cxx</a>.</p>
+<p class="definition">Definition at line <a class="el" href="AnaHelpers_8cxx_source.html#l00124">124</a> of file <a class="el" href="AnaHelpers_8cxx_source.html">AnaHelpers.cxx</a>.</p>
+
+</div>
+</div>
+<a id="a8086184fbbbe4146fd3fca8c23b25794"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8086184fbbbe4146fd3fca8c23b25794">&#9670;&nbsp;</a></span>GetSameParticlesFromVtx()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool GetSameParticlesFromVtx </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="classVertex.html">Vertex</a> *&#160;</td>
+          <td class="paramname"><em>vtx</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classParticle.html">Particle</a> *&amp;&#160;</td>
+          <td class="paramname"><em>ele1</em>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="classParticle.html">Particle</a> *&amp;&#160;</td>
+          <td class="paramname"><em>ele2</em>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Get the Particles From Vtx object. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">vtx</td><td></td></tr>
+    <tr><td class="paramname">ele1</td><td></td></tr>
+    <tr><td class="paramname">ele2</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true </dd>
+<dd>
+false </dd></dl>
+
+<p class="definition">Definition at line <a class="el" href="AnaHelpers_8cxx_source.html#l00091">91</a> of file <a class="el" href="AnaHelpers_8cxx_source.html">AnaHelpers.cxx</a>.</p>
 
 </div>
 </div>
@@ -443,7 +495,7 @@ false </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>TVector3 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="AnaHelpers_8cxx_source.html#l00146">146</a> of file <a class="el" href="AnaHelpers_8cxx_source.html">AnaHelpers.cxx</a>.</p>
+<p class="definition">Definition at line <a class="el" href="AnaHelpers_8cxx_source.html#l00178">178</a> of file <a class="el" href="AnaHelpers_8cxx_source.html">AnaHelpers.cxx</a>.</p>
 
 </div>
 </div>
@@ -472,7 +524,7 @@ false </dd></dl>
 </dl>
 <dl class="section return"><dt>Returns</dt><dd>TVector3 </dd></dl>
 
-<p class="definition">Definition at line <a class="el" href="AnaHelpers_8cxx_source.html#l00152">152</a> of file <a class="el" href="AnaHelpers_8cxx_source.html">AnaHelpers.cxx</a>.</p>
+<p class="definition">Definition at line <a class="el" href="AnaHelpers_8cxx_source.html#l00184">184</a> of file <a class="el" href="AnaHelpers_8cxx_source.html">AnaHelpers.cxx</a>.</p>
 
 </div>
 </div>
@@ -499,7 +551,7 @@ false </dd></dl>
 
 <p>description </p>
 
-<p class="definition">Definition at line <a class="el" href="AnaHelpers_8h_source.html#l00107">107</a> of file <a class="el" href="AnaHelpers_8h_source.html">AnaHelpers.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="AnaHelpers_8h_source.html#l00118">118</a> of file <a class="el" href="AnaHelpers_8h_source.html">AnaHelpers.h</a>.</p>
 
 </div>
 </div>
@@ -525,7 +577,7 @@ false </dd></dl>
 
 <p>description </p>
 
-<p class="definition">Definition at line <a class="el" href="AnaHelpers_8h_source.html#l00105">105</a> of file <a class="el" href="AnaHelpers_8h_source.html">AnaHelpers.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="AnaHelpers_8h_source.html#l00116">116</a> of file <a class="el" href="AnaHelpers_8h_source.html">AnaHelpers.h</a>.</p>
 
 </div>
 </div>
@@ -551,7 +603,7 @@ false </dd></dl>
 
 <p>description </p>
 
-<p class="definition">Definition at line <a class="el" href="AnaHelpers_8h_source.html#l00106">106</a> of file <a class="el" href="AnaHelpers_8h_source.html">AnaHelpers.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="AnaHelpers_8h_source.html#l00117">117</a> of file <a class="el" href="AnaHelpers_8h_source.html">AnaHelpers.h</a>.</p>
 
 </div>
 </div>
@@ -577,7 +629,7 @@ false </dd></dl>
 
 <p>Angle between SVT system and HPS coordinates. </p>
 
-<p class="definition">Definition at line <a class="el" href="AnaHelpers_8h_source.html#l00104">104</a> of file <a class="el" href="AnaHelpers_8h_source.html">AnaHelpers.h</a>.</p>
+<p class="definition">Definition at line <a class="el" href="AnaHelpers_8h_source.html#l00115">115</a> of file <a class="el" href="AnaHelpers_8h_source.html">AnaHelpers.h</a>.</p>
 
 </div>
 </div>
