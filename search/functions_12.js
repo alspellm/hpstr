@@ -6,6 +6,6 @@ var searchData=
   ['updatevertexwithbiasp_2828',['updateVertexWithBiasP',['../classTrackBiasingTool.html#aa9611194679de352f7eb8b2c61bc55b5',1,'TrackBiasingTool']]],
   ['updatevertexwithsmearp_2829',['updateVertexWithSmearP',['../classTrackSmearingTool.html#a930e59d6b7f09e14946f60241a33c0f9',1,'TrackSmearingTool']]],
   ['updatewithbiasp_2830',['updateWithBiasP',['../classTrackBiasingTool.html#aa4fb28285c5141fb393c06685fe7712d',1,'TrackBiasingTool::updateWithBiasP(Track &amp;trk, double scaleFactor)'],['../classTrackBiasingTool.html#aa305e938f40284b5e0ca391c0cc4ecb7',1,'TrackBiasingTool::updateWithBiasP(Track &amp;trk)']]],
-  ['updatewithsmearp_2831',['updateWithSmearP',['../classTrackSmearingTool.html#aeff7696443b866ef0b4729cef7e2780a',1,'TrackSmearingTool']]],
+  ['updatewithsmearp_2831',['updateWithSmearP',['../classTrackSmearingTool.html#a6cc9f95b4edc0c7900d8cb0e9e0fa8f5',1,'TrackSmearingTool::updateWithSmearP(Track &amp;trk, Particle *part)'],['../classTrackSmearingTool.html#aeff7696443b866ef0b4729cef7e2780a',1,'TrackSmearingTool::updateWithSmearP(Track &amp;trk)']]],
   ['usage_2832',['usage',['../smearing-tool_8cxx.html#a2ef30c42cbc289d899a8be5d2d8f77d0',1,'smearing-tool.cxx']]]
 ];

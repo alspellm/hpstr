@@ -8,7 +8,7 @@ var searchData=
   ['updatevertexwithbiasp_1683',['updateVertexWithBiasP',['../classTrackBiasingTool.html#aa9611194679de352f7eb8b2c61bc55b5',1,'TrackBiasingTool']]],
   ['updatevertexwithsmearp_1684',['updateVertexWithSmearP',['../classTrackSmearingTool.html#a930e59d6b7f09e14946f60241a33c0f9',1,'TrackSmearingTool']]],
   ['updatewithbiasp_1685',['updateWithBiasP',['../classTrackBiasingTool.html#aa4fb28285c5141fb393c06685fe7712d',1,'TrackBiasingTool::updateWithBiasP(Track &amp;trk, double scaleFactor)'],['../classTrackBiasingTool.html#aa305e938f40284b5e0ca391c0cc4ecb7',1,'TrackBiasingTool::updateWithBiasP(Track &amp;trk)']]],
-  ['updatewithsmearp_1686',['updateWithSmearP',['../classTrackSmearingTool.html#aeff7696443b866ef0b4729cef7e2780a',1,'TrackSmearingTool']]],
+  ['updatewithsmearp_1686',['updateWithSmearP',['../classTrackSmearingTool.html#a6cc9f95b4edc0c7900d8cb0e9e0fa8f5',1,'TrackSmearingTool::updateWithSmearP(Track &amp;trk, Particle *part)'],['../classTrackSmearingTool.html#aeff7696443b866ef0b4729cef7e2780a',1,'TrackSmearingTool::updateWithSmearP(Track &amp;trk)']]],
   ['upper_5fbound_5f_1687',['upper_bound_',['../classBumpHunter.html#ad238d7648d7f332843b306a23231c5f0',1,'BumpHunter']]],
   ['upper_5flimit_5f_1688',['upper_limit_',['../classHpsFitResult.html#a8dde89795870620273808294c26abce8',1,'HpsFitResult']]],
   ['usage_1689',['usage',['../smearing-tool_8cxx.html#a2ef30c42cbc289d899a8be5d2d8f77d0',1,'smearing-tool.cxx']]],
