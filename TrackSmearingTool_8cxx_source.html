@@ -180,10 +180,11 @@ $(function() {
 <div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;    p2_corr.SetX(<a class="code" href="namespaceconfig_1_1kalSimpTuple__cfg.html#a0ba66fed21d976c0b188b1e975cb94c0">vtx</a>-&gt;getP2X()*pos_smear_factor);</div>
 <div class="line"><a name="l00109"></a><span class="lineno">  109</span>&#160;    p2_corr.SetY(<a class="code" href="namespaceconfig_1_1kalSimpTuple__cfg.html#a0ba66fed21d976c0b188b1e975cb94c0">vtx</a>-&gt;getP2Y()*pos_smear_factor);</div>
 <div class="line"><a name="l00110"></a><span class="lineno">  110</span>&#160;    p2_corr.SetZ(<a class="code" href="namespaceconfig_1_1kalSimpTuple__cfg.html#a0ba66fed21d976c0b188b1e975cb94c0">vtx</a>-&gt;getP2Z()*pos_smear_factor);</div>
-<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160; </div>
-<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    m_corr = <a class="code" href="namespaceconfig_1_1kalSimpTuple__cfg.html#a0ba66fed21d976c0b188b1e975cb94c0">vtx</a>-&gt;getInvMass() * sqrt((p1_corr.Mag()/p1_uncorr_p)*(p2_corr.Mag()/p2_uncorr_p));</div>
-<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    <a class="code" href="namespaceconfig_1_1kalSimpTuple__cfg.html#a0ba66fed21d976c0b188b1e975cb94c0">vtx</a>-&gt;setVtxParameters(p1_corr, p2_corr, m_corr);</div>
-<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;}</div>
+<div class="line"><a name="l00111"></a><span class="lineno">  111</span>&#160;    <span class="comment">// smear invariant mass as if it was a Moller (i.e. by sqrt(ele_smear*pos_smear))</span></div>
+<div class="line"><a name="l00112"></a><span class="lineno">  112</span>&#160;    <span class="comment">// using the corrected momenta directly to ensure correctness</span></div>
+<div class="line"><a name="l00113"></a><span class="lineno">  113</span>&#160;    m_corr = <a class="code" href="namespaceconfig_1_1kalSimpTuple__cfg.html#a0ba66fed21d976c0b188b1e975cb94c0">vtx</a>-&gt;getInvMass() * sqrt((p1_corr.Mag()/p1_uncorr_p)*(p2_corr.Mag()/p2_uncorr_p));</div>
+<div class="line"><a name="l00114"></a><span class="lineno">  114</span>&#160;    <a class="code" href="namespaceconfig_1_1kalSimpTuple__cfg.html#a0ba66fed21d976c0b188b1e975cb94c0">vtx</a>-&gt;setVtxParameters(p1_corr, p2_corr, m_corr);</div>
+<div class="line"><a name="l00115"></a><span class="lineno">  115</span>&#160;}</div>
 <div class="ttc" id="aTrackSmearingTool_8h_html"><div class="ttname"><a href="TrackSmearingTool_8h.html">TrackSmearingTool.h</a></div></div>
 <div class="ttc" id="aclassParticle_html"><div class="ttname"><a href="classParticle.html">Particle</a></div><div class="ttdef"><b>Definition:</b> <a href="Particle_8h_source.html#l00024">Particle.h:24</a></div></div>
 <div class="ttc" id="aclassParticle_html_aa2dd28c594c2b4ff2fc590c053067a47"><div class="ttname"><a href="classParticle.html#aa2dd28c594c2b4ff2fc590c053067a47">Particle::setTrack</a></div><div class="ttdeci">void setTrack(Track *track)</div><div class="ttdef"><b>Definition:</b> <a href="Particle_8h_source.html#l00042">Particle.h:42</a></div></div>
