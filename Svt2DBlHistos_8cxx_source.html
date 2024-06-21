@@ -100,15 +100,15 @@ $(function() {
 <div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160; </div>
 <div class="line"><a name="l00029"></a><span class="lineno"><a class="line" href="classSvt2DBlHistos.html#a326eec930a9f0e88ae5e589a91efd0f0">   29</a></span>&#160;<span class="keywordtype">void</span> <a class="code" href="classSvt2DBlHistos.html#a326eec930a9f0e88ae5e589a91efd0f0">Svt2DBlHistos::FillHistograms</a>(std::vector&lt;RawSvtHit*&gt; *rawSvtHits_,<span class="keywordtype">float</span> weight) {</div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160; </div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordtype">int</span> nhits = rawSvtHits_-&gt;size();</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;    <span class="keywordtype">int</span> <a class="code" href="namespacefee__smearing__nhits__2016.html#a8ac148d44f5dde871ffd066c3a493cb2">nhits</a> = rawSvtHits_-&gt;size();</div>
 <div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;    std::vector&lt;std::string&gt; hybridStrings={};</div>
 <div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;    std::string histokey;</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;    <span class="keywordflow">if</span>(<a class="code" href="classSvt2DBlHistos.html#adaae2bd68fd9d9ec2da5dafec3278e96">Event_number</a>%10000 == 0) std::cout &lt;&lt; <span class="stringliteral">&quot;Event: &quot;</span> &lt;&lt; <a class="code" href="classSvt2DBlHistos.html#adaae2bd68fd9d9ec2da5dafec3278e96">Event_number</a> </div>
-<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;        &lt;&lt; <span class="stringliteral">&quot; Number of RawSvtHits: &quot;</span> &lt;&lt; nhits &lt;&lt; std::endl;</div>
+<div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;        &lt;&lt; <span class="stringliteral">&quot; Number of RawSvtHits: &quot;</span> &lt;&lt; <a class="code" href="namespacefee__smearing__nhits__2016.html#a8ac148d44f5dde871ffd066c3a493cb2">nhits</a> &lt;&lt; std::endl;</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160; </div>
 <div class="line"><a name="l00037"></a><span class="lineno">   37</span>&#160;    <span class="comment">//Following Block counts the total number of hits each hybrid records per event</span></div>
 <div class="line"><a name="l00038"></a><span class="lineno">   38</span>&#160;    <span class="keywordtype">int</span> svtHybMulti[4][15] = {0};</div>
-<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; nhits; i++)</div>
+<div class="line"><a name="l00039"></a><span class="lineno">   39</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; <a class="code" href="namespacefee__smearing__nhits__2016.html#a8ac148d44f5dde871ffd066c3a493cb2">nhits</a>; i++)</div>
 <div class="line"><a name="l00040"></a><span class="lineno">   40</span>&#160;    {</div>
 <div class="line"><a name="l00041"></a><span class="lineno">   41</span>&#160;        <a class="code" href="classRawSvtHit.html">RawSvtHit</a>* rawSvtHit = rawSvtHits_-&gt;at(i);</div>
 <div class="line"><a name="l00042"></a><span class="lineno">   42</span>&#160;        <span class="keywordtype">int</span> mod = rawSvtHit-&gt;<a class="code" href="classRawSvtHit.html#aefd72f7f5df118b603e0f3020f537a5a">getModule</a>();</div>
@@ -129,11 +129,11 @@ $(function() {
 <div class="line"><a name="l00057"></a><span class="lineno">   57</span>&#160;        }</div>
 <div class="line"><a name="l00058"></a><span class="lineno">   58</span>&#160;    }</div>
 <div class="line"><a name="l00059"></a><span class="lineno">   59</span>&#160; </div>
-<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <a class="code" href="classHistoManager.html#aaddcc8ff9b59c3f9d0036e5145f4fd10">Fill1DHisto</a>(<span class="stringliteral">&quot;SvtHitMulti_h&quot;</span>, nhits,weight);</div>
+<div class="line"><a name="l00060"></a><span class="lineno">   60</span>&#160;    <a class="code" href="classHistoManager.html#aaddcc8ff9b59c3f9d0036e5145f4fd10">Fill1DHisto</a>(<span class="stringliteral">&quot;SvtHitMulti_h&quot;</span>, <a class="code" href="namespacefee__smearing__nhits__2016.html#a8ac148d44f5dde871ffd066c3a493cb2">nhits</a>,weight);</div>
 <div class="line"><a name="l00061"></a><span class="lineno">   61</span>&#160;    <span class="comment">//End of counting block</span></div>
 <div class="line"><a name="l00062"></a><span class="lineno">   62</span>&#160; </div>
 <div class="line"><a name="l00063"></a><span class="lineno">   63</span>&#160;    <span class="comment">//Populates histograms for each hybrid</span></div>
-<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; nhits; i++)</div>
+<div class="line"><a name="l00064"></a><span class="lineno">   64</span>&#160;    <span class="keywordflow">for</span> (<span class="keywordtype">int</span> i = 0; i &lt; <a class="code" href="namespacefee__smearing__nhits__2016.html#a8ac148d44f5dde871ffd066c3a493cb2">nhits</a>; i++)</div>
 <div class="line"><a name="l00065"></a><span class="lineno">   65</span>&#160;    {</div>
 <div class="line"><a name="l00066"></a><span class="lineno">   66</span>&#160;        <a class="code" href="classRawSvtHit.html">RawSvtHit</a>* rawSvtHit = rawSvtHits_-&gt;at(i);</div>
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;        <span class="keyword">auto</span> mod = std::to_string(rawSvtHit-&gt;<a class="code" href="classRawSvtHit.html#aefd72f7f5df118b603e0f3020f537a5a">getModule</a>());</div>
@@ -179,6 +179,7 @@ $(function() {
 <div class="ttc" id="aclassSvt2DBlHistos_html_aaad2b6312c47f2bcd656d7c11716c9f9"><div class="ttname"><a href="classSvt2DBlHistos.html#aaad2b6312c47f2bcd656d7c11716c9f9">Svt2DBlHistos::Svt2DBlHistos</a></div><div class="ttdeci">Svt2DBlHistos(const std::string &amp;inputName, ModuleMapper *mmapper_)</div><div class="ttdoc">Constructor.</div><div class="ttdef"><b>Definition:</b> <a href="Svt2DBlHistos_8cxx_source.html#l00005">Svt2DBlHistos.cxx:5</a></div></div>
 <div class="ttc" id="aclassSvt2DBlHistos_html_adaae2bd68fd9d9ec2da5dafec3278e96"><div class="ttname"><a href="classSvt2DBlHistos.html#adaae2bd68fd9d9ec2da5dafec3278e96">Svt2DBlHistos::Event_number</a></div><div class="ttdeci">int Event_number</div><div class="ttdoc">description</div><div class="ttdef"><b>Definition:</b> <a href="Svt2DBlHistos_8h_source.html#l00051">Svt2DBlHistos.h:51</a></div></div>
 <div class="ttc" id="aclassSvt2DBlHistos_html_ae08c8c0a30c96131bc7d0cf9612877b9"><div class="ttname"><a href="classSvt2DBlHistos.html#ae08c8c0a30c96131bc7d0cf9612877b9">Svt2DBlHistos::mmapper_</a></div><div class="ttdeci">ModuleMapper * mmapper_</div><div class="ttdoc">description</div><div class="ttdef"><b>Definition:</b> <a href="Svt2DBlHistos_8h_source.html#l00056">Svt2DBlHistos.h:56</a></div></div>
+<div class="ttc" id="anamespacefee__smearing__nhits__2016_html_a8ac148d44f5dde871ffd066c3a493cb2"><div class="ttname"><a href="namespacefee__smearing__nhits__2016.html#a8ac148d44f5dde871ffd066c3a493cb2">fee_smearing_nhits_2016.nhits</a></div><div class="ttdeci">nhits</div><div class="ttdef"><b>Definition:</b> <a href="fee__smearing__nhits__2016_8py_source.html#l00143">fee_smearing_nhits_2016.py:143</a></div></div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
