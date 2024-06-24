@@ -95,14 +95,14 @@ $(function() {
 <div class="line"><a name="l00023"></a><span class="lineno">   23</span>&#160;    <span class="comment">#iterate over randomly fluctuated fit parameters. Keep the best resulting fit</span></div>
 <div class="line"><a name="l00024"></a><span class="lineno">   24</span>&#160;    niters = 100</div>
 <div class="line"><a name="l00025"></a><span class="lineno">   25</span>&#160;    <span class="keywordflow">for</span> n <span class="keywordflow">in</span> range(niters):</div>
-<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        norm = params[0]*np.random.uniform(80,120)*0.01</div>
-<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        mu = params[1]*np.random.uniform(80,120)*0.01</div>
-<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        sigma = params[2]*np.random.uniform(80,120)*0.01</div>
+<div class="line"><a name="l00026"></a><span class="lineno">   26</span>&#160;        norm = params[0]<span class="comment">#*np.random.uniform(80,120)*0.01</span></div>
+<div class="line"><a name="l00027"></a><span class="lineno">   27</span>&#160;        mu = params[1]<span class="comment">#*np.random.uniform(80,120)*0.01</span></div>
+<div class="line"><a name="l00028"></a><span class="lineno">   28</span>&#160;        sigma = params[2]<span class="comment">#*np.random.uniform(80,120)*0.01</span></div>
 <div class="line"><a name="l00029"></a><span class="lineno">   29</span>&#160;        </div>
 <div class="line"><a name="l00030"></a><span class="lineno">   30</span>&#160;        <span class="comment">#Data has shoulders, so we can specify the xmin and xmax to do an asymmetric fit window</span></div>
-<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;        <span class="keywordflow">if</span> isData:</div>
-<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;            xminx = mu - nsigma*sigma</div>
-<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;            xmaxx = mu + nsigma*sigma</div>
+<div class="line"><a name="l00031"></a><span class="lineno">   31</span>&#160;        xminx = mu - nsigma*sigma</div>
+<div class="line"><a name="l00032"></a><span class="lineno">   32</span>&#160;        xmaxx = mu + nsigma*sigma</div>
+<div class="line"><a name="l00033"></a><span class="lineno">   33</span>&#160;        <span class="keywordflow">if</span> isData:</div>
 <div class="line"><a name="l00034"></a><span class="lineno">   34</span>&#160;            <span class="keywordflow">if</span> xminx &lt; xmin:</div>
 <div class="line"><a name="l00035"></a><span class="lineno">   35</span>&#160;                xminx = xmin</div>
 <div class="line"><a name="l00036"></a><span class="lineno">   36</span>&#160;            <span class="keywordflow">if</span> xmaxx &gt; xmax:</div>
